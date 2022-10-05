@@ -266,6 +266,7 @@ void rotate90(direction direction) {
     setMotors(OFF, 0);
 }
 
+// TODO: fix
 void moveForwardOneSquare()
 {
     long leftInitial = leftEncoder.read();
@@ -279,7 +280,7 @@ void moveForwardOneSquare()
     while (deltaLeft < squareDistance && deltaRight < squareDistance)
     {
         // Call motors
-        setMotors(FORWARD, power);
+        setMotors(FORWARD, power); //TODO: Don't call FORWARD if it isn't already aligned correctly
 
         // Update change in distance
         deltaLeft = abs(leftEncoder.read() - leftInitial);
@@ -289,6 +290,7 @@ void moveForwardOneSquare()
     setMotors(OFF, 0);
 }
 
+// TODO: Fix
 // "rounds" the current robot position to be perpendicular with the wall, by doing a point turn
 // Doesn't do anything if we're within tolerance
 // NOTE: this is a blocking function. It will not return until the robot is parallel with the walls!
@@ -722,6 +724,9 @@ void loop(void) {
     // delay(100);
 
     // alignWithWall();
+
+    // TODO: Move forward 1 square
+    moveForwardOneSquare();
 
     delay(100000000);
 }
