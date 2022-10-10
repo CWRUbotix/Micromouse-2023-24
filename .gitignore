@@ -34,3 +34,7 @@
 # Emacs autosave
 \#*
 *~
+
+# Kicad Backups
+*.zip
+
