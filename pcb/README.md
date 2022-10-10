@@ -17,6 +17,7 @@
       - whiteboard for labeling (nice to have)
       - gyro : type of sensor 
 
-- find gyro - probably i squared c 
-- create Teensy on kicad
-- find / reverse engineering motor controllers (DRV8871) schematics
+- to do:
+      - find gyro - probably i squared c 
+      - create Teensy on kicad
+      - find / reverse engineering motor controllers (DRV8871) schematics
