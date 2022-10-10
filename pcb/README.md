@@ -15,4 +15,4 @@
       - dip switches to go into debugging mode (nice to have)
       - leds for general debugging (nice to have)
       - whiteboard for labeling (nice to have)
-      -gyro : type of sensor 
+      - gyro : type of sensor 
