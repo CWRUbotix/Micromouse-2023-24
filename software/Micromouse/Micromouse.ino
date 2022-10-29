@@ -46,7 +46,6 @@ enum direction {LEFT, RIGHT, FORWARD, BACKWARD, OFF};
 enum cardinal {NORTH, EAST, SOUTH, WEST};
 
 /* ---- User Variables ---- */
-
 VL6180x sensor(VL6180X_ADDRESS);
 
 Encoder rightEncoder(ENCODER_RIGHT_1, ENCODER_RIGHT_2);
@@ -117,6 +116,7 @@ struct RobotStruct *robot = &theRobot;
 
 /* ---- User Functions ---- */
 
+// TODO: Adjust for what sensor is being used
 // Function to select a channel on the I2C MUX
 void select_sensor(uint8_t i) {
     if (i > 7) {
@@ -200,7 +200,7 @@ void spinTo(cardinal direction) {
 	robot->facing = direction;
 }
 
-
+// method that tells the robot to move or stop
 void setMotors(direction direction, int power) {
 	if (direction == RIGHT) {
 		analogWrite(MOTOR_RIGHT_IN1, power);
@@ -230,119 +230,30 @@ void setMotors(direction direction, int power) {
 	}
 }
 
+// TODO
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(direction direction) {
-    long leftPosition = leftEncoder.read();
-    long rightPosition = rightEncoder.read();
-    long deltaLeft = 0;
-    long deltaRight = 0;
-    const long target = 85; // This just happens to be 90, not 90º
-    uint8_t power = 60;
-
-    setMotors(direction, power);
-    while (deltaLeft < target || deltaRight < target) {
-        // power = max(100 * (target - deltaLeft) / target, 40);
-        if (deltaLeft >= target) {
-            analogWrite(MOTOR_LEFT_IN1, 0);
-            analogWrite(MOTOR_LEFT_IN2, 0);
-            Serial.println("LEFT OFF");
-        }
-        if (deltaRight >= target) {
-            analogWrite(MOTOR_RIGHT_IN1, 0);
-            analogWrite(MOTOR_RIGHT_IN2, 0);
-            Serial.println("RIGHT OFF");
-        }
-        // call motors
-        deltaLeft = abs(leftEncoder.read() - leftPosition);
-        deltaRight = abs(rightEncoder.read() - rightPosition);
-        Serial.print("L, R: ");
-        Serial.print(deltaLeft);
-        Serial.print(" ");
-        Serial.print(deltaRight);
-        Serial.print(" ");
-        Serial.println(rightEncoder.read());
-    }
-    setMotors(OFF, 0);
+    
 }
 
+// TODO
+// Moves the robot forward 1 square in the direction the robot is currently facing
 void moveForwardOneSquare()
 {
-    long leftInitial = leftEncoder.read();
-    long rightInitial = rightEncoder.read();
-    //TODO: adjust this according to the distance the robot has to travel
-    long squareDistance = 300;
-    long deltaLeft = 0;
-    long deltaRight = 0;
-    uint8_t power = 60;
 
-    while (deltaLeft < squareDistance && deltaRight < squareDistance)
-    {
-        // Call motors
-        setMotors(FORWARD, power);
-
-        // Update change in distance
-        deltaLeft = abs(leftEncoder.read() - leftInitial);
-        deltaRight = abs(rightEncoder.read() - rightInitial);
-    }
-    // Turn motors off
-    setMotors(OFF, 0);
 }
 
+// TODO
 // "rounds" the current robot position to be perpendicular with the wall, by doing a point turn
 // Doesn't do anything if we're within tolerance
 // NOTE: this is a blocking function. It will not return until the robot is parallel with the walls!
 void alignWithWall() {
 
-    int sensorRightA, sensorRightB, sensorLeftA, sensorLeftB;
-    int difference;
-    const int gain = 3;
-    const int deadband = 10;
-
-    do {
-
-        // Check right
-        sensorRightA = read_sensor(0); // right back
-        sensorRightB = read_sensor(1); // right front
-
-        // Check Left
-        sensorLeftA = read_sensor(2); // left back
-        sensorLeftB = read_sensor(3); // left front
-
-        difference = sensorLeftB - sensorLeftA; // sensorRightB - sensorRightA +
-
-        // Right only, if left fails
-
-        if (sensorLeftA == 255 || sensorLeftB == 255) {
-            difference = sensorRightB - sensorRightA;
-        }else if (sensorRightA == 255 || sensorRightB == 255) {
-            // positive difference means we should turn right
-            // So left front is smaller
-            difference = sensorLeftB - sensorLeftA;
-        }else {
-            // difference = sensorLeftB - sensorLeftA;
-            difference = ((sensorRightB - sensorRightA) + (sensorLeftB - sensorLeftA)) / 2;
-        }
-
-        // Serial.print("Left A (back): ");
-        // Serial.print(sensorLeftA);
-        // Serial.print("; Left B (front): ");
-        // Serial.print(sensorLeftB);
-        // Serial.print("; Diff: ");
-        // Serial.println(difference);
-
-        // Deadband stuff
-        if (difference > deadband) {
-            setMotors(LEFT, difference * gain);
-            // Serial.println("TURN");
-        } else if (difference < -deadband) {
-            setMotors(RIGHT, abs(difference) * gain);
-        }else {
-            setMotors(OFF, 0);
-            return;
-        }
-    } while (1);
 }
+
+/** A* algorithm **/
+// TODO: Maybe rewrite???
 
 //Heuristic function
 int h(int x, int y) {
@@ -606,6 +517,7 @@ void moveToGoal() {
     backPathLength = 0;
 }
 
+// TODO: Every subgroup must set up the sensors they need to use in here
 /* ---- SETUP ---- */
 void setup(void) {
     // Read DIP values
@@ -655,6 +567,15 @@ void setup(void) {
 
 /* ---- MAIN ---- */
 void loop(void) {
+    // program to test moving forward on:
+    moveForwardOneSquare();
+    delay(100);
+    moveForwardOneSquare();
+    moveForwardOneSquare();
+    delay(999999999);
+
+    // Ignore everything behind here for now
+
     //Then we've solved the maze
     /*if (pathLength > 0) {
         delay(10);
@@ -722,6 +643,4 @@ void loop(void) {
     // delay(100);
 
     // alignWithWall();
-
-    delay(100000000);
 }
