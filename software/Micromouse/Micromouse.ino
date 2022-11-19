@@ -241,7 +241,7 @@ void rotate90(direction direction) {
 // Moves the robot forward 1 square in the direction the robot is currently facing
 void moveForwardOneSquare()
 {
-
+  setMotors(FORWARD, 100);
 }
 
 // TODO
@@ -348,30 +348,30 @@ void updateMaze() {
     // Scan the maze
 
     // Check right
-    sensorRightA = read_sensor(0); // right back
+    uint8_t sensorRightA = read_sensor(0); // right back
     // sensorRightB = read_sensor(1); // right front
 
     // Check Left
-    sensorLeftA = read_sensor(2); // left back
+    uint8_t sensorLeftA = read_sensor(2); // left back
     // sensorLeftB = read_sensor(3); // left front
 
     // Then there's no wall on our right
-    if (robot.facing == NORTH) {
+    if (robot->facing == NORTH) {
         // Update the wall to our right, that is, East of us.
         maze[current->y][current->x + 1][1] += sensorRightA < 255 ? 1 : -1;
         // Left is west
         maze[current->y][current->x][1] += sensorLeftA < 255 ? 1 : -1;
-    }else if (robot.facing == EAST) {
+    }else if (robot->facing == EAST) {
         // Right is south
         maze[current->y + 1][current->x][0] += sensorRightA < 255 ? 1 : -1;
         // Left is north
         maze[current->y][current->x][0] += sensorLeftA < 255 ? 1 : -1;
-    }else if (robot.facing == SOUTH) {
+    }else if (robot->facing == SOUTH) {
         // Right is west
         maze[current->y][current->x][1] += sensorRightA < 255 ? 1 : -1;
         // Left is east
         maze[current->y][current->x + 1][1] += sensorLeftA < 255 ? 1 : -1;
-    }else if (robot.facing == WEST) {
+    }else if (robot->facing == WEST) {
         // Right is north
         maze[current->y][current->x][0] += sensorRightA < 255 ? 1 : -1;
         // Left is south
