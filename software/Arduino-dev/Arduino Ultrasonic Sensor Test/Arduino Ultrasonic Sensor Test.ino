@@ -11,13 +11,13 @@ const int echoPin2 = 3;
 const int trigPin2 = 5;
 
 //Store time at which last pulse was emitted
-long lastPulse = 0;
-//Store pulse start time for each sensor
-volatile long time[] = {0, 0};
+volatile long lastPulse = 0;
 //Store distance calculation for each sensor
 volatile double distance[] = {0, 0};
 //Store which sensor to pulse
 int sensorNum = 0;
+//Store whether the sensor is done reading data
+volatile bool sensorDoneReading = true;
 
 void setup() {
   //Sets output pins
@@ -34,22 +34,25 @@ void setup() {
 }
 
 void loop() {
-  if(micros() - lastPulse >= 10000) {
+  if(sensorDoneReading) {
     //Send out a pulse to all ultrasonic sensors
     pulse(sensorNum);
     //Record the time at which the pulse was sent
     lastPulse = micros();
+    //Set the sensor to reading data
+    sensorDoneReading = false;
     //Print distance from first ultrasonic sensor
     Serial.print("Distance ");
     Serial.print(sensorNum + 1);
     Serial.print(": ");
     Serial.print(distance[sensorNum]);
     Serial.println(" cm");
+    //Change sensor to read
     sensorNum = (sensorNum + 1) % 2;
   }
 }
 
-double pulseAll() {
+void pulseAll() {
   //Set the trigPin to high (active) for 10 microseconds
   digitalWrite(trigPin1, HIGH);
   digitalWrite(trigPin2, HIGH);
@@ -59,7 +62,7 @@ double pulseAll() {
   digitalWrite(trigPin2, LOW);
 }
 
-double pulse(int sensorNum) {
+void pulse(int sensorNum) {
   //Set the trigPin to high (active) for 10 microseconds
   digitalWrite(trigPin1 + sensorNum, HIGH);
   delayMicroseconds(10);
@@ -70,11 +73,12 @@ double pulse(int sensorNum) {
 void readPulse(int sensorNum) {
   //Start timing at pulse start
   if(digitalRead(echoPin1 + sensorNum) == HIGH) {
-    time[sensorNum] = micros();
+    lastPulse = micros();
   }
   //Calculate the distance traveled from the travel time at pulse end
   else {
-    distance[sensorNum] = (micros() - time[sensorNum]) * 0.034 / 2;
+    distance[sensorNum] = (micros() - lastPulse) * 0.034 / 2;
+    sensorDoneReading = true;
   }
 }
 
