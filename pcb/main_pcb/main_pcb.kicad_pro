@@ -414,6 +414,14 @@
     [
       "d4176d19-b3cf-4301-8fd2-41e0d48850d6",
       ""
+    ],
+    [
+      "4e618dfb-828b-44a9-b1f3-249375cca950",
+      "microcontroller"
+    ],
+    [
+      "922e5fdd-f699-4ece-8b2c-9b27e43cb136",
+      "Power Supply"
     ]
   ],
   "text_variables": {}
