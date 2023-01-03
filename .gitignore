@@ -39,5 +39,6 @@
 *.zip
 *-bak
 
-
+# Mac OS
+.DS_Store
 
