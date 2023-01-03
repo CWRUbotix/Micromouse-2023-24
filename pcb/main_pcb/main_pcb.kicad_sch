@@ -296,7 +296,7 @@
       (reference "#PWR0102") (unit 1) (value "GND") (footprint "")
     )
     (path "/4e618dfb-828b-44a9-b1f3-249375cca950/7ac5b68b-44dc-4053-b6ba-187841c73237"
-      (reference "#PWR?") (unit 1) (value "GND") (footprint "")
+      (reference "#PWR0103") (unit 1) (value "GND") (footprint "")
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/07b2cc93-c597-4042-8614-280d7ce80b15"
       (reference "C1") (unit 1) (value "330uF") (footprint "Capacitor_SMD:CP_Elec_10x10.5")
@@ -331,6 +331,9 @@
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/97551122-c26e-4887-ae50-d7eb14fdfed2"
       (reference "C11") (unit 1) (value "0.1uF") (footprint "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder")
     )
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/00a9310b-e265-4c81-99bf-2545d6c777e9"
+      (reference "C12") (unit 1) (value "100uF") (footprint "Capacitor_SMD:CP_Elec_8x10.5")
+    )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/b1e52314-f1a0-45b9-bab5-c31ab6084674"
       (reference "C13") (unit 1) (value "100uF") (footprint "Capacitor_SMD:CP_Elec_8x10.5")
     )
@@ -339,9 +342,6 @@
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/ecaccadc-f0da-4ec8-962f-54b1de67b4d3"
       (reference "C15") (unit 1) (value "22uF") (footprint "Capacitor_SMD:CP_Elec_8x10.5")
-    )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/00a9310b-e265-4c81-99bf-2545d6c777e9"
-      (reference "C?") (unit 1) (value "100uF") (footprint "Capacitor_SMD:CP_Elec_8x10.5")
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/8adbfad7-c539-4dcc-a868-b23b7d405a0a"
       (reference "D1") (unit 1) (value "LED") (footprint "LED_THT:LED_D5.0mm")

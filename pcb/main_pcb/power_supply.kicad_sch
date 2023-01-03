@@ -1161,6 +1161,10 @@
           (name "SCR0" (effects (font (size 1.27 1.27))))
           (number "20" (effects (font (size 1.27 1.27))))
         )
+        (pin power_in line (at 10.16 -16.51 180) (length 2.54) hide
+          (name "PAD" (effects (font (size 1.27 1.27))))
+          (number "21" (effects (font (size 1.27 1.27))))
+        )
         (pin input line (at -10.16 12.7 0) (length 2.54)
           (name "Cboot1" (effects (font (size 1.27 1.27))))
           (number "3" (effects (font (size 1.27 1.27))))
@@ -1192,7 +1196,6 @@
       )
     )
   )
-
 
   (junction (at 86.36 166.37) (diameter 0) (color 0 0 0 0)
     (uuid 089d55d8-1ce6-4993-85eb-3e4625f70ffb)
@@ -2081,6 +2084,7 @@
     (pin "19" (uuid b15e3c20-b13a-490e-9696-c7c6e01516a2))
     (pin "2" (uuid c3fa105a-74a6-4b61-9c7b-f5022c1d17e6))
     (pin "20" (uuid dc8d60df-6b48-4a3b-a617-d40621d4df1e))
+    (pin "21" (uuid 1cd09715-cdfa-4e4c-a574-69f7ea781c26))
     (pin "3" (uuid 4c427270-1a8a-4b92-86cf-3f9cfc91727a))
     (pin "4" (uuid c62a49aa-e7c4-4668-ab7f-3200637a9e6a))
     (pin "5" (uuid dc8b8de8-17fa-476c-91ba-282dcf97ac6c))

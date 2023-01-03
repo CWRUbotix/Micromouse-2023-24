@@ -37,4 +37,7 @@
 
 # Kicad Backups
 *.zip
+*-bak
+
+
 
