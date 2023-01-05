@@ -2436,7 +2436,7 @@
     (uuid 73e678fc-3b4b-4493-979d-b3188c932f86)
     (property "Reference" "D3" (id 0) (at 86.36 135.89 0))
     (property "Value" "D" (id 1) (at 86.36 138.43 0))
-    (property "Footprint" "Diode_SMD:D_SOD-110" (id 2) (at 86.36 142.24 0)
+    (property "Footprint" "Diode_SMD:D_0805_2012Metric" (id 2) (at 86.36 142.24 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 86.36 142.24 0)
