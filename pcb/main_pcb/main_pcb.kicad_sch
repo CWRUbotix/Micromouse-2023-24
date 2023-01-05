@@ -3839,7 +3839,7 @@
       (reference "U4") (unit 1) (value "LM1117-3.3") (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2")
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/1948e65f-285d-4487-a10c-cb99f510517b"
-      (reference "U5") (unit 1) (value "TPIC74101") (footprint "Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.4x6.5mm_ThermalVias")
+      (reference "U5") (unit 1) (value "TPIC74101") (footprint "custom_footprints:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.4x6.5mm_ThermalVias")
     )
   )
 )
