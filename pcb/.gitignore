@@ -31,3 +31,7 @@ fp-info-cache
 
 # Kicad backups & gerbers
 *.zip
+
+gerb
+
+
