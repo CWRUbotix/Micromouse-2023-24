@@ -27,11 +27,11 @@ void loop() {
   analogWrite(PIN_M1B, 0);
   analogWrite(PIN_M2A, 0);
   analogWrite(PIN_M2B, 255);
-  delay(1);
+  delay(1000);
   analogWrite(PIN_M1A, 0);
   analogWrite(PIN_M1B, 0);
   analogWrite(PIN_M2A, 0);
   analogWrite(PIN_M2B, 0);
-  delay(1);
+  delay(1000);
 
 }
