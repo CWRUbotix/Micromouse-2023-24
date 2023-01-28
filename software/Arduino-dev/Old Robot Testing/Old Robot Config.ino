@@ -1,42 +1,127 @@
+//Notes:
+//---360 Degrees in one revolution for Encoders (Old Robot)
+
 #include <Wire.h>
+#include <Encoder.h>
 
-#include <VL6180X_WE.h>
+#include "Adafruit_VL6180X.h"
 
-/*const float GAIN_1    = 1.01;  // Actual ALS Gain of 1.01
-const float GAIN_1_25 = 1.28;  // Actual ALS Gain of 1.28
-const float GAIN_1_67 = 1.72;  // Actual ALS Gain of 1.72
-const float GAIN_2_5  = 2.6;   // Actual ALS Gain of 2.60
-const float GAIN_5    = 5.21;  // Actual ALS Gain of 5.21
-const float GAIN_10   = 10.32; // Actual ALS Gain of 10.32
-const float GAIN_20   = 20;    // Actual ALS Gain of 20
-const float GAIN_40   = 40;    // Actual ALS Gain of 40
-*/
-#define VL6180X_ADDRESS 0x29
+#define ENCODER_RIGHT_1 40
+#define ENCODER_RIGHT_2 41
+#define ENCODER_LEFT_1 22
+#define ENCODER_LEFT_2 23
 
-VL6180xIdentification identification;
-VL6180x sensor(VL6180X_ADDRESS);
+Adafruit_VL6180X vl = Adafruit_VL6180X();
+
+Encoder rightEncoder(ENCODER_RIGHT_1, ENCODER_RIGHT_2);
+Encoder leftEncoder(ENCODER_LEFT_1, ENCODER_LEFT_2);
+
+uint8_t i = 0;
 
 void setup() {
+  Serial.begin(115200);
 
-  Serial.begin(9600); //Start Serial at 9600bps
-  Wire.begin(); //Start I2C library
-  delay(100); // delay .1s
-
-  sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
-  printIdentification(&identification); // Helper function to print all the Module information
-
-    if(sensor.VL6180xInit() != 0){
-    Serial.println("FAILED TO INITALIZE"); //Initialize device and check for errors
-  }; 
-
-  sensor.VL6180xDefautSettings(); //Load default settings to get started.
+  // wait for serial port to open on native usb devices
+  while (!Serial) {
+    delay(1);
+  }
   
-    delay(1000); // delay 1s
+  Wire.begin();
+  // Wire.beginTransmission(0x70);
+  // Wire.write(1);
+  // Wire.endTransmission();
 
+  // selectSensor(1);
 
+  // Serial.println("Adafruit VL6180x test!");
+  // if (! vl.begin()) {
+  //   Serial.println("Failed to find sensor");
+  //   while (1);
+  // }
+
+  // selectSensor(0);
+
+  // Serial.println("Adafruit VL6180x test!");
+  // if (! vl.begin()) {
+  //   Serial.println("Failed to find sensor");
+  //   while (1);
+  // }
+
+  for(int k = 0; k < 8; k++)
+  {
+    selectSensor(k);
+
+    Serial.println("Adafruit VL6180x test!");
+    if (! vl.begin()) {
+      Serial.println("Failed to find sensor");
+      while (1);
+    }
+  }
+
+  Serial.println("Sensor found!");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // float lux = vl.readLux(VL6180X_ALS_GAIN_5);
+
+
+  
+  // Serial.print("Left: "); Serial.println(leftEncoder.read());
+  // Serial.print("Right: "); Serial.println(rightEncoder.read());
+
+  // uint8_t range = vl.readRange();
+  // uint8_t status = vl.readRangeStatus();
+
+  // if (status == VL6180X_ERROR_NONE) {
+  //   Serial.print("Range: "); Serial.println(range);
+  // }
+
+
+  selectSensor(i % 8);
+  Serial.print("Lidar " + (i % 8)); Serial.println(vl.readRange());
+
+
+  // selectSensor(1);
+  // Serial.print("Lidar 2: "); Serial.println(vl.readRange());
+  // Some error occurred, print it out!
+  
+  // if  ((status >= VL6180X_ERROR_SYSERR_1) && (status <= VL6180X_ERROR_SYSERR_5)) {
+  //   Serial.println("System error");
+  // }
+  // else if (status == VL6180X_ERROR_ECEFAIL) {
+  //   Serial.println("ECE failure");
+  // }
+  // else if (status == VL6180X_ERROR_NOCONVERGE) {
+  //   Serial.println("No convergence");
+  // }
+  // else if (status == VL6180X_ERROR_RANGEIGNORE) {
+  //   Serial.println("Ignoring range");
+  // }
+  // else if (status == VL6180X_ERROR_SNR) {
+  //   Serial.println("Signal/Noise error");
+  // }
+  // else if (status == VL6180X_ERROR_RAWUFLOW) {
+  //   Serial.println("Raw reading underflow");
+  // }
+  // else if (status == VL6180X_ERROR_RAWOFLOW) {
+  //   Serial.println("Raw reading overflow");
+  // }
+  // else if (status == VL6180X_ERROR_RANGEUFLOW) {
+  //   Serial.println("Range reading underflow");
+  // }
+  // else if (status == VL6180X_ERROR_RANGEOFLOW) {
+  //   Serial.println("Range reading overflow");
+  // }
+  delay(500);
+}
+
+void selectSensor(uint8_t i){
+
+  if(i < 7)
+    return;
+
+    Wire.beginTransmission(0x70);
+    Wire.write(1 << i);
+    Wire.endTransmission();
 
 }
