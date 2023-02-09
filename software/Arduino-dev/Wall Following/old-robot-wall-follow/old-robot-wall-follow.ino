@@ -42,15 +42,26 @@ void updateSensors () {
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
 
-enum motor {
-    LEFT_MOTOR,
-    RIGHT_MOTOR
-};
+void selectSensor(uint8_t i){
+  if(i > 7)
+    return;
 
-void setMotor (motor m, int8_t power) {
+  Wire.beginTransmission(0x70);
+  Wire.write(1 << i);
+  Wire.endTransmission();
+}
+
+
+//typedef enum motor enum_motor;
+// enum Motor {LEFT_MOTOR, RIGHT_MOTOR};
+int LEFT_MOTOR = 0;
+int RIGHT_MOTOR = 1;
+
+void setMotor (int m, int8_t power) {
     if (m == LEFT_MOTOR) {
         // TODO: confirm that forward and backwards are right
         // TODO: confirm that I don't have an off-by-one, and that 0 power = 0 written to both
+        // TODO: double check that 0, 0 is break (and not free spin) for motors
         // // max forward
         // analogWrite(MOTORLEFT_1, 0);
         // analogWrite(MOTORLEFT_2, 255);
@@ -58,12 +69,28 @@ void setMotor (motor m, int8_t power) {
         // // max backward
         // analogWrite(MOTORLEFT_1, 0);
         // analogWrite(MOTORLEFT_2, 255);
-
-        analogWrite(MOTORLEFT_1, power + 127);
-        analogWrite(MOTORLEFT_2, 255 - (power + 127));
+      
+        if (power == 0) {
+          analogWrite(MOTORLEFT_1, 255);
+          analogWrite(MOTORLEFT_2, 255);
+        }else if (power > 0) {
+          analogWrite(MOTORLEFT_1, 255);
+          analogWrite(MOTORLEFT_2, 255 - power * 2);
+        }else if (power < 0) {
+          analogWrite(MOTORLEFT_1, 255 - power * 2);
+          analogWrite(MOTORRIGHT_2, 255);
+        }
     }else if (m == RIGHT_MOTOR) {
-        analogWrite(MOTORRIGHT_1, power + 127);
-        analogWrite(MOTORRIGHT_2, 255 - (power + 127));
+        if (power == 0) {
+          analogWrite(MOTORRIGHT_1, 255);
+          analogWrite(MOTORRIGHT_2, 255);
+        }else if (power > 0) {
+          analogWrite(MOTORRIGHT_1, 255);
+          analogWrite(MOTORRIGHT_2, 255 - power * 2);
+        }else if (power < 0) {
+          analogWrite(MOTORRIGHT_1, 255 - power * 2);
+          analogWrite(MOTORRIGHT_2, 255);
+        }
     }
 }
 
@@ -99,8 +126,8 @@ void moveOneForward () {
             // Update current distance
             // rev / 360 is num revolutions
             // num revolutions * pi * diameter (Zach says 60mm)
-            leftRevs = leftEncoder.read();
-            rightRevs = rightEncoder.read();
+            int leftRevs = leftEncoder.read();
+            int rightRevs = rightEncoder.read();
             currentDistance = (leftRevs + rightRevs) / 2 / 360 * PI * 60;
         }
 
@@ -109,19 +136,17 @@ void moveOneForward () {
             // TODO:
 
         // update PID
-        anglePID.calculate();
-        positionPID.calculate();
+        anglePID.Compute(); // updates angularVelocity
+        positionPID.Compute(); // updates velocity
 
         // update motor values
-        // take pid output, divide by two, - one, etc
-        // angularVelocity =
-        // angularVelocityLeft =
-        // angularVelocityRight =
+        int angularVelocityLeft = -angularVelocity / 2;
+        int angularVelocityRight = angularVelocity / 2;
 
-        // angularVelocityLeft += velocity
-        // angularVelocityRight += velocity
-        // setMotor(LEFT, angularVelocityLeft)
-        // setMotor(RIGHT, angularVelocityRight)
+        angularVelocityLeft += velocity;
+        angularVelocityRight += velocity;
+        setMotor(LEFT_MOTOR, angularVelocityLeft);
+        setMotor(RIGHT_MOTOR, angularVelocityRight);
     }
 }
 
@@ -158,13 +183,17 @@ void setup () {
     pinMode(MOTORRIGHT_1, OUTPUT);
     pinMode(MOTORRIGHT_2, OUTPUT);
 
-    setMotor(RIGHT, 0);
-    setMotor(LEFT, 0);
+    setMotor(RIGHT_MOTOR, 0);
+    setMotor(LEFT_MOTOR, 0);
 
     // Get initial values for sensors
     updateSensors();
 
-    moveOneForward();
+    setMotor(LEFT_MOTOR, 255);
+
+    //Serial.print();
+
+    //moveOneForward();
 }
 
 void loop () {
