@@ -22,6 +22,9 @@
 // The physical distance between the sensors
 #define LIDAR_SEPERATION 74 // 74 mm between sensors
 
+// Squares are 10in by 10in, but we work in mm. 10in = 254mm
+#define SQUARE_SIZE 254
+
 // Create encoders and sensors
 Adafruit_VL6180X lidar = Adafruit_VL6180X();
 
@@ -84,7 +87,7 @@ void setMotor (int m, int8_t power) {
         // TODO: double check that 0, 0 is break (and not free spin) for motors
 
         // These values can be tuned
-        if (power < 5 && power > -5) {
+        if (power < 12 && power > -12) {
           Serial.printf("Power %d; Writing LEFT motor 1 and 2 to 255\n", power);
           analogWrite(MOTORLEFT_1, 255);
           analogWrite(MOTORLEFT_2, 255);
@@ -98,7 +101,7 @@ void setMotor (int m, int8_t power) {
           analogWrite(MOTORRIGHT_2, 255);
         }
     }else if (m == RIGHT_MOTOR) {
-        if (power < 5 && power > -5) {
+        if (power < 12 && power > -12) {
           Serial.printf("Power %d; Writing RIGHT motor 1 and 2 to 255\n", power);
           analogWrite(MOTORRIGHT_1, 255);
           analogWrite(MOTORRIGHT_2, 255);
@@ -118,11 +121,29 @@ void setMotor (int m, int8_t power) {
 void moveOneForward () {
     // Create a PID controller for angle
     double goalAngle, currentAngle, angularVelocity;
-    PID anglePID(&goalAngle, &currentAngle, &angularVelocity, 2, 0, 1, DIRECT);
+    goalAngle = 0;
+    // When the angle is 0.1, we need to bump left power by like 5, so diff of 2
+    // (When reading with just the right sensors, like right now, a positive angle means that we're turned left)
+    PID anglePID(&currentAngle, &angularVelocity, &goalAngle, 20.0, 0, 0, DIRECT);
+    anglePID.SetOutputLimits(-127, 127);
+    anglePID.SetMode(AUTOMATIC);
+
+
+    int leftRevs = leftEncoder.read();
+    int rightRevs = rightEncoder.read();
+    double oldDistance = (leftRevs + rightRevs) / 2.0 / 360.0 * PI * 60.0;
+
     // Create a PID controller for speed
     // (currentDistance is the distance inside the current square. It resets to 0 at the end of )
     double goalDistance, currentDistance, velocity;
-    PID positionPID(&goalDistance, &currentDistance, &velocity, 2, 5, 1, DIRECT);
+    goalDistance = oldDistance + SQUARE_SIZE; // I hope this is mm
+    // Okay so with I and D as zero, with a distance of 254 (one square), we want a speed of around 25.4, so P should be around 0.1
+    // The itegral part compensates for steady state errors. Do we have any steady state errors?
+    // The derivative term minimizes overshoot.
+    PID positionPID(&currentDistance, &velocity, &goalDistance, 0.1, 0, 0, DIRECT);
+    // The library outputs a value between 0 and 255, by default
+    positionPID.SetOutputLimits(-127, 127);
+    positionPID.SetMode(AUTOMATIC);
 
     double back_right_avg = back_right;
     double front_right_avg = front_right;
@@ -148,7 +169,7 @@ void moveOneForward () {
             // num revolutions * pi * diameter (Zach says 60mm)
             int leftRevs = leftEncoder.read();
             int rightRevs = rightEncoder.read();
-            currentDistance = (leftRevs + rightRevs) / 2 / 360 * PI * 60;
+            currentDistance = (leftRevs + rightRevs) / 2.0 / 360.0 * PI * 60.0;
         }
 
         // check if currentDistance and currentAngle are within tolerance
@@ -159,14 +180,19 @@ void moveOneForward () {
         anglePID.Compute(); // updates angularVelocity
         positionPID.Compute(); // updates velocity
 
+        Serial.printf("Current angle: %f; goal angle: %f; angular velocity: %f\n", currentAngle, goalAngle, angularVelocity);
+        Serial.printf("Current distance: %f; goal distance: %f; velocity: %f\n", currentDistance, goalDistance, velocity);
+
         // update motor values
-        int angularVelocityLeft = -angularVelocity / 2;
-        int angularVelocityRight = angularVelocity / 2;
+        int angularVelocityLeft = -angularVelocity / 2.0;
+        int angularVelocityRight = angularVelocity / 2.0;
 
         angularVelocityLeft += velocity;
         angularVelocityRight += velocity;
         setMotor(LEFT_MOTOR, angularVelocityLeft);
         setMotor(RIGHT_MOTOR, angularVelocityRight);
+
+        delay(20);
     }
 }
 
@@ -215,40 +241,42 @@ void setup () {
     // Get initial values for sensors
     updateSensors();
 
-    Serial.println("Testing motors");
+    // Serial.println("Testing motors");
 
-    setMotor(LEFT_MOTOR, 20);
-    setMotor(RIGHT_MOTOR, 20);
+    // setMotor(LEFT_MOTOR, 20);
+    // setMotor(RIGHT_MOTOR, 20);
 
-    delay(1000);
+    // delay(1000);
 
-    setMotor(LEFT_MOTOR, 0);
-    setMotor(RIGHT_MOTOR, 0);
+    // setMotor(LEFT_MOTOR, 0);
+    // setMotor(RIGHT_MOTOR, 0);
 
-    delay(1000);
+    // delay(1000);
 
-    setMotor(LEFT_MOTOR, -20);
-    setMotor(RIGHT_MOTOR, -20);
+    // setMotor(LEFT_MOTOR, -20);
+    // setMotor(RIGHT_MOTOR, -20);
 
-    delay(1000);
+    // delay(1000);
 
-    setMotor(LEFT_MOTOR, 0);
-    setMotor(RIGHT_MOTOR, 0);
+    // setMotor(LEFT_MOTOR, 0);
+    // setMotor(RIGHT_MOTOR, 0);
 
-    delay(1000);
-    digitalWrite(13, LOW);
+    // delay(1000);
+    // digitalWrite(13, LOW);
 
-    // Print LiDAR readings
-    while (1 == 1) {
-      Serial.printf("Back right: %d; Front right: %d .\n", back_right, front_right);
-      updateSensors();
-      delay(500);
-    }
+    // // Print LiDAR readings
+    // while (1 == 1) {
+    //   Serial.printf("Back right: %d; Front right: %d .\n", back_right, front_right);
+    //   updateSensors();
+    //   delay(500);
+    // }
 
     // leftEncoder.read();
     // rightEncoder.read();
 
-    // moveOneForward();
+    moveOneForward();
+    moveOneForward();
+    moveOneForward();
 }
 
 void loop () {
