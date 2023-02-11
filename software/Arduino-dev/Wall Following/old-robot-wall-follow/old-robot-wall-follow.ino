@@ -14,8 +14,8 @@
 #define ENCODER_LEFT_1 22
 #define ENCODER_LEFT_2 23
 
-#define MOTORLEFT_1 2
-#define MOTORLEFT_2 3
+#define MOTORLEFT_1 3
+#define MOTORLEFT_2 2
 #define MOTORRIGHT_1 4
 #define MOTORRIGHT_2 5
 
@@ -151,31 +151,57 @@ void moveOneForward () {
 }
 
 void setup () {
+    pinMode(13, OUTPUT);
+    digitalWrite(13, HIGH);
+
+    // leftEncoder.read();
+    // rightEncoder.read();
+
+    // delay(1000);
+
+    // digitalWrite(13, LOW);
+
+    // digitalWrite(13, HIGH);
+    // setMotor(LEFT_MOTOR, 50);
+
+    // analogWrite(MOTORLEFT_1, 255);
+    // analogWrite(MOTORLEFT_2, 0);
+
+    // Serial.begin(115200);
+    // while (!Serial.available()) {
+    //     delay(1);
+    // }
+    // Serial.println("Serial ready!");
+
+    // delay(3000);
+    // setMotor(LEFT_MOTOR, 0);
+    // digitalWrite(13, LOW);
+
     // Wait for serial to become available
     // TODO: Will this stall forever if USB isn't plugged in?
-    Serial.begin(115200);
-    while (!Serial.available()) {
-        delay(1);
-    }
-    Serial.println("Serial ready!");
+    // Serial.begin(115200);
+    // while (!Serial.available()) {
+    //     delay(1);
+    // }
+    // Serial.println("Serial ready!");
 
     // Starts I2C on the default pins (18 (SDA), 19 (SCL))
     // (I think, I can't find docs on it)
-    Wire.begin();
-    Serial.println("I2C ready!");
+    // Wire.begin();
+    // Serial.println("I2C ready!");
 
     // Setup LiDARs (only 0 and 1, on the right side for now)
-    for (uint8_t k = 0; k < 2; k++) {
-        selectSensor(k);
+    // for (uint8_t k = 0; k < 2; k++) {
+    //     selectSensor(k);
 
-        Serial.println("Adafruit VL6180x test!");
-        if (!lidar.begin()) {
-            Serial.print("Failed to find sensor: ");
-            Serial.println(k);
-            while (1);
-        }
-    }
-    Serial.println("LiDAR sensors ready!");
+    //     // Serial.println("Adafruit VL6180x test!");
+    //     if (!lidar.begin()) {
+    //         Serial.print("Failed to find sensor: ");
+    //         Serial.println(k);
+    //         while (1);
+    //     }
+    // }
+    // Serial.println("LiDAR sensors ready!");
 
     // Setup motors
     pinMode(MOTORLEFT_1, OUTPUT);
@@ -186,14 +212,21 @@ void setup () {
     setMotor(RIGHT_MOTOR, 0);
     setMotor(LEFT_MOTOR, 0);
 
+    digitalWrite(13, HIGH);
+
     // Get initial values for sensors
     updateSensors();
 
     setMotor(LEFT_MOTOR, 255);
 
+    delay(1000);
+    digitalWrite(13, LOW);
+    setMotor(LEFT_MOTOR, 0);
+
+
     //Serial.print();
 
-    //moveOneForward();
+    moveOneForward();
 }
 
 void loop () {
