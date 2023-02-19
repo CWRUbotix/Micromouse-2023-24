@@ -10,30 +10,70 @@
 #define MOTORRIGHT_1 18
 #define MOTORRIGHT_2 4
 
+double lidarFL = 0;
+double lidarFR = 0;
+double lidarBL = 0;
+double lidarBR = 0;
+
 Encoder rightEncoder(ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder(ENCODER_LEFT_1, ENCODER_LEFT_2);
 
-double wheelSeparation = 9.5;
-double wheelRadius = 3;
-double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
+const double wheelSeparation = 9.5;
+const double wheelRadius = 3;
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
+const double angleTolerance = 5;
+
+const double lidarSeparation = 4;
+const double distTolerance = 200;
 
 void setup() {
   Serial.begin(9600);
 
-  // put your setup code here, to run once:
   pinMode(MOTORLEFT_1, OUTPUT);
   pinMode(MOTORLEFT_2, OUTPUT);
   pinMode(MOTORRIGHT_1, OUTPUT);
   pinMode(MOTORRIGHT_1, OUTPUT);
 
-  turnLeft(90);
+  turn(90);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 }
 
+void turn(double angle) {
+  // If angle is negative (CW), turn right
+  if(angle < 0) {
+    turnRight(abs(angle));
+  }
+  // If angle is positive (CCW), turn left
+  else {
+    turnLeft(angle);
+  }
+  // Get error from side lidar sensors
+  double erorr = getAngle();
+  // If current angle is not within tolerance, perform an adjustment turn to compensate
+  if(abs(error) > angleTolerance) {
+    turn(error * -0.8);
+  }
+}
+
+double getAngle() {
+  // If left side is in range, use left measurements
+  if(lidarFL < distTolerance && lidarBL < distTolerance) {
+    return arctan((lidarBL - lidarFL)/lidarSeparation);
+  }
+  // If right side is in range, use right measurements
+  else if(lidarFR < distTolerance && lidarBR < distTolerance) {
+    return arctan((lidarFR - lidarBR)/lidarSeparation);
+  }
+  // If both sides are out of range, return 0
+  else
+    return 0;
+}
+
 void turnRight(double angle) {
+  // Get baseline encoder reading
   int initial = leftEncoder.read();
 
   // Turn right wheel backwards
@@ -55,6 +95,7 @@ void turnRight(double angle) {
 }
 
 void turnLeft(double angle) {
+  // Get baseline encoder reading
   int initial = rightEncoder.read();
 
   // Turn right wheel backwards
