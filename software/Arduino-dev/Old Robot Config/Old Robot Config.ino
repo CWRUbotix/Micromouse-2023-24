@@ -75,13 +75,11 @@ void loop() {
   // }
 
   selectSensor(0);
-  Serial.print("Lidar 1: "); Serial.println(vl.readRange());
+  Serial.print("LiDAR 1: "); Serial.println(vl.readRange());
 
   selectSensor(1);
-  Serial.print("Lidar 2: "); Serial.println(vl.readRange());
+  Serial.print("LiDAR 2: "); Serial.println(vl.readRange());
 
-
- 
   delay(500);
 }
 

@@ -19,10 +19,17 @@
 #define MOTORRIGHT_1 4
 #define MOTORRIGHT_2 5
 
-//typedef enum motor enum_motor;
-// enum Motor {LEFT_MOTOR, RIGHT_MOTOR};
 int LEFT_MOTOR = 0;
 int RIGHT_MOTOR = 1;
+
+const int LIDAR_COUNT = 4;
+const int LIDAR_ADDR_BASE = 0x50;
+
+// GPIO pin numbers for the CS line on each lidar sensor
+const int lidar_cs_pins[LIDAR_COUNT] = {28, 26, 27, 9};
+
+Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
+
 
 // The physical distance between the sensors
 #define LIDAR_SEPERATION 74 // 74 mm between sensors
@@ -70,22 +77,13 @@ void success () {
 }
 
 void updateSensors () {
-  selectSensor(0);
-  back_right = lidar.readRange();
-  selectSensor(1);
-  front_right = lidar.readRange();
+    // selectSensor(0);
+    // back_right = lidar.readRange();
+    // selectSensor(1);
+    // front_right = lidar.readRange();
 }
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
-
-void selectSensor(uint8_t i){
-  if(i > 7)
-    return;
-
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << i);
-  Wire.endTransmission();
-}
 
 void setMotor (int m, int8_t power) {
     if (m == LEFT_MOTOR) {
@@ -247,15 +245,30 @@ void setup () {
     Wire.begin();
     Serial.println("I2C ready!");
 
-    // Setup LiDARs (only 0 and 1, on the right side for now)
-    for (uint8_t k = 0; k < 2; k++) {
-        selectSensor(k);
-
-        if (!lidar.begin()) {
-            // Serial.printf("Failed to find sensor: %d", k);
-            abort();
-        }
+    // Setup LiDARs
+    for (size_t i = 0; i < LIDAR_COUNT; ++i) {
+      pinMode(lidar_cs_pins[i], OUTPUT);
     }
+    // Disable all sensors except the first
+    for (size_t i = 1; i < LIDAR_COUNT; ++i) {
+      digitalWrite(lidar_cs_pins[i], LOW);
+    }
+
+    // Set address for each sensor
+    // Write the CS line high (turning it on)
+    // Set the address
+    for (size_t i = 0; i < LIDAR_COUNT; ++i) {
+      digitalWrite(lidar_cs_pins[i], HIGH);
+      // Pass pointer to the Wire2 object since we're running on I2C bus 2
+      if (!lidar_sensors[i].begin(&Wire2)) {
+        Serial.print("Failed init on sensor ");
+        Serial.println(i);
+      }
+      else {
+        lidar_sensors[i].setAddress(LIDAR_ADDR_BASE + i);
+      }
+      delay(10);
+    }  
     Serial.println("LiDAR sensors ready!");
 
     // Setup motors
