@@ -8,16 +8,7 @@
 // PID library for control loops
 #include <PID_v1.h>
 
-// Pin definitions
-#define ENCODER_RIGHT_1 40
-#define ENCODER_RIGHT_2 41
-#define ENCODER_LEFT_1 22
-#define ENCODER_LEFT_2 23
-
-#define MOTORLEFT_1 3
-#define MOTORLEFT_2 2
-#define MOTORRIGHT_1 4
-#define MOTORRIGHT_2 5
+#include "micromouse_pins_2023.h"
 
 int LEFT_MOTOR = 0;
 int RIGHT_MOTOR = 1;
@@ -32,7 +23,7 @@ Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 
 
 // The physical distance between the sensors
-#define LIDAR_SEPERATION 74 // 74 mm between sensors
+#define LIDAR_SEPERATION 123 // 123 mm between sensors
 
 // Squares are 10in by 10in, but we work in mm. 10in = 254mm
 #define SQUARE_SIZE 254
@@ -111,9 +102,11 @@ void setMotor (int m, int8_t power) {
         }else if (power > 0) {
           // Serial.printf("Power %d; Writing RIGHT motor 1 to 255 and right motor 2 to %d\n", power, 255 - power * 2);
           analogWrite(MOTORRIGHT_1, 255);
+          // TODO: fix overflow
           analogWrite(MOTORRIGHT_2, 255 - power * 2);
         }else if (power < 0) {
           // Serial.printf("Power %d; Writing RIGHT motor 1 to %d and left motor 2 to 255\n", power, 255 + power * 2);
+          // TODO: fix overflow
           analogWrite(MOTORRIGHT_1, 255 + power * 2);
           analogWrite(MOTORRIGHT_2, 255);
         }
@@ -150,7 +143,7 @@ void moveOneForward () {
     // 0.25 is workable, overshoots a tiny bit
     PID positionPID(&currentDistance, &velocity, &goalDistance, 0.5, 0, 0, DIRECT);
     // The library outputs a value between 0 and 255, by default
-    positionPID.SetOutputLimits(20, 70);
+    positionPID.SetOutputLimits(0, 255);
     positionPID.SetMode(AUTOMATIC);
     positionPID.SetSampleTime(10);
 
@@ -174,11 +167,13 @@ void moveOneForward () {
             currentAngle = atan2(front_right_avg - back_right_avg, LIDAR_SEPERATION);
 
             // Update current distance
-            // rev / 360 is num revolutions
+            // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
             // num revolutions * pi * diameter (Zach says 60mm)
             int leftRevs = leftEncoder.read();
             int rightRevs = rightEncoder.read();
-            currentDistance = (leftRevs + rightRevs) / 2.0 / 360.0 * PI * 60.0;
+            Serial.printf("left: %d\tright: %d\n", leftRevs, rightRevs);
+            currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
+            Serial.printf("currentDistance: %f\n", currentDistance);
         }
 
         // check if currentDistance and currentAngle are within tolerance
@@ -205,7 +200,26 @@ void moveOneForward () {
         // setMotor(RIGHT_MOTOR, angularVelocityRight);
 
         if (count > 999) {
-          abort();
+          // abort();
+          setMotor(LEFT_MOTOR, 0);
+          setMotor(RIGHT_MOTOR, 0);
+
+          while (1 == 1) {
+            digitalWrite(13, HIGH);
+            delay(100);
+
+            if (Serial.available()) {
+              Serial.printf("Dumping data. Count was at %d.\n", count);
+              for (int i = 0; i < count; i++) {
+                Serial.printf("%d %f %f %f %f %f %f\n", millis(), goalAngles[i], currentAngles[i], angularVelocitys[i], goalDistances[i], currentDistances[i], velocitys[i]);
+              }
+
+              abort();
+            }
+
+            digitalWrite(13, LOW);
+            delay(100);
+          }
         }
 
         if (count < 1000) {
