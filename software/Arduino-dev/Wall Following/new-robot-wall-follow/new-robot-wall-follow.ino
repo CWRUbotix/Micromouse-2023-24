@@ -31,6 +31,7 @@ Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 // Create encoders and sensors
 Adafruit_VL6180X lidar = Adafruit_VL6180X();
 
+// Right encode is flipped (in pin-defs) for proper direction
 Encoder rightEncoder (ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
 
@@ -141,11 +142,13 @@ void moveOneForward () {
 
     int leftRevs = leftEncoder.read();
     int rightRevs = rightEncoder.read();
-    double oldDistance = (leftRevs + rightRevs) / 2.0 / 360.0 * PI * 60.0;
+    // The distance that we had 
+    double oldDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
 
     // Create a PID controller for speed
     // (currentDistance is the distance inside the current square. It resets to 0 at the end of )
     double goalDistance, currentDistance, velocity;
+    currentDistance = 0;
     goalDistance = oldDistance + SQUARE_SIZE; // I hope this is mm
     // Okay so with I and D as zero, with a distance of 254 (one square), we want a speed of around 25.4, so P should be around 0.1
     // The itegral part compensates for steady state errors. Do we have any steady state errors?
@@ -182,12 +185,12 @@ void moveOneForward () {
             int leftRevs = leftEncoder.read();
             int rightRevs = rightEncoder.read();
             Serial.printf("left: %d\tright: %d\n", leftRevs, rightRevs);
-            currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
+            currentDistance = ((leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0 - oldDistance);
             Serial.printf("currentDistance: %f\n", currentDistance);
         }
 
         // check if currentDistance and currentAngle are within tolerance
-        if (abs(currentDistance - goalDistance) < 20) {
+        if (currentDistance >= goalDistance) {
           break;
         }
         
@@ -208,29 +211,6 @@ void moveOneForward () {
         // // int angularVelocityRight = velocity;
         // setMotor(LEFT_MOTOR, angularVelocityLeft);
         // setMotor(RIGHT_MOTOR, angularVelocityRight);
-
-        if (count > 999) {
-          // abort();
-          setMotor(LEFT_MOTOR, 0);
-          setMotor(RIGHT_MOTOR, 0);
-
-          while (1 == 1) {
-            digitalWrite(13, HIGH);
-            delay(100);
-
-            if (Serial.available()) {
-              Serial.printf("Dumping data. Count was at %d.\n", count);
-              for (int i = 0; i < count; i++) {
-                Serial.printf("%d %f %f %f %f %f %f\n", millis(), goalAngles[i], currentAngles[i], angularVelocitys[i], goalDistances[i], currentDistances[i], velocitys[i]);
-              }
-
-              abort();
-            }
-
-            digitalWrite(13, LOW);
-            delay(100);
-          }
-        }
 
         if (count < 1000) {
           goalAngles[count] = goalAngle;
@@ -308,6 +288,9 @@ void setup () {
     // Get initial values for sensors
     updateSensors();
 
+    moveOneForward();
+    moveOneForward();
+    moveOneForward();
     moveOneForward();
 
     setMotor(LEFT_MOTOR, 0);
