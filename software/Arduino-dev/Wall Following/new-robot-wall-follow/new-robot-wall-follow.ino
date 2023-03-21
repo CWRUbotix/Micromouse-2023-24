@@ -76,38 +76,48 @@ void updateSensors () {
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
 
-void setMotor (int m, int8_t power) {
-    if (m == LEFT_MOTOR) {
-        // TODO: double check that 0, 0 is break (and not free spin) for motors
+/**
+ * Convert a value in range [-128..127] to a motor power value
+ * 
+ * @param p The input power [-128..127]
+ * @return Output power [0..255]
+ */
+uint8_t convert_power(int8_t p)
+{
+    if (p == 0) {
+        return 255;
+    }
+    if (p < 0) {
+        if (p == -128) {
+            p = -127;
+        }
+        p = -p;
+    }
+    return 255 - (((uint8_t)p) * 2);
+}
 
-        // These values can be tuned
-        if (power < 12 && power > -12) {
-          // Serial.printf("Power %d; Writing LEFT motor 1 and 2 to 255\n", power);
+void setMotor (int m, int8_t power) {
+    static const int deadband = 12;
+    if (m == LEFT_MOTOR) {
+        if (power < deadband && power > -deadband) {
           analogWrite(MOTORLEFT_1, 255);
           analogWrite(MOTORLEFT_2, 255);
         }else if (power > 0) {
-          // Serial.printf("Power %d; Writing LEFT motor 1 to 255 and left motor 2 to %d\n", power, 255 - power * 2);
           analogWrite(MOTORLEFT_1, 255);
-          analogWrite(MOTORLEFT_2, 255 - power * 2);
+          analogWrite(MOTORLEFT_2, convert_power(power));
         }else if (power < 0) {
-          // Serial.printf("Power %d; Writing LEFT motor 1 to %d and left motor 2 to 255\n", power, 255 + power * 2);
-          analogWrite(MOTORLEFT_1, 255 + power * 2);
+          analogWrite(MOTORLEFT_1, convert_power(power));
           analogWrite(MOTORRIGHT_2, 255);
         }
     }else if (m == RIGHT_MOTOR) {
-        if (power < 12 && power > -12) {
-          // Serial.printf("Power %d; Writing RIGHT motor 1 and 2 to 255\n", power);
+        if (power < deadband && power > -deadband) {
           analogWrite(MOTORRIGHT_1, 255);
           analogWrite(MOTORRIGHT_2, 255);
         }else if (power > 0) {
-          // Serial.printf("Power %d; Writing RIGHT motor 1 to 255 and right motor 2 to %d\n", power, 255 - power * 2);
           analogWrite(MOTORRIGHT_1, 255);
-          // TODO: fix overflow
-          analogWrite(MOTORRIGHT_2, 255 - power * 2);
+          analogWrite(MOTORRIGHT_2, convert_power(power));
         }else if (power < 0) {
-          // Serial.printf("Power %d; Writing RIGHT motor 1 to %d and left motor 2 to 255\n", power, 255 + power * 2);
-          // TODO: fix overflow
-          analogWrite(MOTORRIGHT_1, 255 + power * 2);
+          analogWrite(MOTORRIGHT_1, convert_power(power));
           analogWrite(MOTORRIGHT_2, 255);
         }
     }
