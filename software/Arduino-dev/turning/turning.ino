@@ -2,6 +2,7 @@
 #include <PID_v1.h>
 #include <Wire.h>
 #include "Adafruit_VL6180X.h"
+#include "micromouse_pins_2023.h"
 
 const int LIDAR_COUNT = 4;
 const int LIDAR_ADDR_BASE = 0x50;
@@ -11,15 +12,12 @@ const int lidar_cs_pins[LIDAR_COUNT] = {28, 26, 27, 9};
 
 Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 
-#define ENCODER_LEFT_1 23
-#define ENCODER_LEFT_2 22
-#define ENCODER_RIGHT_1 1
-#define ENCODER_RIGHT_2 2
+typedef enum motor_t {
+  LEFT_MOTOR = 0,
+  RIGHT_MOTOR
+} motor_t;
 
-#define MOTORLEFT_1 3
-#define MOTORLEFT_2 19
-#define MOTORRIGHT_1 18
-#define MOTORRIGHT_2 4
+const int POWER_DEADBAND = 6;
 
 double lidarFL = 0;
 double lidarFR = 0;
@@ -37,8 +35,8 @@ const double angleTolerance = 5;
 const double lidarSeparation = 4;
 const double distTolerance = 200;
 
-double Input, Output, Setpoint;
-PID turningPID(&Input, &Output, &Setpoint, 0.8, 0.1, 0.1, DIRECT);
+double initial, output, target;
+PID turningPID(&initial, &output, &target, 0.05, 0, 0, DIRECT);
 
 void setup() {
   Serial.begin(9600);
@@ -48,15 +46,15 @@ void setup() {
   pinMode(MOTORRIGHT_1, OUTPUT);
   pinMode(MOTORRIGHT_1, OUTPUT);
 
-  init_sensors();
-  //turn(90);
+  initSensors();
+  turn(90);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 }
 
-void init_sensors() {
+void initSensors() {
   /* // Reset all sensors
   for (size_t i = 0; i < LIDAR_COUNT; ++i) {
     digitalWrite(lidar_cs_pins[i], LOW);
@@ -83,14 +81,59 @@ void init_sensors() {
   }
 }
 
+uint8_t convertPower(int8_t p) {
+    if (p == 0) {
+        return 255;
+    }
+    if (p < 0) {
+        if (p == -128) {
+            p = -127;
+        }
+        p = -p;
+    }
+    return 255 - (((uint8_t)p) * 2);
+}
+
+void setMotor (motor_t m, int8_t power) {
+  int m1, m2;
+    
+  // Determine motor
+  switch (m) {
+  case LEFT_MOTOR:
+    m1 = MOTORLEFT_1;
+    m2 = MOTORLEFT_2;
+    break;
+  case RIGHT_MOTOR:
+    m1 = MOTORRIGHT_1;
+    m2 = MOTORRIGHT_2;
+    break;
+  default:
+    return;
+  }
+
+  // Set power
+  if (power < POWER_DEADBAND && power > -POWER_DEADBAND) {
+    analogWrite(m1, 255);
+    analogWrite(m2, 255);
+  }
+  else if (power > 0) {
+    analogWrite(m1, convertPower(power));
+    analogWrite(m2, 255);
+  }
+  else {
+    analogWrite(m1, 255);
+    analogWrite(m2, convertPower(power));
+  }
+}
+
 void turn(double angle) {
   // If angle is negative (CW), turn right
   if(angle < 0) {
-    turnRight(abs(angle));
+    turnRightWithPID(abs(angle));
   }
   // If angle is positive (CCW), turn left
   else {
-    turnLeft(angle);
+    turnLeftWithPID(angle);
   }
   // Get error from side lidar sensors
   double error = getAngle();
@@ -119,21 +162,17 @@ void turnRight(double angle) {
   int initial = leftEncoder.read();
 
   // Turn right wheel backwards
-  analogWrite(MOTORRIGHT_1, 255);
-  analogWrite(MOTORRIGHT_2, 127);
+  setMotor(RIGHT_MOTOR, -128);
 
   // Turn left wheel forwards
-  analogWrite(MOTORLEFT_1, 255);
-  analogWrite(MOTORLEFT_2, 127);
+  setMotor(LEFT_MOTOR, 127);
 
   // Wait until necessary angle is reached
   while(leftEncoder.read() - initial < angle * turnRatio) {}
 
   // Stop both motors
-  analogWrite(MOTORLEFT_1, 0);
-  analogWrite(MOTORLEFT_2, 0);
-  analogWrite(MOTORRIGHT_1, 0);
-  analogWrite(MOTORRIGHT_2, 0);
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
 }
 
 void turnLeft(double angle) {
@@ -141,79 +180,67 @@ void turnLeft(double angle) {
   int initial = rightEncoder.read();
 
   // Turn right wheel backwards
-  analogWrite(MOTORLEFT_1, 255);
-  analogWrite(MOTORLEFT_2, 127);
+  setMotor(LEFT_MOTOR, -128);
 
   // Turn left wheel forwards
-  analogWrite(MOTORRIGHT_1, 127);
-  analogWrite(MOTORRIGHT_2, 255);
+  setMotor(RIGHT_MOTOR, 127);
 
   // Wait until necessary angle is reached
   while(rightEncoder.read() - initial < angle * turnRatio) {}
 
   // Stop both motors
-  analogWrite(MOTORLEFT_1, 0);
-  analogWrite(MOTORLEFT_2, 0);
-  analogWrite(MOTORRIGHT_1, 0);
-  analogWrite(MOTORRIGHT_2, 0);
+  setMotor(LEFT_MOTOR, 0);
+  setMotor(RIGHT_MOTOR, 0);
 }
 
 void turnRightWithPID(double angle) {
   // Set up PID
-  Input = leftEncoder.read();
-  Setpoint = angle * turnRatio;
+  initial = leftEncoder.read();
+  target = angle * turnRatio;
   turningPID.SetMode(AUTOMATIC);
-  // Get baseline encoder reading
-  int initial = leftEncoder.read();
 
   // Wait until necessary angle is reached
-  while(leftEncoder.read() - initial < angle * turnRatio - angleTolerance) {
+  while(abs(leftEncoder.read() - initial) < target - angleTolerance) {
+    // Update PID
+    turningPID.Compute();
+
     // Turn right wheel backwards
-    analogWrite(MOTORRIGHT_1, 127 + turningPID.Compute() / 2);
-    analogWrite(MOTORRIGHT_2, 127);
+    setMotor(RIGHT_MOTOR, output / -2);
 
     // Turn left wheel forwards
-    analogWrite(MOTORLEFT_1, 127);
-    analogWrite(MOTORLEFT_2, 127 + turningPID.Compute() / 2);
+    setMotor(LEFT_MOTOR, output / 2);
   }
 
   // Stop both motors
-  analogWrite(MOTORLEFT_1, 0);
-  analogWrite(MOTORLEFT_2, 0);
-  analogWrite(MOTORRIGHT_1, 0);
-  analogWrite(MOTORRIGHT_2, 0);
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
 
   // Turn off PID
   turningPID.SetMode(MANUAL);
 }
 
 void turnLeftWithPID(double angle) {
-  // Set up input
-  Input = rightEncoder.read();
-  Setpoint = angle * turnRatio;
+  // Set up PID
+  initial = rightEncoder.read();
+  target = angle * turnRatio;
   turningPID.SetMode(AUTOMATIC);
-  // Get baseline encoder reading
-  int initial = rightEncoder.read();
 
   // Wait until necessary angle is reached
-  while(rightEncoder.read() - initial < angle * turnRatio - angleTolerance) {
-    // Turn right wheel backwards
-    analogWrite(MOTORLEFT_1, 127 + turningPID.Compute() / 2);
-    analogWrite(MOTORLEFT_2, 127);
+  while(abs(rightEncoder.read() - initial) < target - angleTolerance) {
+    // Update PID
+    turningPID.Compute();
+    
+    // Turn left wheel backwards
+    setMotor(LEFT_MOTOR, output / -2);
 
-    // Turn left wheel forwards
-    analogWrite(MOTORRIGHT_1, 127);
-    analogWrite(MOTORRIGHT_2, 127 + turningPID.Compute() / 2);
+    // Turn right wheel forwards
+    setMotor(RIGHT_MOTOR, output / 2);
   }
 
   // Stop both motors
-  analogWrite(MOTORLEFT_1, 0);
-  analogWrite(MOTORLEFT_2, 0);
-  analogWrite(MOTORRIGHT_1, 0);
-  analogWrite(MOTORRIGHT_2, 0);
+  setMotor(LEFT_MOTOR, 0);
+  setMotor(RIGHT_MOTOR, 0);
 
   // Turn off PID
   turningPID.SetMode(MANUAL);
 }
-
-// P = (I1^2)*R1 + (I0^2 - 2*I0*I1+I1^2)*R2 -> P' = 2I1*R1 - 2I0*R2 + 2I1*R2 = 0 -> 2I1*R1 - 2(I0 - I1)*R2 = 2I1*R1 - 2I2*R2 = 0
