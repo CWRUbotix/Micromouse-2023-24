@@ -41,6 +41,10 @@ Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
 // If there's space in front of them, they cap at 255.
 uint8_t back_right;
 uint8_t front_right;
+
+uint8_t back_left;
+uint8_t front_left;
+
 // TODO: other sensors when we have them
 
 // Spin forever blinking 13 quickly
@@ -70,11 +74,10 @@ void success () {
 }
 
 void updateSensors () {
-    // TODO: are these right?
-    back_right = lidar_sensors[0].readRange();
-    front_right = lidar_sensors[1].readRange();
+    back_right = lidar_sensors[1].readRange();
+    front_right = lidar_sensors[2].readRange();
 
-    back_left = lidar_sensors[2].readRange();
+    back_left = lidar_sensors[0].readRange();
     front_left = lidar_sensors[3].readRange();
 }
 
@@ -165,6 +168,8 @@ void moveOneForward () {
 
     double back_right_avg = back_right;
     double front_right_avg = front_right;
+    double back_left_avg = back_left;
+    double front_left_avg = front_left;
 
     // loop quickly
     while (1) {
