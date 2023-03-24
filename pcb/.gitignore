@@ -7,6 +7,7 @@
 *.bck
 *.kicad_pcb-bak
 *.sch-bak
+*.kicad_sch-bak
 *~
 _autosave-*
 *.tmp
@@ -31,3 +32,6 @@ fp-info-cache
 
 # Kicad backups & gerbers
 *.zip
+*.step
+
+gerb

@@ -10,8 +10,12 @@
 
 #include "micromouse_pins_2023.h"
 
-int LEFT_MOTOR = 0;
-int RIGHT_MOTOR = 1;
+typedef enum motor_t {
+    LEFT_MOTOR = 0,
+    RIGHT_MOTOR
+} motor_t;
+
+const int POWER_DEADBAND = 6;
 
 const int LIDAR_COUNT = 4;
 const int LIDAR_ADDR_BASE = 0x50;
@@ -89,7 +93,7 @@ void updateSensors () {
  * @param p The input power [-128..127]
  * @return Output power [0..255]
  */
-uint8_t convert_power(int8_t p)
+uint8_t convertPower(int8_t p)
 {
     if (p == 0) {
         return 255;
@@ -103,30 +107,46 @@ uint8_t convert_power(int8_t p)
     return 255 - (((uint8_t)p) * 2);
 }
 
-void setMotor (int m, int8_t power) {
-    static const int deadband = 12;
-    if (m == LEFT_MOTOR) {
-        if (power < deadband && power > -deadband) {
-          analogWrite(MOTORLEFT_1, 255);
-          analogWrite(MOTORLEFT_2, 255);
-        }else if (power > 0) {
-          analogWrite(MOTORLEFT_1, 255);
-          analogWrite(MOTORLEFT_2, convert_power(power));
-        }else if (power < 0) {
-          analogWrite(MOTORLEFT_1, convert_power(power));
-          analogWrite(MOTORRIGHT_2, 255);
-        }
-    }else if (m == RIGHT_MOTOR) {
-        if (power < deadband && power > -deadband) {
-          analogWrite(MOTORRIGHT_1, 255);
-          analogWrite(MOTORRIGHT_2, 255);
-        }else if (power > 0) {
-          analogWrite(MOTORRIGHT_1, 255);
-          analogWrite(MOTORRIGHT_2, convert_power(power));
-        }else if (power < 0) {
-          analogWrite(MOTORRIGHT_1, convert_power(power));
-          analogWrite(MOTORRIGHT_2, 255);
-        }
+
+/**
+ * Set motor power for a specified motor
+ * 
+ * @param m The motor to modify
+ * @param power The power and direction of the motor 
+ *              (range: [-128..127]) 
+ *              Positive is "forward"
+ *              Negative is "backward"
+ */
+void setMotor (motor_t m, int8_t power) {
+
+    int m1, m2;
+    
+    // Determine motor
+    switch (m) {
+    case LEFT_MOTOR:
+        m1 = MOTORLEFT_1;
+        m2 = MOTORLEFT_2;
+        break;
+    case RIGHT_MOTOR:
+        m1 = MOTORRIGHT_1;
+        m2 = MOTORRIGHT_2;
+        break;
+    default:
+        return;
+    }
+
+    // Set power
+    if (power < POWER_DEADBAND && power > -POWER_DEADBAND) {
+        analogWrite(m1, 255);
+        analogWrite(m2, 255);
+    }
+    else if (power > 0) {
+        analogWrite(m1, 255);
+        analogWrite(m2, convertPower(power));
+    }
+    else {
+        analogWrite(m1, convertPower(power));
+        analogWrite(m2, 255);
     }
 }
 
