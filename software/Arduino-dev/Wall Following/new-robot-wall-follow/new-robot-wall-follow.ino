@@ -208,8 +208,8 @@ void moveOneForward () {
             
             // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
             // Average left and right sensors
-            currentAngle = atan2(front_right_avg - back_right_avg, LIDAR_SEPERATION);
-
+            currentAngle = (atan2(front_right_avg - back_right_avg, LIDAR_SEPERATION) + atan2(front_left_avg - back_left_avg, LIDAR_SEPERATION))/2;
+            
             // Update current distance
             // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
             // num revolutions * pi * diameter (Zach says 60mm)
