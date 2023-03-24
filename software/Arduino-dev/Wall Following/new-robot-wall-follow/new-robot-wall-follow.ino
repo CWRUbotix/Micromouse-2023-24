@@ -17,7 +17,8 @@ const int LIDAR_COUNT = 4;
 const int LIDAR_ADDR_BASE = 0x50;
 
 // GPIO pin numbers for the CS line on each lidar sensor
-const int lidar_cs_pins[LIDAR_COUNT] = {28, 26, 27, 9};
+// We have another 2 pins on the board, but nothing's plugged into them
+const int lidar_cs_pins[LIDAR_COUNT] = {LIDAR_CS1, LIDAR_CS2, LIDAR_CS3, LIDAR_CS4};
 
 Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 
@@ -69,10 +70,12 @@ void success () {
 }
 
 void updateSensors () {
-    // selectSensor(0);
-    // back_right = lidar.readRange();
-    // selectSensor(1);
-    // front_right = lidar.readRange();
+    // TODO: are these right?
+    back_right = lidar_sensors[0].readRange();
+    front_right = lidar_sensors[1].readRange();
+
+    back_left = lidar_sensors[2].readRange();
+    front_left = lidar_sensors[3].readRange();
 }
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
@@ -174,9 +177,12 @@ void moveOneForward () {
             back_right_avg = back_right_avg * 0.9 + back_right * 0.1;
             front_right_avg = front_right_avg * 0.9 + front_right * 0.1;
 
-            // do math
+            back_left_avg = back_left_avg * 0.9 + back_left * 0.1;
+            front_left_avg = front_left_avg * 0.9 + front_left * 0.1;
+
+            
             // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
-            // For right now, we only have one pair of sensors, so we only get one angle
+            // Average left and right sensors
             currentAngle = atan2(front_right_avg - back_right_avg, LIDAR_SEPERATION);
 
             // Update current distance
@@ -264,7 +270,7 @@ void setup () {
     for (size_t i = 0; i < LIDAR_COUNT; ++i) {
       digitalWrite(lidar_cs_pins[i], HIGH);
       // Pass pointer to the Wire2 object since we're running on I2C bus 2
-      if (!lidar_sensors[i].begin(&Wire2)) {
+      if (!lidar_sensors[i].begin(&I2C_LIDAR)) {
         Serial.print("Failed init on sensor ");
         Serial.println(i);
       }

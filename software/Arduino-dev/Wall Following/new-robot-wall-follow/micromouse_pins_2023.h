@@ -24,11 +24,6 @@ const int LEDS[] = {LED0, LED1, LED2, LED3};
 #define LIDAR_CS5 7
 #define LIDAR_CS6 9
 
-#ifndef _LIDAR_ARR
-#define _LIDAR_ARR
-const int LIDARS[] = {LIDAR_CS1, LIDAR_CS2, LIDAR_CS3, LIDAR_CS4, LIDAR_CS5, LIDAR_CS6};
-#endif
-
 #define SONIC_TRIG1 40
 #define SONIC_TRIG2 38
 #define SONIC_TRIG3 36
