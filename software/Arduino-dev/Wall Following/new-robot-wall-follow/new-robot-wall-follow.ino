@@ -117,8 +117,13 @@ uint8_t convertPower(int8_t p)
  *              Positive is "forward"
  *              Negative is "backward"
  */
-void setMotor (motor_t m, int8_t power) {
-
+void setMotor (motor_t m, int power) {
+    power = -power;
+    if (power < -128) {
+      power = -128;
+    }else if (power > 127) {
+      power = 127;
+    }
     int m1, m2;
     
     // Determine motor
@@ -160,8 +165,8 @@ void moveOneForward () {
     // When the angle is 0.1, we need to bump left power by like 5, so diff of 2
     // (When reading with just the right sensors, like right now, a positive angle means that we're turned left)
     // TODO: increase angle gain
-    PID anglePID(&currentAngle, &angularVelocity, &goalAngle, 20.0, 0, 0, DIRECT);
-    anglePID.SetOutputLimits(-127, 127);
+    PID anglePID(&currentAngle, &angularVelocity, &goalAngle, 80.0, 0, 0, DIRECT);
+    anglePID.SetOutputLimits(-127.0, 127.0);
     anglePID.SetSampleTime(10);
     anglePID.SetMode(AUTOMATIC);
 
@@ -182,7 +187,7 @@ void moveOneForward () {
     // 0.25 is workable, overshoots a tiny bit
     PID positionPID(&currentDistance, &velocity, &goalDistance, 0.5, 0, 0, DIRECT);
     // The library outputs a value between 0 and 255, by default
-    positionPID.SetOutputLimits(0, 255);
+    positionPID.SetOutputLimits(-127.0, 127.0);
     positionPID.SetMode(AUTOMATIC);
     positionPID.SetSampleTime(10);
 
@@ -229,19 +234,21 @@ void moveOneForward () {
         anglePID.Compute(); // updates angularVelocity
         positionPID.Compute(); // updates velocity
 
-        setMotor(LEFT_MOTOR, -angularVelocity / 2.0 + 30);
-        setMotor(RIGHT_MOTOR, angularVelocity / 2.0 + 30);
+        // setMotor(LEFT_MOTOR, -angularVelocity / 2.0 + 30);
+        // setMotor(RIGHT_MOTOR, angularVelocity / 2.0 + 30);
+
+        // NOTE: We're assuming that at angles close to 0, angularVelocity has a linear relationship with velocity.
 
         // update motor values
-        // int angularVelocityLeft = -angularVelocity / 2.0;
-        // int angularVelocityRight = angularVelocity / 2.0;
+        int angularVelocityLeft = (int)(-angularVelocity / 2.0);
+        int angularVelocityRight = (int)(angularVelocity / 2.0);
 
-        // angularVelocityLeft += velocity;
-        // angularVelocityRight += velocity;
+        angularVelocityLeft += velocity;
+        angularVelocityRight += velocity;
         // // int angularVelocityLeft = velocity;
         // // int angularVelocityRight = velocity;
-        // setMotor(LEFT_MOTOR, angularVelocityLeft);
-        // setMotor(RIGHT_MOTOR, angularVelocityRight);
+        setMotor(LEFT_MOTOR, angularVelocityLeft);
+        setMotor(RIGHT_MOTOR, angularVelocityRight);
 
         if (count < 1000) {
           goalAngles[count] = goalAngle;
