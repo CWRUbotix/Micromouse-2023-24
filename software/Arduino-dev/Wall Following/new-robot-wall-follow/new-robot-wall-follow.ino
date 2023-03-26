@@ -36,7 +36,6 @@ Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 // Create encoders and sensors
 Adafruit_VL6180X lidar = Adafruit_VL6180X();
 
-// Right encode is flipped (in pin-defs) for proper direction
 Encoder rightEncoder (ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
 
@@ -155,7 +154,19 @@ void setMotor (motor_t m, int power) {
     }
 }
 
-double timestamps[1000], goalAngles[1000], currentAngles[1000], angularVelocitys[1000], goalDistances[1000], currentDistances[1000], velocitys[1000];
+// p_controller(80.0, currentAngle, 0, -127.0, 127.0);
+double p_controller(double p, double current, double goal, double min, double max) {
+  double out = (goal - current) * p;
+  if (out > max) {
+    out = max;
+  }else if (out < min) {
+    out = min;
+  }
+  return out;
+}
+
+long timestamps[1000];
+double goalAngles[1000], currentAngles[1000], angularVelocitys[1000], goalDistances[1000], currentDistances[1000], velocitys[1000];
 int count = 0;
 
 void moveOneForward () {
@@ -165,31 +176,29 @@ void moveOneForward () {
     // When the angle is 0.1, we need to bump left power by like 5, so diff of 2
     // (When reading with just the right sensors, like right now, a positive angle means that we're turned left)
     // TODO: increase angle gain
-    PID anglePID(&currentAngle, &angularVelocity, &goalAngle, 80.0, 0, 0, DIRECT);
-    anglePID.SetOutputLimits(-127.0, 127.0);
-    anglePID.SetSampleTime(10);
-    anglePID.SetMode(AUTOMATIC);
+    // PID anglePID(&currentAngle, &angularVelocity, &goalAngle, 80.0, 0.0, 0.0, DIRECT);
+    // anglePID.SetOutputLimits(-127.0, 127.0);
+    // anglePID.SetSampleTime(10);
+    // anglePID.SetMode(AUTOMATIC);
 
-
-    int leftRevs = leftEncoder.read();
-    int rightRevs = rightEncoder.read();
-    // The distance that we had 
-    double oldDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
+    // Reset encoders
+    leftEncoder.write(0);
+    rightEncoder.write(0);
 
     // Create a PID controller for speed
     // (currentDistance is the distance inside the current square. It resets to 0 at the end of )
     double goalDistance, currentDistance, velocity;
     currentDistance = 0;
-    goalDistance = oldDistance + SQUARE_SIZE; // I hope this is mm
+    goalDistance = SQUARE_SIZE; // I hope this is mm
     // Okay so with I and D as zero, with a distance of 254 (one square), we want a speed of around 25.4, so P should be around 0.1
     // The itegral part compensates for steady state errors. Do we have any steady state errors?
     // The derivative term minimizes overshoot.
     // 0.25 is workable, overshoots a tiny bit
-    PID positionPID(&currentDistance, &velocity, &goalDistance, 0.5, 0, 0, DIRECT);
+    // PID positionPID(&currentDistance, &velocity, &goalDistance, 0.25, 0.0, 0.0, DIRECT);
     // The library outputs a value between 0 and 255, by default
-    positionPID.SetOutputLimits(-127.0, 127.0);
-    positionPID.SetMode(AUTOMATIC);
-    positionPID.SetSampleTime(10);
+    // positionPID.SetOutputLimits(-127.0, 127.0);
+    // positionPID.SetMode(AUTOMATIC);
+    // positionPID.SetSampleTime(10);
 
     double back_right_avg = back_right;
     double front_right_avg = front_right;
@@ -213,15 +222,18 @@ void moveOneForward () {
             
             // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
             // Average left and right sensors
-            currentAngle = (atan2(front_right_avg - back_right_avg, LIDAR_SEPERATION) + atan2(front_left_avg - back_left_avg, LIDAR_SEPERATION))/2;
+            double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
+            double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
+            Serial.printf("left angle: %f\tright angle: %f\n", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+            currentAngle = (leftAngle + rightAngle) / 2;
             
             // Update current distance
             // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
             // num revolutions * pi * diameter (Zach says 60mm)
-            int leftRevs = leftEncoder.read();
-            int rightRevs = rightEncoder.read();
+            long leftRevs = leftEncoder.read();
+            long rightRevs = rightEncoder.read();
             Serial.printf("left: %d\tright: %d\n", leftRevs, rightRevs);
-            currentDistance = ((leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0 - oldDistance);
+            currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
             Serial.printf("currentDistance: %f\n", currentDistance);
         }
 
@@ -231,8 +243,11 @@ void moveOneForward () {
         }
         
         // update PID
-        anglePID.Compute(); // updates angularVelocity
-        positionPID.Compute(); // updates velocity
+        // anglePID.Compute(); // updates angularVelocity
+        // p, current, goal, min, max
+        angularVelocity = p_controller(80.0, currentAngle, 0, -127.0, 127.0);
+        // positionPID.Compute(); // updates velocity
+        velocity = p_controller(12.25, currentDistance, SQUARE_SIZE, -64, 64);
 
         // setMotor(LEFT_MOTOR, -angularVelocity / 2.0 + 30);
         // setMotor(RIGHT_MOTOR, angularVelocity / 2.0 + 30);
@@ -264,7 +279,7 @@ void moveOneForward () {
         if (Serial.available()) {
           Serial.printf("Dumping data. Count was at %d.\n", count);
           for (int i = 0; i < count; i++) {
-            Serial.printf("%d %f %f %f %f %f %f\n", millis(), goalAngles[i], currentAngles[i], angularVelocitys[i], goalDistances[i], currentDistances[i], velocitys[i]);
+            Serial.printf("%d %f %f %f %f %f %f\n", timestamps[i], goalAngles[i], currentAngles[i], angularVelocitys[i], goalDistances[i], currentDistances[i], velocitys[i]);
           }
 
           abort();
@@ -326,10 +341,26 @@ void setup () {
     // Get initial values for sensors
     updateSensors();
 
+    // while (1) {
+    //   updateSensors();
+
+    //   // double angle = ( + atan2(front_left - back_left, LIDAR_SEPERATION))/2;
+    //   double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
+    //   double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
+    //   Serial.printf("Left Angle: %fº, Right angle: %fº\n", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+
+    //   delay(100);
+    // }
+
     moveOneForward();
+
+    delay(1000);
+
     moveOneForward();
-    moveOneForward();
-    moveOneForward();
+    // moveOneForward();
+    // moveOneForward();
+
+    Serial.printf("Moved two?");
 
     setMotor(LEFT_MOTOR, 0);
     setMotor(RIGHT_MOTOR, 0);

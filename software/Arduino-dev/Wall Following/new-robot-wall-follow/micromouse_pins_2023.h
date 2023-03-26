@@ -31,10 +31,10 @@ const int LEDS[] = {LED0, LED1, LED2, LED3};
 #define SONIC_ECHO2 39
 #define SONIC_ECHO3 37
 
-#define ENCODER_LEFT_1 23
-#define ENCODER_LEFT_2 22
-#define ENCODER_RIGHT_1 2
-#define ENCODER_RIGHT_2 1
+#define ENCODER_LEFT_1 22
+#define ENCODER_LEFT_2 23
+#define ENCODER_RIGHT_1 1
+#define ENCODER_RIGHT_2 2
 
 #define MOTORLEFT_1 3
 #define MOTORLEFT_2 19
