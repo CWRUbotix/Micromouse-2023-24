@@ -54,6 +54,9 @@ void loop() {
   // put your main code here, to run repeatedly:
 }
 
+/** 
+ * Reset all lidar sensors and set addresses
+ */
 void initSensors() {
   /* // Reset all sensors
   for (size_t i = 0; i < LIDAR_COUNT; ++i) {
@@ -81,6 +84,12 @@ void initSensors() {
   }
 }
 
+/**
+ * Convert a value in range [-128..127] to a motor power value
+ * 
+ * @param p The input power [-128..127]
+ * @return The output power [0..255]
+ */
 uint8_t convertPower(int8_t p) {
     if (p == 0) {
         return 255;
@@ -94,6 +103,14 @@ uint8_t convertPower(int8_t p) {
     return 255 - (((uint8_t)p) * 2);
 }
 
+/**
+ * Set motor power in range [-128..127] for a specified motor
+ * 
+ * @param m The motor to modify
+ * @param power The power and direction of the motor [-128..127]
+ *              Positive is "forward"
+ *              Negative is "backward"
+ */
 void setMotor (motor_t m, int8_t power) {
   int m1, m2;
     
@@ -126,6 +143,13 @@ void setMotor (motor_t m, int8_t power) {
   }
 }
 
+/** 
+ * Turn robot by a given angle (in degrees)
+ * 
+ * @param angle The angle to turn (in degrees)
+ *              Positive is CCW
+ *              Negative is CW
+ */
 void turn(double angle) {
   // If angle is negative (CW), turn right
   if(angle < 0) {
@@ -143,6 +167,13 @@ void turn(double angle) {
   }
 }
 
+/**
+ * Get angle of robot from center line of maze path
+ *
+ * @return The angle of the robot from the center line of the maze path
+ *         Positive is CCW
+ *         Negative is CW
+ */
 double getAngle() {
   // If left side is in range, use left measurements
   if(lidarFL < distTolerance && lidarBL < distTolerance) {
@@ -157,6 +188,11 @@ double getAngle() {
     return 0;
 }
 
+/** 
+ * Turn robot right (CW) by a given positive angle (in degrees) without PID
+ * 
+ * @param angle The angle to turn (in degrees)
+ */
 void turnRight(double angle) {
   // Get baseline encoder reading
   int initial = leftEncoder.read();
@@ -175,6 +211,11 @@ void turnRight(double angle) {
   setMotor(LEFT_MOTOR, 0);
 }
 
+/** 
+ * Turn robot left (CCW) by a given positive angle (in degrees) without PID
+ * 
+ * @param angle The angle to turn (in degrees)
+ */
 void turnLeft(double angle) {
   // Get baseline encoder reading
   int initial = rightEncoder.read();
@@ -193,6 +234,11 @@ void turnLeft(double angle) {
   setMotor(RIGHT_MOTOR, 0);
 }
 
+/** 
+ * Turn robot right (CW) by a given positive angle (in degrees) using PID
+ * 
+ * @param angle The angle to turn (in degrees)
+ */
 void turnRightWithPID(double angle) {
   // Set up PID
   initial = leftEncoder.read();
@@ -219,6 +265,11 @@ void turnRightWithPID(double angle) {
   turningPID.SetMode(MANUAL);
 }
 
+/** 
+ * Turn robot left (CCW) by a given positive angle (in degrees) using PID
+ * 
+ * @param angle The angle to turn (in degrees)
+ */
 void turnLeftWithPID(double angle) {
   // Set up PID
   initial = rightEncoder.read();
