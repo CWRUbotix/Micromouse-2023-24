@@ -78,16 +78,23 @@ void success () {
   }
 }
 
+// The LiDAR sensors return a running average of readings,
+//  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
+// (After a certain amount of time, the running average overflows the maximum and only then does the LiDAR throw a read error)
+// If the LiDAR is greater than this value, we assume that it's not sensing the wall.
+uint8_t SENSOR_RANGE_MAX = 110;
+
 void updateSensors () {
     back_right = lidar_sensors[1].readRange();
-    back_right_errored = lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE;
+    back_right_errored = lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX;
     front_right = lidar_sensors[2].readRange();
-    front_right_errored = lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE;
+    front_right_errored = lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
 
     back_left = lidar_sensors[0].readRange();
-    back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE;
+    back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX;
     front_left = lidar_sensors[3].readRange();
-    front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE;
+    front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+    Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
@@ -211,6 +218,8 @@ void moveOneForward () {
     // double back_left_avg = back_left;
     // double front_left_avg = front_left;
 
+    double centerVelocity = 0;
+
     // loop quickly
     while (1) {
         // update currentDistance and currentAngle
@@ -255,7 +264,7 @@ void moveOneForward () {
             // num revolutions * pi * diameter (Zach says 60mm)
             long leftRevs = leftEncoder.read();
             long rightRevs = rightEncoder.read();
-            Serial.printf("left: %d\tright: %d\n", leftRevs, rightRevs);
+            Serial.printf("Encoder left: %d\tright: %d; ", leftRevs, rightRevs);
             currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
             Serial.printf("currentDistance: %f\n", currentDistance);
         }
@@ -266,13 +275,34 @@ void moveOneForward () {
           setMotor(RIGHT_MOTOR, 0);
           break;
         }
-        
+
+        // How far away from the center we are
+        // Right is positive
+        double centerOffset = (double)front_right - (double)front_left;
+        if (front_left_errored && front_right_errored) {
+            Serial.printf("both errorered, setting offset to 0\n");
+            centerOffset = 0;
+        }else if (front_left_errored) {
+            // If we don't have a left value
+            // (We're targeting to an offset of 0)
+            // sensors are 84 mm apart, maze is 240mm wide
+            centerOffset = (double)front_right - (240 - 84) / 2.0;
+        }else if (front_right_errored) {
+            centerOffset = (240 - 84) / 2.0 - (double)front_left;
+        }
+
+        Serial.printf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
+
         // update PID
         // anglePID.Compute(); // updates angularVelocity
         // p, current, goal, min, max
         angularVelocity = p_controller(80.0, currentAngle, 0, -127.0, 127.0);
         // positionPID.Compute(); // updates velocity
         velocity = p_controller(12.25, currentDistance, SQUARE_SIZE, -64, 64);
+        // Update centerVelocity
+        centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
+
+        angularVelocity += centerVelocity;
 
         // setMotor(LEFT_MOTOR, -angularVelocity / 2.0 + 30);
         // setMotor(RIGHT_MOTOR, angularVelocity / 2.0 + 30);
