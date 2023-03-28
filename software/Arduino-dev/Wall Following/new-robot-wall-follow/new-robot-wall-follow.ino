@@ -353,14 +353,17 @@ void setup () {
     // }
 
     moveOneForward();
-
-    delay(1000);
-
+    delay(500);
     moveOneForward();
+    delay(500);
+    moveOneForward();
+    delay(500);
+
+    // moveOneForward();
     // moveOneForward();
     // moveOneForward();
 
-    Serial.printf("Moved two?");
+    Serial.printf("Moved two?\n");
 
     setMotor(LEFT_MOTOR, 0);
     setMotor(RIGHT_MOTOR, 0);
