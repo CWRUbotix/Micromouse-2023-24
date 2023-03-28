@@ -278,6 +278,30 @@ void moveOneForward () {
 
         // How far away from the center we are
         // Right is positive
+        // ASCII art by Zach
+        // |              | <--  MAZE    |
+        // |              |   CENTERLINE |
+        // |              |              |
+        // |      ERROR   |              |
+        // |           \  |              |
+        // |           |<>|              |
+        // |       +-------+ <--- X ---> |
+        // |       | FRONT |             |
+        // |       |L  |  R|             |
+        // |       |   |   |             |
+        // |       | ROBOT |             |
+        // |       +-------+             |
+        // |       |<- R ->|             |
+        // |              |              |
+        // |              |              |
+        // |              |              |
+        // |              |              |
+        // |              |              |
+        // | <------ MAZE WIDTH -------> |
+        //
+        //              MAZE WIDTH - R
+        // ERROR = X - ----------------
+        //                    2
         double centerOffset = (double)front_right - (double)front_left;
         if (front_left_errored && front_right_errored) {
             Serial.printf("both errorered, setting offset to 0\n");
