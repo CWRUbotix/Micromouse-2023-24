@@ -248,13 +248,13 @@ void moveOneForward () {
                 // If we have no good data, assume we're going straight
                 Serial.printf("Using 0 as angle\n");
                 currentAngle = 0;
-            } if (back_left_errored || front_left_errored) {
+            } else if (back_left_errored || front_left_errored) {
                 Serial.printf("Using right angle\n");
                 currentAngle = rightAngle;
-            }else if (back_right_errored || front_right_errored) {
+            } else if (back_right_errored || front_right_errored) {
                 Serial.printf("Using left angle\n");
                 currentAngle = leftAngle;
-            }else {
+            } else {
                 Serial.printf("Averaging angles\n");
                 currentAngle = (leftAngle + rightAngle) / 2;
             }
@@ -364,7 +364,7 @@ void moveOneForward () {
           abort();
         }
 
-        delay(10);
+        // Delay?
     }
 }
 
