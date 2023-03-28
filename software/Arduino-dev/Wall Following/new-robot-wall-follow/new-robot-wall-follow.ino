@@ -48,6 +48,8 @@ uint8_t front_right;
 uint8_t back_left;
 uint8_t front_left;
 
+bool back_right_errored, front_right_errored, back_left_errored, front_left_errored;
+
 // TODO: other sensors when we have them
 
 // Spin forever blinking 13 quickly
@@ -78,10 +80,14 @@ void success () {
 
 void updateSensors () {
     back_right = lidar_sensors[1].readRange();
+    back_right_errored = lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE;
     front_right = lidar_sensors[2].readRange();
+    front_right_errored = lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE;
 
     back_left = lidar_sensors[0].readRange();
+    back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE;
     front_left = lidar_sensors[3].readRange();
+    front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE;
 }
 
 // TODO: we probably need to account for accumulated error as a result of being not in the center
@@ -200,10 +206,10 @@ void moveOneForward () {
     // positionPID.SetMode(AUTOMATIC);
     // positionPID.SetSampleTime(10);
 
-    double back_right_avg = back_right;
-    double front_right_avg = front_right;
-    double back_left_avg = back_left;
-    double front_left_avg = front_left;
+    // double back_right_avg = back_right;
+    // double front_right_avg = front_right;
+    // double back_left_avg = back_left;
+    // double front_left_avg = front_left;
 
     // loop quickly
     while (1) {
@@ -212,20 +218,37 @@ void moveOneForward () {
             // read LiDAR
             updateSensors();
 
-            // low pass filter
-            back_right_avg = back_right_avg * 0.9 + back_right * 0.1;
-            front_right_avg = front_right_avg * 0.9 + front_right * 0.1;
+            // low pass filter (I don't think we need this)
+            // back_right_avg = back_right_avg * 0.9 + back_right * 0.1;
+            // front_right_avg = front_right_avg * 0.9 + front_right * 0.1;
 
-            back_left_avg = back_left_avg * 0.9 + back_left * 0.1;
-            front_left_avg = front_left_avg * 0.9 + front_left * 0.1;
+            // back_left_avg = back_left_avg * 0.9 + back_left * 0.1;
+            // front_left_avg = front_left_avg * 0.9 + front_left * 0.1;
+            // back_right_avg = back_right;
+            // front_right_avg = front_right;
+            // back_left_avg = back_left;
+            // front_left_avg = front_left;
 
-            
             // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
             // Average left and right sensors
             double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
             double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-            Serial.printf("left angle: %f\tright angle: %f\n", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
-            currentAngle = (leftAngle + rightAngle) / 2;
+            Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+
+            if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
+                // If we have no good data, assume we're going straight
+                Serial.printf("Using 0 as angle\n");
+                currentAngle = 0;
+            } if (back_left_errored || front_left_errored) {
+                Serial.printf("Using right angle\n");
+                currentAngle = rightAngle;
+            }else if (back_right_errored || front_right_errored) {
+                Serial.printf("Using left angle\n");
+                currentAngle = leftAngle;
+            }else {
+                Serial.printf("Averaging angles\n");
+                currentAngle = (leftAngle + rightAngle) / 2;
+            }
             
             // Update current distance
             // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
@@ -239,6 +262,8 @@ void moveOneForward () {
 
         // check if currentDistance and currentAngle are within tolerance
         if (currentDistance >= goalDistance) {
+          setMotor(LEFT_MOTOR, 0);
+          setMotor(RIGHT_MOTOR, 0);
           break;
         }
         
