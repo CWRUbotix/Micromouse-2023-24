@@ -416,6 +416,7 @@ void updateGoal() {
                 if (adjacentNode != NULL) {
                     //Then we want to ignore it
                     adjacentNode = NULL;
+                    break;
                 }
                 else {
                     adjacentNode = nodes[i];
