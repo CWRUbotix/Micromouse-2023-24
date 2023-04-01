@@ -33,9 +33,6 @@ Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 // Squares are 10in by 10in, but we work in mm. 10in = 254mm
 #define SQUARE_SIZE 254
 
-// Create encoders and sensors
-Adafruit_VL6180X lidar = Adafruit_VL6180X();
-
 Encoder rightEncoder (ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
 
@@ -96,8 +93,6 @@ void updateSensors () {
     front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
     Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
-
-// TODO: we probably need to account for accumulated error as a result of being not in the center
 
 /**
  * Convert a value in range [-128..127] to a motor power value

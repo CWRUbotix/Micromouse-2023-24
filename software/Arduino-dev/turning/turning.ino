@@ -113,7 +113,7 @@ uint8_t convertPower(int8_t p) {
  */
 void setMotor (motor_t m, int8_t power) {
   int m1, m2;
-    
+
   // Determine motor
   switch (m) {
   case LEFT_MOTOR:
@@ -188,7 +188,7 @@ double getAngle() {
     return 0;
 }
 
-/** 
+/**
  * Turn robot right (CW) by a given positive angle (in degrees) without PID
  * 
  * @param angle The angle to turn (in degrees)
@@ -211,7 +211,7 @@ void turnRight(double angle) {
   setMotor(LEFT_MOTOR, 0);
 }
 
-/** 
+/**
  * Turn robot left (CCW) by a given positive angle (in degrees) without PID
  * 
  * @param angle The angle to turn (in degrees)
@@ -234,7 +234,7 @@ void turnLeft(double angle) {
   setMotor(RIGHT_MOTOR, 0);
 }
 
-/** 
+/**
  * Turn robot right (CW) by a given positive angle (in degrees) using PID
  * 
  * @param angle The angle to turn (in degrees)
@@ -265,7 +265,7 @@ void turnRightWithPID(double angle) {
   turningPID.SetMode(MANUAL);
 }
 
-/** 
+/**
  * Turn robot left (CCW) by a given positive angle (in degrees) using PID
  * 
  * @param angle The angle to turn (in degrees)
