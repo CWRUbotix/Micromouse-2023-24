@@ -278,20 +278,20 @@ double p_controller(double p, double current, double goal, double min, double ma
  *         Positive is CCW
  *         Negative is CW
  */
-double getAngle() {
-  updateSensors();
-  // If left side is in range, use left measurements
-  if (!front_left_errored && !back_left_errored) {
-    return atan2(back_left - front_left, LIDAR_SEPERATION);
-  }
-  // If right side is in range, use right measurements
-  else if (!front_right_errored && !back_right_errored) {
-    return atan2(front_right - back_right, LIDAR_SEPERATION);
-  }
-  // If both sides are out of range, return 0
-  else
-    return 0;
-}
+// double getAngle() {
+//   updateSensors();
+//   // If left side is in range, use left measurements
+//   if (!front_left_errored && !back_left_errored) {
+//     return atan2(back_left - front_left, LIDAR_SEPERATION);
+//   }
+//   // If right side is in range, use right measurements
+//   else if (!front_right_errored && !back_right_errored) {
+//     return atan2(front_right - back_right, LIDAR_SEPERATION);
+//   }
+//   // If both sides are out of range, return 0
+//   else
+//     return 0;
+// }
 
 /**
  * Turn robot right (CW) by a given positive angle (in degrees) using PID
@@ -596,30 +596,44 @@ void createPath() {
 }
 
 //Update the known information about the maze with what we know
+// Needs to be called when we're in the middle of a tile
+// Only updates the two sides, so we either need to call it once,
+//  rotate the robot and call it again, or update the forward case based on the ultrasonic data
 void updateMaze() {
   updateSensors();
 
-  // TODO: check sensor errors and read sensors
+  // One annoying edge case is when we get a value from one sensor on one side, but not from the other one
+  // In this case, we increment and decrement, leaving the wall data for that wall unchanged
+
   if (robot.facing == NORTH) {
-      // // Update the wall to our right, that is, East of us.
-      // maze[current->y][current->x + 1][1] += sensorRightA < 255 ? 1 : -1;
-      // // Left is west
-      // maze[current->y][current->x][1] += sensorLeftA < 255 ? 1 : -1;
+    // Update the wall to our right, that is, East of us.
+    // If the sensor errored, that probably means there's no wall there
+    maze[current->y][current->x + 1][1] += back_right_errored ? -1 : 1;
+    maze[current->y][current->x + 1][1] += front_right_errored ? -1 : 1;
+    // Left is west
+    maze[current->y][current->x][1] += back_left_errored ? -1 : 1;
+    maze[current->y][current->x][1] += front_left_errored ? -1 : 1;
   }else if (robot.facing == EAST) {
-      // // Right is south
-      // maze[current->y + 1][current->x][0] += sensorRightA < 255 ? 1 : -1;
-      // // Left is north
-      // maze[current->y][current->x][0] += sensorLeftA < 255 ? 1 : -1;
+    // Right is south
+    maze[current->y + 1][current->x][0] += back_right_errored ? -1 : 1;
+    maze[current->y + 1][current->x][0] += front_right_errored ? -1 : 1;
+    // Left is north
+    maze[current->y][current->x][0] += back_left_errored ? -1 : 1;
+    maze[current->y][current->x][0] += front_left_errored ? -1 : 1;
   }else if (robot.facing == SOUTH) {
-      // // Right is west
-      // maze[current->y][current->x][1] += sensorRightA < 255 ? 1 : -1;
-      // // Left is east
-      // maze[current->y][current->x + 1][1] += sensorLeftA < 255 ? 1 : -1;
+    // Right is west
+    maze[current->y][current->x][1] += back_right_errored ? -1 : 1;
+    maze[current->y][current->x][1] += front_right_errored ? -1 : 1;
+    // Left is east
+    maze[current->y][current->x + 1][1] += back_left_errored ? -1 : 1;
+    maze[current->y][current->x + 1][1] += front_left_errored ? -1 : 1;
   }else if (robot.facing == WEST) {
-      // // Right is north
-      // maze[current->y][current->x][0] += sensorRightA < 255 ? 1 : -1;
-      // // Left is south
-      // maze[current->y + 1][current->x][0] += sensorLeftA < 255 ? 1 : -1;
+    // Right is north
+    maze[current->y][current->x][0] += back_right_errored ? -1 : 1;
+    maze[current->y][current->x][0] += front_right_errored ? -1 : 1;
+    // Left is south
+    maze[current->y + 1][current->x][0] += back_left_errored ? -1 : 1;
+    maze[current->y + 1][current->x][0] += front_left_errored ? -1 : 1;
   }
 
   //If there's not a wall to each of our sides, add a new node there
@@ -815,8 +829,13 @@ void setup(void) {
 
 /* ---- MAIN ---- */
 void loop(void) {
-  // Solve the maze
-  updateMaze(); // Reads sensor data and updates the maze
+  updateSensors();
+
+  // Reads sensor data and updates the maze
+  updateMaze();
+  rotate90(LEFT);
+  updateMaze();
+
   closeCurrentNode(); // Marks the current node as closed
   updateGoal(); // Figures out what node we're moving to
   createBackPath(); // Calculates a path from current to goal
