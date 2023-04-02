@@ -123,13 +123,14 @@ struct RobotStruct {
 /* ---- User Functions ---- */
 
 // Moves the robot to a node which is adjacent to the current node
+// adjNode is goal, is x: 1, y: 0
 void moveRobot(Node *adjNode) {
   // Figure out what direction the node is in
   cardinal_t direction;
   if (adjNode->x + 1 == robot.x) {
-    direction = EAST;
-  }else if (adjNode->x - 1 == robot.x) {
     direction = WEST;
+  }else if (adjNode->x - 1 == robot.x) {
+    direction = EAST;
   }else if (adjNode->y + 1 == robot.y) {
     direction = NORTH;
   }else if (adjNode->y - 1 == robot.y) {
@@ -143,6 +144,7 @@ void moveRobot(Node *adjNode) {
     abort();
   }
 
+  Serial.printf("Spinning to direction #%d\n", direction);
   spinTo(direction);
 
   moveForwardOneSquare();
@@ -175,7 +177,7 @@ void spinTo(cardinal_t direction) {
     (robot.facing == NORTH && direction == SOUTH) ||
     (robot.facing == SOUTH && direction == NORTH) ||
     (robot.facing == EAST && direction == WEST) ||
-    (robot.facing == WEST && direction == SOUTH)
+    (robot.facing == WEST && direction == EAST)
   ) {
     // Rotate 180º
     rotate90(RIGHT);
@@ -298,22 +300,66 @@ double p_controller(double p, double current, double goal, double min, double ma
  *
  * @param angle The angle to turn (in degrees)
  */
+// void turnRight(double angle) {
+//   leftEncoder.write(0);
+
+//   // Set up PID
+//   double current = 0;
+//   double target = angle * turnRatio;
+
+//   // Wait until necessary angle is reached
+//   while(leftEncoder.read() < target - ANGLE_TOLERANCE) {
+//     current = leftEncoder.read();
+
+//     // Update PID
+//     double output = p_controller(0.6, current, target, 0.0, 255.0);
+
+//     // Turn right wheel backwards
+//     setMotor(RIGHT_MOTOR, output / -2);
+
+//     // Turn left wheel forwards
+//     setMotor(LEFT_MOTOR, output / 2);
+//   }
+
+//   // Stop both motors
+//   setMotor(RIGHT_MOTOR, 0);
+//   setMotor(LEFT_MOTOR, 0);
+// }
+
 void turnRight(double angle) {
-  // Set up PID
-  double initial = leftEncoder.read();
+  leftEncoder.write(0);
+
   double target = angle * turnRatio;
 
-  // Wait until necessary angle is reached
-  while(abs(leftEncoder.read() - initial) < target - ANGLE_TOLERANCE) {
-    // Update PID
-    double output = p_controller(0.05, initial, target, 0.0, 255.0);
+  // TODO: this is bad
+  double output = 0.05 * target;
 
-    // Turn right wheel backwards
-    setMotor(RIGHT_MOTOR, output / -2);
+  // Turn right wheel backwards
+  setMotor(RIGHT_MOTOR, output / -2);
+  // Turn left wheel forwards
+  setMotor(LEFT_MOTOR, output / 2);
 
-    // Turn left wheel forwards
-    setMotor(LEFT_MOTOR, output / 2);
-  }
+  while(leftEncoder.read() < target - ANGLE_TOLERANCE);
+
+  // Stop both motors
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
+void turnLeft(double angle) {
+  rightEncoder.write(0);
+
+  double target = angle * turnRatio;
+
+  // TODO: this is bad
+  double output = 0.05 * target;
+
+  // Turn right wheel backwards
+  setMotor(RIGHT_MOTOR, output / 2);
+  // Turn left wheel forwards
+  setMotor(LEFT_MOTOR, output / -2);
+
+  while(rightEncoder.read() < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -325,27 +371,31 @@ void turnRight(double angle) {
  *
  * @param angle The angle to turn (in degrees)
  */
-void turnLeft(double angle) {
-  // Set up PID
-  double initial = rightEncoder.read();
-  double target = angle * turnRatio;
+// void turnLeft(double angle) {
+//   rightEncoder.write(0);
 
-  // Wait until necessary angle is reached
-  while(abs(rightEncoder.read() - initial) < target - ANGLE_TOLERANCE) {
-    // Update PID
-    double output = p_controller(0.05, initial, target, 0.0, 255.0);
+//   // Set up PID
+//   double target = angle * turnRatio;
+//   double current = 0;
 
-    // Turn left wheel backwards
-    setMotor(LEFT_MOTOR, output / -2);
+//   // Wait until necessary angle is reached
+//   while(rightEncoder.read() < target - ANGLE_TOLERANCE) {
+//     current = rightEncoder.read();
 
-    // Turn right wheel forwards
-    setMotor(RIGHT_MOTOR, output / 2);
-  }
+//     // Update PID
+//     double output = p_controller(1, current, target, 0.0, 255.0);
 
-  // Stop both motors
-  setMotor(LEFT_MOTOR, 0);
-  setMotor(RIGHT_MOTOR, 0);
-}
+//     // Turn left wheel backwards
+//     setMotor(LEFT_MOTOR, output / -2);
+
+//     // Turn right wheel forwards
+//     setMotor(RIGHT_MOTOR, output / 2);
+//   }
+
+//   // Stop both motors
+//   setMotor(LEFT_MOTOR, 0);
+//   setMotor(RIGHT_MOTOR, 0);
+// }
 
 /**
  * Turn robot by a given angle (in degrees)
@@ -378,6 +428,36 @@ void rotate90(turning_direction_t direction) {
     turn(90);
   }else if (direction == RIGHT) {
     turn(-90);
+  }
+}
+
+void rotate90updateRobot (turning_direction_t direction) {
+  if (direction == LEFT) {
+    turn(90);
+  } else if (direction == RIGHT) {
+    turn(-90);
+  }
+
+  if (direction == LEFT) {
+    if (robot.facing == NORTH) {
+      robot.facing = WEST;
+    }else if (robot.facing == EAST) {
+      robot.facing = NORTH;
+    }else if (robot.facing == SOUTH) {
+      robot.facing = EAST;
+    }else if (robot.facing == WEST) {
+      robot.facing = SOUTH;
+    }
+  } else if (direction == RIGHT) {
+    if (robot.facing == NORTH) {
+      robot.facing = EAST;
+    }else if (robot.facing == EAST) {
+      robot.facing = SOUTH;
+    }else if (robot.facing == SOUTH) {
+      robot.facing = WEST;
+    }else if (robot.facing == WEST) {
+      robot.facing = NORTH;
+    }
   }
 }
 
@@ -636,27 +716,30 @@ void updateMaze() {
     maze[current->y + 1][current->x][0] += front_left_errored ? -1 : 1;
   }
 
+  Serial.println("Attempting to add nodes");
+
   //If there's not a wall to each of our sides, add a new node there
   //North
   if (maze[current->y][current->x][0] < 0) {
-      addNodeIfNotExists(current->x, current->y - 1);
+    addNodeIfNotExists(current->x, current->y - 1);
   }
   //West
   if (maze[current->y][current->x][1] < 0) {
-      addNodeIfNotExists(current->x - 1, current->y);
+    addNodeIfNotExists(current->x - 1, current->y);
   }
   //South
   if (maze[current->y + 1][current->x][0] < 0) {
-      addNodeIfNotExists(current->x, current->y + 1);
+    addNodeIfNotExists(current->x, current->y + 1);
   }
   //East
   if (maze[current->y][current->x + 1][1] < 0) {
-      addNodeIfNotExists(current->x + 1, current->y);
+    addNodeIfNotExists(current->x + 1, current->y);
   }
 }
 
 // Most of the time, goal is just nodes[closedNodes]
 void updateGoal() {
+  Serial.printf("Updating goal; closedNodes: %d, numNodes: %d,\n", closedNodes, numNodes);
   if (closedNodes >= numNodes) {
     return;
   }
@@ -693,11 +776,14 @@ void updateGoal() {
 // Creates a path from the current node to the goal node
 // By backtracking through the nodes that we've seen
 void createBackPath() {
+  Serial.printf("Creating backpath\n");
+
   //finding backPath only needs to run once
   // Create a path.
   //      Find a common parent of current and goal
   backPath[0] = current;
   backPath[1] = goal;
+  Serial.printf("init backPath\n");
   // memcpy(&backPath[0], current, sizeof(Node));
   // memcpy(&backPath[1], goal, sizeof(Node));
   int numMid = 1; //The number of nodes that we go up before going back down.
@@ -706,7 +792,10 @@ void createBackPath() {
 
   const int genDiff = abs(current->distance - goal->distance);
 
+  Serial.printf("genDiff: %d\n", genDiff);
+
   for (int i = 0; i < genDiff; i++) {
+    Serial.printf("current distance: %d, goal distance: %d\n", current->distance, goal->distance);
     if (current->distance > goal->distance) {
       // parentCur.push(parentCur[parentCur.length-1].last);
       // backPath.splice(numMid, 0, backPath[numMid - 1].last);
@@ -722,6 +811,8 @@ void createBackPath() {
   }
   //Walk back up the tree until they're the same
   while (backPath[numMid - 1]->last != backPath[numMid]->last) {
+    Serial.printf("Walking up tree, numMid: %d, backPathLength: %d\n", numMid, backPathLength);
+
     // parentCur.push(parentCur[parentCur.length-1].last);
     // backPath.splice(numMid, 0, backPath[numMid-1].last);
     insertAt(backPath, backPathLength, numMid, backPath[numMid - 1]->last);
@@ -733,10 +824,13 @@ void createBackPath() {
     insertAt(backPath, backPathLength, numMid, backPath[numMid]->last);
     backPathLength++;
   }
+
+  Serial.printf("Final remove\b");
   //Remove the duplicated shared parent, that they both pushed
   // backPath.slice(numMid, 0, backPath[numMid].last);
   removeAt(backPath, backPathLength, numMid);
-    backPathLength--;
+  backPathLength--;
+  Serial.printf("Done\n");
 }
 
 // Moves us from current to goal, along a calculated backPath
@@ -745,6 +839,7 @@ void moveToGoal() {
   // Move back along path
   // backPath is a list of contiguous nodes. First is current, last is goal
 
+  Serial.printf("Moving to goal, backPath.length is %d\n", backPathLength);
   while (backPathLength > 0) {
     moveRobot(backPath[0]);
     removeAt(backPath, backPathLength, 0);
@@ -825,23 +920,36 @@ void setup(void) {
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
   Serial.println("Motors ready!");
+
+  // Initialize current
+  addNodeIfNotExists(0, 0);
+  current = nodes[0];
 }
 
 /* ---- MAIN ---- */
 void loop(void) {
-  updateSensors();
+  // updateSensors();
 
   // Reads sensor data and updates the maze
+  Serial.println("Updating maze");
   updateMaze();
-  rotate90(LEFT);
+  Serial.println("Turning left");
+  rotate90updateRobot(LEFT);
+  Serial.println("Updating maze");
   updateMaze();
 
+  Serial.println("Closing current node");
   closeCurrentNode(); // Marks the current node as closed
+  Serial.println("Updating goal");
   updateGoal(); // Figures out what node we're moving to
+  Serial.printf("Create back path to goal (x: %d, y: %d)\n", goal->x, goal->y);
   createBackPath(); // Calculates a path from current to goal
+  Serial.printf("Moving to goal\n");
   moveToGoal(); // Moves along that path to goal
 
+  Serial.println("Checking done");
   if (checkDone()) {
+    Serial.println("Solving maze");
     // Then we've solved the maze
     // Create a maze
     createPath();
