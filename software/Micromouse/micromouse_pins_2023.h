@@ -2,15 +2,12 @@
 #define MICROMOUSE_PINS_2023_H
 
 // LEDS
-#define LED0 5
-#define LED1 6
-#define LED2 10
-#define LED3 11
+#define YELLOW_LED 5  // LED0
+#define BLUE_LED 6    // LED1
+#define GREEN_LED 10  // LED2
+#define RED_LED 11    // LED3
 
-#ifndef _LED_ARR
-#define _LED_ARR
-const int LEDS[] = {LED0, LED1, LED2, LED3};
-#endif
+#define DEBUG_LED 13  // The LED on the teensy board
 
 // I2C BUSES
 #define I2C_LIDAR Wire2
@@ -40,5 +37,7 @@ const int LEDS[] = {LED0, LED1, LED2, LED3};
 #define MOTORLEFT_2 19
 #define MOTORRIGHT_1 18
 #define MOTORRIGHT_2 4
+
+#define START_BUTTON SONIC_ECHO3
 #endif
 

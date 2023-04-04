@@ -53,9 +53,15 @@ typedef struct Node {
 // 0 - Basic A*; 1 - A*, but tries to go center; 2 - A²*, 3 - Augment A* and extra heuristic
 #define MAPPING_MODE       0
 
-// TODO: Maze goal need to be a 4x4
-#define END_X              5
-#define END_Y              5
+// This is the midpoint of the maze
+// Okay. The heuristic that A* uses is taxi-cab distance to the pin in the middle of
+//  the 4x4 goal in the middle of the maze.
+//  This pin is located at (4.5, 4.5) (since we've 0-indexed node locations)
+//  However, the distance from the center of any node to 4.5, 4.5, by taxi-cab distance is a whole number
+//  To avoid floating point math (I don't like floating point), we multiply by 10
+//  (Everywhere else, distances, scores, and node locations are absolute, we only multiple by 10 in h())
+#define END_X              45
+#define END_Y              45
 
 // Used as parameters to the motor functions
 enum turning_direction_t { LEFT, RIGHT };
@@ -597,7 +603,10 @@ void moveForwardOneSquare() {
 
 //Heuristic function
 int h(int x, int y) {
-  return(abs(END_X - x) + abs(END_Y - y));
+  // See comment above the definition of END_X and END_Y
+  // Since this is taxi-cab distance, the distance is always a whole number
+  // To avoid introducing floating-point math, we multiply by 10 first and divide by 10 later
+  return (abs(END_X - (x * 10)) + abs(END_Y - (y * 10))) / 10;
 }
 
 void insertAt(Node **arr, int len, int i, Node *n) {
@@ -669,8 +678,14 @@ void addNodeIfNotExists(int x, int y) {
   numNodes++;
 }
 
+// Check if we are in any of the four finish squares
 int checkDone() {
-  return(current->x == END_X && current->y == END_Y);
+  return (
+    (current->x == 4 && current->y == 4) ||
+    (current->x == 4 && current->y == 5) ||
+    (current->x == 5 && current->y == 4) ||
+    (current->x == 5 && current->y == 5)
+  );
 }
 
 // Once we've solved the maze, converts node tree into `mainPath` (a list)
@@ -880,8 +895,14 @@ void closeCurrentNode () {
 /* ---- SETUP ---- */
 void setup(void) {
   // Debug led on the board itself
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  pinMode(DEBUG_LED, OUTPUT);
+
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(BLUE_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+
+  digitalWrite(DEBUG_LED, HIGH);
 
   // Start serial
   Serial.begin(115200);
@@ -930,6 +951,22 @@ void setup(void) {
   // Initialize current
   addNodeIfNotExists(0, 0);
   current = nodes[0];
+
+  pinMode(START_BUTTON, INPUT);
+  int t = 0;
+  // Spin until start button is pressed
+  // t is ms
+  // On for 300 (0-300) off for 500 (300-800)
+  while(!digitalRead(START_BUTTON)) {
+    if (t == 0) {
+      digitalWrite(YELLOW_LED, HIGH);
+    }else if (t == 300) {
+      digitalWrite(YELLOW_LED, LOW);
+    }
+
+    t = (t + 10) % 800;
+    delay(10);
+  }
 }
 
 /* ---- MAIN ---- */
@@ -979,6 +1016,15 @@ void loop(void) {
       for (int i = 0; i < pathLength; i++) {
         moveRobot(mainPath[i]);
       }
+    }
+  }
+
+  if (numNodes == closedNodes) {
+    while (true) {
+      digitalWrite(RED_LED, LOW);
+      delay(600);
+      digitalWrite(RED_LED, HIGH);
+      delay(100);
     }
   }
 }
