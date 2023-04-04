@@ -84,6 +84,12 @@ uint8_t front_left;
 
 bool back_right_errored, front_right_errored, back_left_errored, front_left_errored;
 
+float ultrasonic;
+
+float ultrasonic_distance_factor = 0.0017
+
+bool ultrasonic_errored;
+
 Encoder rightEncoder (ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
 
@@ -264,6 +270,12 @@ void updateSensors () {
   back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX;
   front_left = lidar_sensors[3].readRange();
   front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+
+  digitalWrite(SONIC_TRIG1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(SONIC_TRIG1, LOW);
+  ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
+  ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
 
   // Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
@@ -937,6 +949,10 @@ void setup(void) {
     delay(10);
   }
   Serial.println("LiDAR sensors ready!");
+
+  pinMode(SONIC_TRIG1, OUTPUT);
+  pinMode(SONIC_ECHO1, INPUT);
+  Serial.println("Ultrasonic sensor ready!");
 
   // Setup motors
   pinMode(MOTORLEFT_1, OUTPUT);
