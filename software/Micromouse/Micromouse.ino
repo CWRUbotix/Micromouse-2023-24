@@ -983,6 +983,7 @@ void setup(void) {
     t = (t + 10) % 800;
     delay(10);
   }
+  digitalWrite(YELLOW_LED, LOW);
 }
 
 /* ---- MAIN ---- */
