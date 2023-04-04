@@ -50,8 +50,8 @@ typedef struct Node {
 } Node;
 
 #define MAZE_SIZE          10
-// 0 - Basic A*; 1 - A*, but tries to go center; 2 - A²*, 3 - Augment A* and extra huristic
-#define MAPPING_MODE       3
+// 0 - Basic A*; 1 - A*, but tries to go center; 2 - A²*, 3 - Augment A* and extra heuristic
+#define MAPPING_MODE       0
 
 // TODO: Maze goal need to be a 4x4
 #define END_X              5
@@ -259,7 +259,7 @@ void updateSensors () {
   front_left = lidar_sensors[3].readRange();
   front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 
-  Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  // Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -490,20 +490,20 @@ void moveForwardOneSquare() {
       // Average left and right sensors
       double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
       double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-      Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+      // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
       if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
         // If we have no good data, assume we're going straight
-        Serial.printf("Using 0 as angle\n");
+        // Serial.printf("Using 0 as angle\n");
         currentAngle = 0;
       } else if (back_left_errored || front_left_errored) {
-        Serial.printf("Using right angle\n");
+        // Serial.printf("Using right angle\n");
         currentAngle = rightAngle;
       } else if (back_right_errored || front_right_errored) {
-        Serial.printf("Using left angle\n");
+        // Serial.printf("Using left angle\n");
         currentAngle = leftAngle;
       } else {
-        Serial.printf("Averaging angles\n");
+        // Serial.printf("Averaging angles\n");
         currentAngle = (leftAngle + rightAngle) / 2;
       }
 
@@ -512,9 +512,9 @@ void moveForwardOneSquare() {
       // num revolutions * pi * diameter (Zach says 60mm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      Serial.printf("Encoder left: %d\tright: %d; ", leftRevs, rightRevs);
+      // Serial.printf("Encoder left: %d\tright: %d; ", leftRevs, rightRevs);
       currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
-      Serial.printf("currentDistance: %f\n", currentDistance);
+      // Serial.printf("currentDistance: %f\n", currentDistance);
     }
 
     // check if currentDistance and currentAngle are within tolerance
@@ -563,7 +563,7 @@ void moveForwardOneSquare() {
         centerOffset = (240 - 84) / 2.0 - (double)front_left;
     }
 
-    Serial.printf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
+    // Serial.printf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
 
     // p, current, goal, min, max
     // When the angle is 0.1, we need to bump left power by like 5, so P of 20
@@ -611,6 +611,18 @@ void removeAt(Node **arr, int len, int i) {
   for (int j = i; j < len - 1; j++) {
     arr[j] = arr[j + 1];
   }
+}
+
+// Length is the total length of the array, not the number of elements to print
+void printArray(Node **arr, int startIndex, int length) {
+  Serial.printf("[");
+  for (int i = startIndex; i < length; i++) {
+    Serial.printf("(x: %d, y: %d, dist: %d, score: %d, closed: %c)", arr[i]->x, arr[i]->y, arr[i]->distance, arr[i]->score, arr[i]->closed ? 'y' : 'n');
+    if (i != length - 1) {
+      Serial.printf(", ");
+    }
+  }
+  Serial.printf("]\n");
 }
 
 void addNodeIfNotExists(int x, int y) {
@@ -783,19 +795,17 @@ void createBackPath() {
   //      Find a common parent of current and goal
   backPath[0] = current;
   backPath[1] = goal;
-  Serial.printf("init backPath\n");
+
   // memcpy(&backPath[0], current, sizeof(Node));
   // memcpy(&backPath[1], goal, sizeof(Node));
   int numMid = 1; //The number of nodes that we go up before going back down.
 
   backPathLength = 2;
 
+  // 1
   const int genDiff = abs(current->distance - goal->distance);
 
-  Serial.printf("genDiff: %d\n", genDiff);
-
   for (int i = 0; i < genDiff; i++) {
-    Serial.printf("current distance: %d, goal distance: %d\n", current->distance, goal->distance);
     if (current->distance > goal->distance) {
       // parentCur.push(parentCur[parentCur.length-1].last);
       // backPath.splice(numMid, 0, backPath[numMid - 1].last);
@@ -825,12 +835,10 @@ void createBackPath() {
     backPathLength++;
   }
 
-  Serial.printf("Final remove\b");
   //Remove the duplicated shared parent, that they both pushed
   // backPath.slice(numMid, 0, backPath[numMid].last);
   removeAt(backPath, backPathLength, numMid);
   backPathLength--;
-  Serial.printf("Done\n");
 }
 
 // Moves us from current to goal, along a calculated backPath
@@ -928,6 +936,9 @@ void setup(void) {
 
 /* ---- MAIN ---- */
 void loop(void) {
+  Serial.println("");
+  Serial.printf("Robot at (x: %d, y: %d)\n", current->x, current->y);
+
   // updateSensors();
 
   // Reads sensor data and updates the maze
@@ -938,14 +949,18 @@ void loop(void) {
   Serial.println("Updating maze");
   updateMaze();
 
+  printArray(nodes, 0, numNodes);
   Serial.println("Closing current node");
   closeCurrentNode(); // Marks the current node as closed
+  printArray(nodes, 0, numNodes);
   Serial.println("Updating goal");
   updateGoal(); // Figures out what node we're moving to
-  Serial.printf("Create back path to goal (x: %d, y: %d)\n", goal->x, goal->y);
+  Serial.printf("Creating back path to goal (x: %d, y: %d)\n", goal->x, goal->y);
   createBackPath(); // Calculates a path from current to goal
+  printArray(backPath, 0, backPathLength);
   Serial.printf("Moving to goal\n");
   moveToGoal(); // Moves along that path to goal
+
 
   Serial.println("Checking done");
   if (checkDone()) {
@@ -961,10 +976,10 @@ void loop(void) {
       delay(10);
       //TODO: Run the maze in reverse, then forwards
       for (int i = pathLength - 1; i >= 0; i--) {
-          moveRobot(mainPath[i]);
+        moveRobot(mainPath[i]);
       }
       for (int i = 0; i < pathLength; i++) {
-          moveRobot(mainPath[i]);
+        moveRobot(mainPath[i]);
       }
     }
   }
