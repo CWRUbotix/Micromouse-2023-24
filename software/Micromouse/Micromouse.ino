@@ -820,9 +820,7 @@ void createBackPath() {
     }
   }
   //Walk back up the tree until they're the same
-  while (backPath[numMid - 1]->last != backPath[numMid]->last) {
-    Serial.printf("Walking up tree, numMid: %d, backPathLength: %d\n", numMid, backPathLength);
-
+  while (backPath[numMid - 1] != backPath[numMid]) {
     // parentCur.push(parentCur[parentCur.length-1].last);
     // backPath.splice(numMid, 0, backPath[numMid-1].last);
     insertAt(backPath, backPathLength, numMid, backPath[numMid - 1]->last);
