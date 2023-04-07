@@ -296,164 +296,6 @@ double p_controller(double p, double current, double goal, double min, double ma
 }
 
 /**
- * Get angle of robot from center line of maze path
- *
- * @return The angle of the robot from the center line of the maze path
- *         Positive is CCW
- *         Negative is CW
- */
-// double getAngle() {
-//   updateSensors();
-//   // If left side is in range, use left measurements
-//   if (!front_left_errored && !back_left_errored) {
-//     return atan2(back_left - front_left, LIDAR_SEPERATION);
-//   }
-//   // If right side is in range, use right measurements
-//   else if (!front_right_errored && !back_right_errored) {
-//     return atan2(front_right - back_right, LIDAR_SEPERATION);
-//   }
-//   // If both sides are out of range, return 0
-//   else
-//     return 0;
-// }
-
-/**
- * Turn robot right (CW) by a given positive angle (in degrees) using PID
- *
- * @param angle The angle to turn (in degrees)
- */
-// void turnRight(double angle) {
-//   leftEncoder.write(0);
-
-//   // Set up PID
-//   double current = 0;
-//   double target = angle * turnRatio;
-
-//   // Wait until necessary angle is reached
-//   while(leftEncoder.read() < target - ANGLE_TOLERANCE) {
-//     current = leftEncoder.read();
-
-//     // Update PID
-//     double output = p_controller(0.6, current, target, 0.0, 255.0);
-
-//     // Turn right wheel backwards
-//     setMotor(RIGHT_MOTOR, output / -2);
-
-//     // Turn left wheel forwards
-//     setMotor(LEFT_MOTOR, output / 2);
-//   }
-
-//   // Stop both motors
-//   setMotor(RIGHT_MOTOR, 0);
-//   setMotor(LEFT_MOTOR, 0);
-// }
-
-void turnDirection(double angle, turning_direction_t direction)
-{
-  Encoder *turnEncoder;
-
-  double target = angle * turnRatio;
-
-  // TODO: this is bad
-  double output = 0.05 * target;
-
-  int dir = 1;
-
-  if (direction == LEFT)
-  {
-    turnEncoder = &rightEncoder;
-  } else {
-    turnEncoder = &leftEncoder;
-    dir = -1;
-  }
-
-  turnEncoder->write(0);
-
-  // Turn right wheel backwards if left, forwards if right
-  setMotor(RIGHT_MOTOR, output / 2 * dir);
-  // Turn left wheel forwards if left, backwards if right
-  setMotor(LEFT_MOTOR, output / -2 * dir);
-
-  //
-  while(turnEncoder->read() < target - ANGLE_TOLERANCE);
-
-  // Stop both motors
-  setMotor(RIGHT_MOTOR, 0);
-  setMotor(LEFT_MOTOR, 0);
-}
-
-void turnRight(double angle) {
-  leftEncoder.write(0);
-
-  double target = angle * turnRatio;
-
-  // TODO: this is bad
-  double output = 0.05 * target;
-
-  // Turn right wheel backwards
-  setMotor(RIGHT_MOTOR, output / -2);
-  // Turn left wheel forwards
-  setMotor(LEFT_MOTOR, output / 2);
-
-  while(leftEncoder.read() < target - ANGLE_TOLERANCE);
-
-  // Stop both motors
-  setMotor(RIGHT_MOTOR, 0);
-  setMotor(LEFT_MOTOR, 0);
-}
-
-void turnLeft(double angle) {
-  rightEncoder.write(0);
-
-  double target = angle * turnRatio;
-
-  // TODO: this is bad
-  double output = 0.05 * target;
-
-  // Turn right wheel backwards
-  setMotor(RIGHT_MOTOR, output / 2);
-  // Turn left wheel forwards
-  setMotor(LEFT_MOTOR, output / -2);
-
-  while(rightEncoder.read() < target - ANGLE_TOLERANCE);
-
-  // Stop both motors
-  setMotor(RIGHT_MOTOR, 0);
-  setMotor(LEFT_MOTOR, 0);
-}
-
-/**
- * Turn robot left (CCW) by a given positive angle (in degrees) using PID
- *
- * @param angle The angle to turn (in degrees)
- */
-// void turnLeft(double angle) {
-//   rightEncoder.write(0);
-
-//   // Set up PID
-//   double target = angle * turnRatio;
-//   double current = 0;
-
-//   // Wait until necessary angle is reached
-//   while(rightEncoder.read() < target - ANGLE_TOLERANCE) {
-//     current = rightEncoder.read();
-
-//     // Update PID
-//     double output = p_controller(1, current, target, 0.0, 255.0);
-
-//     // Turn left wheel backwards
-//     setMotor(LEFT_MOTOR, output / -2);
-
-//     // Turn right wheel forwards
-//     setMotor(RIGHT_MOTOR, output / 2);
-//   }
-
-//   // Stop both motors
-//   setMotor(LEFT_MOTOR, 0);
-//   setMotor(RIGHT_MOTOR, 0);
-// }
-
-/**
  * Turn robot by a given angle (in degrees)
  *
  * @param angle The angle to turn (in degrees)
@@ -461,10 +303,13 @@ void turnLeft(double angle) {
  *              Negative is CW
  */
 void turn(double angle, turning_direction_t direction) {
+  // Encoder to turn
   Encoder *turnEncoder;
 
+  // target point
   double target = angle * turnRatio;
 
+  // Direction constant
   int dir = 1;
 
   if (direction == LEFT)
@@ -484,51 +329,18 @@ void turn(double angle, turning_direction_t direction) {
   // Turn left wheel forwards if left, backwards if right
   setMotor(LEFT_MOTOR, -0.025 * target * dir);
 
-  //
+  // Turn until within margin of error
   while(turnEncoder->read() < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
-
-  // // Get error from side lidar sensors
-  // double error = getAngle();
-  // // If current angle is not within tolerance, perform an adjustment turn to compensate
-  // if(abs(error) > angleTolerance) {
-  //   turn(error * -0.8);
-  // }
 }
 
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
   turn(90, direction);
-}
-
-void rotate90updateRobot (turning_direction_t direction) {
-  turn(90, direction);
-  
-  if (direction == LEFT) {
-    if (robot.facing == NORTH) {
-      robot.facing = WEST;
-    }else if (robot.facing == EAST) {
-      robot.facing = NORTH;
-    }else if (robot.facing == SOUTH) {
-      robot.facing = EAST;
-    }else if (robot.facing == WEST) {
-      robot.facing = SOUTH;
-    }
-  } else if (direction == RIGHT) {
-    if (robot.facing == NORTH) {
-      robot.facing = EAST;
-    }else if (robot.facing == EAST) {
-      robot.facing = SOUTH;
-    }else if (robot.facing == SOUTH) {
-      robot.facing = WEST;
-    }else if (robot.facing == WEST) {
-      robot.facing = NORTH;
-    }
-  }
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
