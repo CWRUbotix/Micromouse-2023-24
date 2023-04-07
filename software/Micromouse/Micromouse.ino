@@ -350,7 +350,7 @@ double p_controller(double p, double current, double goal, double min, double ma
 
 void turnDirection(double angle, turning_direction_t direction)
 {
-  Encoder turnEncoder;
+  Encoder *turnEncoder;
 
   double target = angle * turnRatio;
 
@@ -361,13 +361,13 @@ void turnDirection(double angle, turning_direction_t direction)
 
   if (direction == LEFT)
   {
-    turnEncoder = rightEncoder;
+    turnEncoder = &rightEncoder;
   } else {
-    turnEncoder = leftEncoder;
+    turnEncoder = &leftEncoder;
     dir = -1;
   }
 
-  turnEncoder.write(0);
+  turnEncoder->write(0);
 
   // Turn right wheel backwards if left, forwards if right
   setMotor(RIGHT_MOTOR, output / 2 * dir);
@@ -375,7 +375,7 @@ void turnDirection(double angle, turning_direction_t direction)
   setMotor(LEFT_MOTOR, output / -2 * dir);
 
   //
-  while(turnEncoder.read() < target - ANGLE_TOLERANCE);
+  while(turnEncoder->read() < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -460,17 +460,37 @@ void turnLeft(double angle) {
  *              Positive is CCW
  *              Negative is CW
  */
-void turn(double angle) {
-  // If angle is negative (CW), turn right
-  if(angle < 0) {
-    //turnRight(abs(angle));
-    turnDirection(angle, RIGHT)
+void turn(double angle, turning_direction_t direction) {
+  Encoder *turnEncoder;
+
+  double target = angle * turnRatio;
+
+  int dir = 1;
+
+  if (direction == LEFT)
+  {
+    // Turn left
+    turnEncoder = &rightEncoder;
+  } else {
+    // Turn right
+    turnEncoder = &leftEncoder;
+    dir = -1;
   }
-  // If angle is positive (CCW), turn left
-  else {
-    //turnLeft(angle);
-    turnDirection(angle, LEFT)
-  }
+
+  turnEncoder->write(0);
+
+  // Turn right wheel backwards if left, forwards if right
+  setMotor(RIGHT_MOTOR, 0.025 * target * dir);
+  // Turn left wheel forwards if left, backwards if right
+  setMotor(LEFT_MOTOR, -0.025 * target * dir);
+
+  //
+  while(turnEncoder->read() < target - ANGLE_TOLERANCE);
+
+  // Stop both motors
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+
   // // Get error from side lidar sensors
   // double error = getAngle();
   // // If current angle is not within tolerance, perform an adjustment turn to compensate
@@ -482,20 +502,12 @@ void turn(double angle) {
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
-  if (direction == LEFT) {
-    turn(90);
-  }else if (direction == RIGHT) {
-    turn(-90);
-  }
+  turn(90, direction);
 }
 
 void rotate90updateRobot (turning_direction_t direction) {
-  if (direction == LEFT) {
-    turn(90);
-  } else if (direction == RIGHT) {
-    turn(-90);
-  }
-
+  turn(90, direction);
+  
   if (direction == LEFT) {
     if (robot.facing == NORTH) {
       robot.facing = WEST;
