@@ -344,6 +344,40 @@ double p_controller(double p, double current, double goal, double min, double ma
 //   setMotor(LEFT_MOTOR, 0);
 // }
 
+void turnDirection(double angle, turning_direction_t direction)
+{
+  Encoder turnEncoder;
+
+  double target = angle * turnRatio;
+
+  // TODO: this is bad
+  double output = 0.05 * target;
+
+  int dir = 1;
+
+  if (direction == LEFT)
+  {
+    turnEncoder = rightEncoder;
+  } else {
+    turnEncoder = leftEncoder;
+    dir = -1;
+  }
+
+  turnEncoder.write(0);
+
+  // Turn right wheel backwards if left, forwards if right
+  setMotor(RIGHT_MOTOR, output / 2 * dir);
+  // Turn left wheel forwards if left, backwards if right
+  setMotor(LEFT_MOTOR, output / -2 * dir);
+
+  //
+  while(turnEncoder.read() < target - ANGLE_TOLERANCE);
+
+  // Stop both motors
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
 void turnRight(double angle) {
   leftEncoder.write(0);
 
@@ -425,11 +459,13 @@ void turnLeft(double angle) {
 void turn(double angle) {
   // If angle is negative (CW), turn right
   if(angle < 0) {
-    turnRight(abs(angle));
+    //turnRight(abs(angle));
+    turnDirection(angle, RIGHT)
   }
   // If angle is positive (CCW), turn left
   else {
-    turnLeft(angle);
+    //turnLeft(angle);
+    turnDirection(angle, LEFT)
   }
   // // Get error from side lidar sensors
   // double error = getAngle();
