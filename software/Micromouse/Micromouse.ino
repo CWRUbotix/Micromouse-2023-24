@@ -84,9 +84,11 @@ uint8_t front_left;
 
 bool back_right_errored, front_right_errored, back_left_errored, front_left_errored;
 
-float ultrasonic;
+double ultrasonic;
 
-float ultrasonic_distance_factor = 0.0017
+// Magic constant that converts the time the ultrasonic takes to read the sensors into millimeters
+// Based on the speed of sound
+double ultrasonic_distance_factor = 0.17;
 
 bool ultrasonic_errored;
 
@@ -277,7 +279,9 @@ void updateSensors () {
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
 
-  // Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  Serial.printf("Updated sensors\n");
+  Serial.printf("Ultrasonic: %f\n", ultrasonic);
+  Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -606,7 +610,7 @@ void moveForwardOneSquare() {
     //                    2
     centerOffset = (double)front_right - (double)front_left;
     if (front_left_errored && front_right_errored) {
-        Serial.printf("both errorered, setting offset to 0\n");
+        Serial.printf("both errored, setting offset to 0\n");
         centerOffset = 0;
     }else if (front_left_errored) {
         // If we don't have a left value
@@ -768,6 +772,9 @@ void updateMaze() {
     // Left is west
     maze[current->y][current->x][1] += back_left_errored ? -1 : 1;
     maze[current->y][current->x][1] += front_left_errored ? -1 : 1;
+
+    // In front of us, north
+    maze[current->y][current->x][0] += ultrasonic_errored ? -1 : 1;
   }else if (robot.facing == EAST) {
     // Right is south
     maze[current->y + 1][current->x][0] += back_right_errored ? -1 : 1;
@@ -775,6 +782,9 @@ void updateMaze() {
     // Left is north
     maze[current->y][current->x][0] += back_left_errored ? -1 : 1;
     maze[current->y][current->x][0] += front_left_errored ? -1 : 1;
+
+    // In front of us, east
+    maze[current->y][current->x + 1][1] += ultrasonic_errored ? -1 : 1;
   }else if (robot.facing == SOUTH) {
     // Right is west
     maze[current->y][current->x][1] += back_right_errored ? -1 : 1;
@@ -782,6 +792,9 @@ void updateMaze() {
     // Left is east
     maze[current->y][current->x + 1][1] += back_left_errored ? -1 : 1;
     maze[current->y][current->x + 1][1] += front_left_errored ? -1 : 1;
+
+    // In front of us, south
+    maze[current->y + 1][current->x][0] += ultrasonic_errored ? -1 : 1;
   }else if (robot.facing == WEST) {
     // Right is north
     maze[current->y][current->x][0] += back_right_errored ? -1 : 1;
@@ -789,6 +802,9 @@ void updateMaze() {
     // Left is south
     maze[current->y + 1][current->x][0] += back_left_errored ? -1 : 1;
     maze[current->y + 1][current->x][0] += front_left_errored ? -1 : 1;
+
+    // In front of us, west
+    maze[current->y][current->x][1] += ultrasonic_errored ? -1 : 1;
   }
 
   Serial.println("Attempting to add nodes");
@@ -1020,6 +1036,13 @@ void setup(void) {
     delay(10);
   }
   digitalWrite(YELLOW_LED, LOW);
+
+  // We need to make sure that we've checked the square behind us before starting
+  // (Normally, this isn't needed since the square
+  //  behind us is the square we just came from)
+  updateMaze(); // Update the maze while we're pointed North,
+  spinTo(SOUTH); // Spin South
+  updateMaze(); // Update the maze again
 }
 
 /* ---- MAIN ---- */
@@ -1027,13 +1050,7 @@ void loop(void) {
   Serial.println("");
   Serial.printf("Robot at (x: %d, y: %d)\n", current->x, current->y);
 
-  // updateSensors();
-
   // Reads sensor data and updates the maze
-  Serial.println("Updating maze");
-  updateMaze();
-  Serial.println("Turning left");
-  rotate90updateRobot(LEFT);
   Serial.println("Updating maze");
   updateMaze();
 
