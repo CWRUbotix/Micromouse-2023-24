@@ -296,6 +296,33 @@ double p_controller(double p, double current, double goal, double min, double ma
 }
 
 /**
+ * @return angle given by lidar sensors
+ */
+double getAngle()
+{
+  // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
+  // Average left and right sensors
+  double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
+  double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
+  // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+
+  if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
+        // If we have no good data, assume we're going straight
+        // Serial.printf("Using 0 as angle\n");
+        return 0;
+      } else if (back_left_errored || front_left_errored) {
+        // Serial.printf("Using right angle\n");
+        return rightAngle;
+      } else if (back_right_errored || front_right_errored) {
+        // Serial.printf("Using left angle\n");
+        return leftAngle;
+      } else {
+        // Serial.printf("Averaging angles\n");
+        return (leftAngle + rightAngle) / 2;
+      }
+}
+
+/**
  * Turn robot by a given angle (in degrees)
  *
  * @param angle The angle to turn (in degrees)
@@ -341,7 +368,8 @@ void turn(double angle, turning_direction_t direction) {
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
-  turn(90, direction);
+  //serial.printf(getAngle());
+  turn(90.0 + getAngle(), direction);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
@@ -369,26 +397,8 @@ void moveForwardOneSquare() {
       // read LiDAR
       updateSensors();
 
-      // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
-      // Average left and right sensors
-      double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
-      double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-      // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
-
-      if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
-        // If we have no good data, assume we're going straight
-        // Serial.printf("Using 0 as angle\n");
-        currentAngle = 0;
-      } else if (back_left_errored || front_left_errored) {
-        // Serial.printf("Using right angle\n");
-        currentAngle = rightAngle;
-      } else if (back_right_errored || front_right_errored) {
-        // Serial.printf("Using left angle\n");
-        currentAngle = leftAngle;
-      } else {
-        // Serial.printf("Averaging angles\n");
-        currentAngle = (leftAngle + rightAngle) / 2;
-      }
+      // Update angle
+      currentAngle = getAngle();
 
       // Update current distance
       // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
