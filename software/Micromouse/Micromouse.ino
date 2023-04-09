@@ -279,9 +279,9 @@ void updateSensors () {
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
 
-  Serial.printf("Updated sensors\n");
-  Serial.printf("Ultrasonic: %f\n", ultrasonic);
-  Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  // Serial.printf("Updated sensors\n");
+  // Serial.printf("Ultrasonic: %f\n", ultrasonic);
+  // Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -325,9 +325,10 @@ void turn(double angle, turning_direction_t direction) {
   turnEncoder->write(0);
 
   // Turn right wheel backwards if left, forwards if right
-  setMotor(RIGHT_MOTOR, 0.025 * target * dir);
+  // Scale by 0.7 to compensate for over-volted motors
+  setMotor(RIGHT_MOTOR, 0.025 * target * dir * 0.7);
   // Turn left wheel forwards if left, backwards if right
-  setMotor(LEFT_MOTOR, -0.025 * target * dir);
+  setMotor(LEFT_MOTOR, -0.025 * target * dir * 0.7);
 
   // Turn until within margin of error
   while(turnEncoder->read() < target - ANGLE_TOLERANCE);
@@ -464,8 +465,9 @@ void moveForwardOneSquare() {
     // NOTE: We're assuming that at angles close to 0, angularVelocity has a linear relationship with velocity.
 
     // update motor values
-    int velocityLeft = (int)(-angularVelocity / 2.0) + velocity;
-    int velocityRight = (int)(angularVelocity / 2.0) + velocity;
+    // Scale by 0.7 to compensate for over-volted motors
+    int velocityLeft = (int)(-angularVelocity / 2.0 * 0.7) + velocity;
+    int velocityRight = (int)(angularVelocity / 2.0 * 0.7) + velocity;
 
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
