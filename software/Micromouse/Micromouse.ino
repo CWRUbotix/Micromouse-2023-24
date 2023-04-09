@@ -304,7 +304,7 @@ double getAngle()
   // Average left and right sensors
   double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
   double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-  // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+  Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
   if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
         // If we have no good data, assume we're going straight
@@ -368,8 +368,7 @@ void turn(double angle, turning_direction_t direction) {
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
-  //serial.printf(getAngle());
-  turn(90.0 + getAngle(), direction);
+  turn(90.0 + getAngle() * 180.0 / PI, direction);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
