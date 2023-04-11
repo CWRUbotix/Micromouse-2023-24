@@ -34,6 +34,9 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
 // If the LiDAR is greater than this value, we assume that it's not sensing the wall.
 #define SENSOR_RANGE_MAX 110
 
+// When centered, there should be 60mm in front of the ultrasonic
+#define ULTRASONIC_FRONT 60
+
 // Squares are 10in by 10in, but we work in mm. 10in = 254mm
 #define SQUARE_SIZE 254
 
@@ -164,7 +167,7 @@ void moveRobot(Node *adjNode) {
     abort();
   }
 
-  Serial.printf("Spinning to direction #%d\n", direction);
+  // Serial.printf("Spinning to direction #%d\n", direction);
   spinTo(direction);
 
   moveForwardOneSquare();
@@ -292,9 +295,7 @@ void updateSensors () {
     ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
   }
 
-  // Serial.printf("Updated sensors\n");
-  // Serial.printf("Ultrasonic: %f\n", ultrasonic);
-  // Serial.printf("back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  Serial.printf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -317,22 +318,22 @@ double getAngle()
   // Average left and right sensors
   double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
   double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-  Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+  // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
   if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
-        // If we have no good data, assume we're going straight
-        // Serial.printf("Using 0 as angle\n");
-        return 0;
-      } else if (back_left_errored || front_left_errored) {
-        // Serial.printf("Using right angle\n");
-        return rightAngle;
-      } else if (back_right_errored || front_right_errored) {
-        // Serial.printf("Using left angle\n");
-        return leftAngle;
-      } else {
-        // Serial.printf("Averaging angles\n");
-        return (leftAngle + rightAngle) / 2;
-      }
+    // If we have no good data, assume we're going straight
+    // Serial.printf("Using 0 as angle\n");
+    return 0;
+  } else if (back_left_errored || front_left_errored) {
+    // Serial.printf("Using right angle\n");
+    return rightAngle;
+  } else if (back_right_errored || front_right_errored) {
+    // Serial.printf("Using left angle\n");
+    return leftAngle;
+  } else {
+    // Serial.printf("Averaging angles\n");
+    return (leftAngle + rightAngle) / 2;
+  }
 }
 
 /**
@@ -381,7 +382,11 @@ void turn(double angle, turning_direction_t direction) {
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
-  turn(90.0 + getAngle() * 180.0 / PI, direction);
+  if (direction == RIGHT) {
+    turn(90.0 + getAngle() * 180.0 / PI, direction);
+  } else {
+    turn(90.0 - getAngle() * 180.0 / PI, direction);
+  }
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
@@ -422,10 +427,21 @@ void moveForwardOneSquare() {
       // Serial.printf("currentDistance: %f\n", currentDistance);
     }
 
+    Serial.printf("Moving forward. current: %d, ultrasonic: %f, cond: %d, %d, %d\n", currentDistance, ultrasonic, currentDistance >= goalDistance, ultrasonic < 150, ultrasonic > 95);
+
+    // We're also not allowed to break out of the loop (stop going forward), if we're more than 95 mm in front
+    //  If we have a wall in front of us, but it's more than 95mm from the ultrasonic, then we're too far back and we need to go forward still
+    // If we think we're there, but we're not, go farther
+    if (currentDistance >= goalDistance && ultrasonic < 150 && ultrasonic > 95) {
+      Serial.printf("Moving goalDistance forward.\n");
+      // Increase goal distance such that the ultrasonic ends up ULTRASONIC_FRONT (60mm) away from the wall in front of us
+      goalDistance += ultrasonic - ULTRASONIC_FRONT;
+    }
+
     // check if currentDistance and currentAngle are within tolerance
     // For the ultrasonic, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
-    if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic_running_average < 60)) {
+    if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
       break;
@@ -459,7 +475,7 @@ void moveForwardOneSquare() {
     //                    2
     centerOffset = (double)front_right - (double)front_left;
     if (front_left_errored && front_right_errored) {
-        Serial.printf("both errored, setting offset to 0\n");
+        // Serial.printf("both errored, setting offset to 0\n");
         centerOffset = 0;
     }else if (front_left_errored) {
         // If we don't have a left value
