@@ -40,7 +40,18 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
 // Squares are 10in by 10in, but we work in mm. 10in = 254mm
 #define SQUARE_SIZE 254
 
+// Uncommenting this causes everything to break :/
+// void abortAndFlash (void) {
+//   setMotor(LEFT_MOTOR, 0);
+//   setMotor(RIGHT_MOTOR, 0);
 
+//   while (true) {
+//     digitalWrite(BLUE_LED, HIGH);
+//     delay(100);
+//     digitalWrite(BLUE_LED, LOW);
+//     delay(100);
+//   }
+// }
 
 typedef struct Node {
   int   x;
@@ -164,7 +175,7 @@ void moveRobot(Node *adjNode) {
   }else {
     Serial.println("AAAAahaaahhhah");
     direction = NORTH;
-    abort();
+    // abortAndFlash();
   }
 
   // Serial.printf("Spinning to direction #%d\n", direction);
@@ -612,8 +623,7 @@ void createPath() {
   Node *previous = current;
 
   pathLength = 1;
-  while (previous->last->distance >= 0) {
-    // path.unshift(backtrack.last);
+  while (previous->distance > 0) {
     insertAt(mainPath, pathLength, 0, previous->last);
     pathLength++;
     previous = previous->last;
