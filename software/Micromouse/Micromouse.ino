@@ -50,8 +50,12 @@ typedef struct Node {
 } Node;
 
 #define MAZE_SIZE          10
-// 0 - Basic A*; 1 - A*, but tries to go center; 2 - A²*, 3 - Augment A* and extra heuristic
-#define MAPPING_MODE       0
+// 0 - Basic A*
+// 1 - Hallway following - if there is only a single open node adjacent to the robot, we go there, regardless of score
+// 2 - Greedy heuristic - when calculating score, we value getting close to the center 5x more than staying close to
+//                        the start (like a string pulled taunt from two sides, the shortest path values both equally)
+// 3 - Greedy heuristic and hallway following
+#define MAPPING_MODE       3
 
 // This is the midpoint of the maze
 // Okay. The heuristic that A* uses is taxi-cab distance to the pin in the middle of
@@ -544,10 +548,10 @@ void addNodeIfNotExists(int x, int y) {
   }else {
     n->distance = current->distance + 1;
   }
-  if (MAPPING_MODE == 0) {
+  if (MAPPING_MODE == 0 || MAPPING_MODE == 1) {
     n->score = n->distance + n->guess;
-  } else if (MAPPING_MODE == 1 || MAPPING_MODE == 3) {
-    n->score = n->distance + n->guess * 10;
+  } else if (MAPPING_MODE == 2 || MAPPING_MODE == 3) {
+    n->score = n->distance + n->guess * 5;
   }
 
   //Sort the new node in
@@ -672,7 +676,7 @@ void updateGoal() {
     return;
   }
 
-  if (MAPPING_MODE == 1 || MAPPING_MODE == 2) {
+  if (MAPPING_MODE == 0 || MAPPING_MODE == 2) {
     goal = nodes[closedNodes];
   } else {
     // Hallway following exception logic
