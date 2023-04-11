@@ -50,8 +50,12 @@ typedef struct Node {
 } Node;
 
 #define MAZE_SIZE          10
-// 0 - Basic A*; 1 - A*, but tries to go center; 2 - A²*, 3 - Augment A* and extra heuristic
-#define MAPPING_MODE       0
+// 0 - Basic A*
+// 1 - Hallway following - if there is only a single open node adjacent to the robot, we go there, regardless of score
+// 2 - Greedy heuristic - when calculating score, we value getting close to the center 5x more than staying close to
+//                        the start (like a string pulled taunt from two sides, the shortest path values both equally)
+// 3 - Greedy heuristic and hallway following
+#define MAPPING_MODE       3
 
 // This is the midpoint of the maze
 // Okay. The heuristic that A* uses is taxi-cab distance to the pin in the middle of
@@ -85,6 +89,8 @@ uint8_t front_left;
 bool back_right_errored, front_right_errored, back_left_errored, front_left_errored;
 
 double ultrasonic;
+double ultrasonic_running_average;
+const double ultrasonic_ave_factor = 0.1;
 
 // Magic constant that converts the time the ultrasonic takes to read the sensors into millimeters
 // Based on the speed of sound
@@ -263,21 +269,28 @@ void setMotor (motor_t m, int power) {
 }
 
 void updateSensors () {
+  // Read the right LIDAR sensors and update their values
   back_right = lidar_sensors[1].readRange();
   back_right_errored = lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX;
   front_right = lidar_sensors[2].readRange();
   front_right_errored = lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
 
+  // Read the left LIDAR sensors and update their values
   back_left = lidar_sensors[0].readRange();
   back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX;
   front_left = lidar_sensors[3].readRange();
   front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 
+  // Read front ultrasonic sensor
   digitalWrite(SONIC_TRIG1, HIGH);
   delayMicroseconds(10);
   digitalWrite(SONIC_TRIG1, LOW);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
+  // And keep a running average
+  if (!ultrasonic_errored) {
+    ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
+  }
 
   // Serial.printf("Updated sensors\n");
   // Serial.printf("Ultrasonic: %f\n", ultrasonic);
@@ -410,7 +423,9 @@ void moveForwardOneSquare() {
     }
 
     // check if currentDistance and currentAngle are within tolerance
-    if (currentDistance >= goalDistance) {
+    // For the ultrasonic, 60 is 60 mm from the wall. This is about
+    // the distance when the robot is centered in the tile
+    if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic_running_average < 60)) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
       break;
@@ -542,10 +557,10 @@ void addNodeIfNotExists(int x, int y) {
   }else {
     n->distance = current->distance + 1;
   }
-  if (MAPPING_MODE == 0) {
+  if (MAPPING_MODE == 0 || MAPPING_MODE == 1) {
     n->score = n->distance + n->guess;
-  } else if (MAPPING_MODE == 1 || MAPPING_MODE == 3) {
-    n->score = n->distance + n->guess * 10;
+  } else if (MAPPING_MODE == 2 || MAPPING_MODE == 3) {
+    n->score = n->distance + n->guess * 5;
   }
 
   //Sort the new node in
@@ -670,7 +685,7 @@ void updateGoal() {
     return;
   }
 
-  if (MAPPING_MODE == 1 || MAPPING_MODE == 2) {
+  if (MAPPING_MODE == 0 || MAPPING_MODE == 2) {
     goal = nodes[closedNodes];
   } else {
     // Hallway following exception logic
