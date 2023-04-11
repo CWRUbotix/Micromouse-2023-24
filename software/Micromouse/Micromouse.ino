@@ -357,6 +357,7 @@ double getAngle()
 void turn(double angle, turning_direction_t direction) {
   // Encoder to turn
   Encoder *turnEncoder;
+  Encoder *otherTurnEncoder;
 
   // target point
   double target = angle * turnRatio;
@@ -368,22 +369,29 @@ void turn(double angle, turning_direction_t direction) {
   {
     // Turn left
     turnEncoder = &rightEncoder;
+    otherTurnEncoder = &leftEncoder;
   } else {
     // Turn right
     turnEncoder = &leftEncoder;
+    otherTurnEncoder = &rightEncoder;
     dir = -1;
   }
 
   turnEncoder->write(0);
+  otherTurnEncoder->write(0);
 
   // Turn right wheel backwards if left, forwards if right
   // Scale by 0.7 to compensate for over-volted motors
-  setMotor(RIGHT_MOTOR, 0.025 * target * dir * 0.7);
+  setMotor(RIGHT_MOTOR, 45.125 * dir * 0.7);
   // Turn left wheel forwards if left, backwards if right
-  setMotor(LEFT_MOTOR, -0.025 * target * dir * 0.7);
+  setMotor(LEFT_MOTOR, -45.125 * dir * 0.7);
 
   // Turn until within margin of error
-  while(turnEncoder->read() < target - ANGLE_TOLERANCE);
+
+  int encoderAverage;
+  do {
+    encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
+  } while (encoderAverage < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -522,9 +530,6 @@ void moveForwardOneSquare() {
 
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
-
-    // Delay?
-    delay(10);
   }
 }
 
@@ -874,7 +879,6 @@ void setup(void) {
     } else {
       lidar_sensors[i].setAddress(LIDAR_ADDR_BASE + i);
     }
-    delay(10);
   }
   Serial.println("LiDAR sensors ready!");
 
@@ -946,22 +950,27 @@ void loop(void) {
   Serial.println("Checking done");
   if (checkDone()) {
     Serial.println("Solving maze");
+    digitalWrite(GREEN_LED, HIGH);
+
     // Then we've solved the maze
     // Create a maze
     createPath();
+
+    // Wait a second for cosmetics
+    delay(1000);
+
     // Run the maze in reverse, then forward
     // Move along path
-    // TODO: Verify this makes sense
     // TODO: pull into a function so that this loop method is super clean
     while (true) {
-      delay(10);
-      //TODO: Run the maze in reverse, then forwards
       for (int i = pathLength - 1; i >= 0; i--) {
         moveRobot(mainPath[i]);
       }
+      delay(700);
       for (int i = 0; i < pathLength; i++) {
         moveRobot(mainPath[i]);
       }
+      delay(700);
     }
   }
 
