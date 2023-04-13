@@ -63,6 +63,13 @@ typedef struct Node {
   Node *last;     //The parent node, the node from which we discovered this node
 } Node;
 
+// A node used in the Flood Fill sub-algorithm
+typedef struct FFNode {
+  bool closed;
+  int x;
+  int y;
+} FFNode;
+
 #define MAZE_SIZE          10
 // 0 - Basic A*
 // 1 - Hallway following - if there is only a single open node adjacent to the robot, we go there, regardless of score
@@ -568,6 +575,148 @@ void printArray(Node **arr, int startIndex, int length) {
   Serial.printf("]\n");
 }
 
+// Run Flood Fill at a node to see if it's possible to get from that node to the goal
+// Returns true if it's possible, false otherwise
+bool ff (Node *testingNode) {
+  FFNode ffnodes[MAZE_SIZE * MAZE_SIZE];
+  int ffnodeCount = 0;
+  int openFFNodeCount = 0;
+
+  FFNode* currentFFNode = &ffnodes[ffnodeCount];
+  currentFFNode->x = testingNode->x;
+  currentFFNode->y = testingNode->y;
+  currentFFNode->closed = false;
+  ffnodeCount++;
+  openFFNodeCount++;
+
+  // while we have open ffnodes
+  while (openFFNodeCount > 0) {
+    // loop over all open ffnodes
+    for (int i = ffnodeCount - 1; i >= 0; i--) {
+      if (!ffnodes[i].closed) {
+        currentFFNode = &ffnodes[i];
+
+        // If this node is at the goal, then return true
+        if (isGoal(currentFFNode->x, currentFFNode->y)) {
+          return true;
+        }
+
+        bool isBlockedNorth = false;
+        bool isBlockedSouth = false;
+        bool isBlockedEast = false;
+        bool isBlockedWest = false;
+
+        // Loop over all pre-existing ffn nodes, we don't want or need to cover them
+        for (int j = 0; j < ffnodeCount; j++) {
+          // North
+          if (currentFFNode->x == ffnodes[j].x && currentFFNode->y - 1 == ffnodes[j].y) {
+            isBlockedNorth = true;
+          }
+          // East
+          if (currentFFNode->x + 1 == ffnodes[j].x && currentFFNode->y == ffnodes[j].y) {
+            isBlockedEast = true;
+          }
+          // South
+          if (currentFFNode->x == ffnodes[j].x && currentFFNode->y + 1 == ffnodes[j].y) {
+            isBlockedSouth = true;
+          }
+          // West
+          if (currentFFNode->x - 1 == ffnodes[j].x && currentFFNode->y == ffnodes[j].y) {
+            isBlockedWest = true;
+          }
+        }
+
+        // Loop over all closed A* nodes
+        for (int j = 0; j < closedNodes; j++) {
+          // North
+          if (currentFFNode->x == nodes[j]->x && currentFFNode->y - 1 == nodes[j]->y) {
+            isBlockedNorth = true;
+          }
+          // East
+          if (currentFFNode->x + 1 == nodes[j]->x && currentFFNode->y == nodes[j]->y) {
+            isBlockedEast = true;
+          }
+          // South
+          if (currentFFNode->x == nodes[j]->x && currentFFNode->y + 1 == nodes[j]->y) {
+            isBlockedSouth = true;
+          }
+          // West
+          if (currentFFNode->x - 1 == nodes[j]->x && currentFFNode->y == nodes[j]->y) {
+            isBlockedWest = true;
+          }
+        }
+
+        // We can't go outside the board
+        if (currentFFNode->x == 0) {
+          isBlockedWest = true;
+        }
+        if (currentFFNode->x == MAZE_SIZE - 1) {
+          isBlockedEast = true;
+        }
+        if (currentFFNode->y == 0) {
+          isBlockedNorth = true;
+        }
+        if (currentFFNode->y == MAZE_SIZE - 1) {
+          isBlockedSouth = true;
+        }
+
+        // And we can't go through walls
+        // Remember, walls are 0 if we haven't seen them before, and we want to treat un-seen walls as open
+        // So we're blocked only if know there's a wall there; > 0
+        if (maze[currentFFNode->y][currentFFNode->x][0] > 0) {
+          isBlockedNorth = true;
+        }
+        if (maze[currentFFNode->y][currentFFNode->x - 1][1] > 0) {
+          isBlockedEast = true;
+        }
+        if (maze[currentFFNode->y + 1][currentFFNode->x][0] > 0) {
+          isBlockedSouth = true;
+        }
+        if (maze[currentFFNode->y][currentFFNode->x][1] > 0) {
+          isBlockedWest = true;
+        }
+
+        // If we can, create an ffnode in each direction
+        if (!isBlockedNorth) {
+          ffnodes[ffnodeCount].closed = false;
+          ffnodes[ffnodeCount].x = currentFFNode->x;
+          ffnodes[ffnodeCount].y = currentFFNode->y - 1;
+          ffnodeCount++;
+          openFFNodeCount++;
+        }
+        if (!isBlockedEast) {
+          ffnodes[ffnodeCount].closed = false;
+          ffnodes[ffnodeCount].x = currentFFNode->x + 1;
+          ffnodes[ffnodeCount].y = currentFFNode->y;
+          ffnodeCount++;
+          openFFNodeCount++;
+        }
+        if (!isBlockedSouth) {
+          ffnodes[ffnodeCount].closed = false;
+          ffnodes[ffnodeCount].x = currentFFNode->x;
+          ffnodes[ffnodeCount].y = currentFFNode->y + 1;
+          ffnodeCount++;
+          openFFNodeCount++;
+        }
+        if (!isBlockedWest) {
+          ffnodes[ffnodeCount].closed = false;
+          ffnodes[ffnodeCount].x = currentFFNode->x - 1;
+          ffnodes[ffnodeCount].y = currentFFNode->y;
+          ffnodeCount++;
+          openFFNodeCount++;
+        }
+
+        //Close the current ffn node
+        currentFFNode->closed = true;
+        openFFNodeCount--;
+      }
+    }
+  }
+
+  // If we finished the flood fill without finding the goal, return false
+  return false;
+}
+
 void addNodeIfNotExists(int x, int y) {
   //Check if we've seen the node before
   for (int i = 0; i < numNodes; i++) {
@@ -613,12 +762,12 @@ void addNodeIfNotExists(int x, int y) {
 }
 
 // Check if we are in any of the four finish squares
-int checkDone() {
+int isGoal(int x, int y) {
   return (
-    (current->x == 4 && current->y == 4) ||
-    (current->x == 4 && current->y == 5) ||
-    (current->x == 5 && current->y == 4) ||
-    (current->x == 5 && current->y == 5)
+    (x == 4 && y == 4) ||
+    (x == 4 && y == 5) ||
+    (x == 5 && y == 4) ||
+    (x == 5 && y == 5)
   );
 }
 
@@ -817,22 +966,22 @@ void moveToGoal() {
   backPathLength = 0;
 }
 
-void closeCurrentNode () {
+void closeNode (Node* node) {
   //Close the current node
-  current->closed = true;
+  node->closed = true;
   //If this wasn't the next node scheduled to be closed, we need to move it to the closed section of the list
-  if (nodes[closedNodes] != current) {
+  if (nodes[closedNodes] != node) {
     Node *lastValue = nodes[closedNodes];
     for (int i = closedNodes + 1; i < numNodes; i++) {
       Node *tmp = nodes[i];
       nodes[i]  = lastValue;
       lastValue = tmp;
-      if (tmp == current) {
+      if (tmp == node) {
         //Then we're done
         break;
       }
     }
-    nodes[closedNodes] = current;
+    nodes[closedNodes] = node;
   }
   closedNodes++;
 }
@@ -936,8 +1085,16 @@ void loop(void) {
 
   printArray(nodes, 0, numNodes);
   Serial.println("Closing current node");
-  closeCurrentNode(); // Marks the current node as closed
+  closeNode(current); // Marks the current node as closed
   printArray(nodes, 0, numNodes);
+
+  Serial.println("Running flood fill on all open nodes.");
+  for (int i = closedNodes; i < numNodes; i++) {
+    if (!ff(nodes[i])) {
+      closeNode(nodes[i]);
+    }
+  }
+
   Serial.println("Updating goal");
   updateGoal(); // Figures out what node we're moving to
   Serial.printf("Creating back path to goal (x: %d, y: %d)\n", goal->x, goal->y);
@@ -948,7 +1105,7 @@ void loop(void) {
 
 
   Serial.println("Checking done");
-  if (checkDone()) {
+  if (isGoal(current->x, current->y)) {
     Serial.println("Solving maze");
     digitalWrite(GREEN_LED, HIGH);
 
