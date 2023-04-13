@@ -666,7 +666,7 @@ bool ff (Node *testingNode) {
         if (maze[currentFFNode->y][currentFFNode->x][0] > 0) {
           isBlockedNorth = true;
         }
-        if (maze[currentFFNode->y][currentFFNode->x - 1][1] > 0) {
+        if (maze[currentFFNode->y][currentFFNode->x + 1][1] > 0) {
           isBlockedEast = true;
         }
         if (maze[currentFFNode->y + 1][currentFFNode->x][0] > 0) {
@@ -741,7 +741,7 @@ void addNodeIfNotExists(int x, int y) {
   if (MAPPING_MODE == 0 || MAPPING_MODE == 1) {
     n->score = n->distance + n->guess;
   } else if (MAPPING_MODE == 2 || MAPPING_MODE == 3) {
-    n->score = n->distance + n->guess * 5;
+    n->score = n->distance + n->guess * 10;
   }
 
   //Sort the new node in
@@ -1091,6 +1091,7 @@ void loop(void) {
   Serial.println("Running flood fill on all open nodes.");
   for (int i = closedNodes; i < numNodes; i++) {
     if (!ff(nodes[i])) {
+      Serial.printf("FF closing node x: %d, y: %d", nodes[i]->x, nodes[i]->y);
       closeNode(nodes[i]);
     }
   }
