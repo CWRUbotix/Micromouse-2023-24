@@ -161,6 +161,9 @@ struct RobotStruct {
   0, 0, NORTH
 };
 
+bool shouldFloodFill = false;
+int mappingMode = MAPPING_MODE;
+
 /* ---- User Functions ---- */
 
 // Moves the robot to a node which is adjacent to the current node
@@ -738,9 +741,9 @@ void addNodeIfNotExists(int x, int y) {
   }else {
     n->distance = current->distance + 1;
   }
-  if (MAPPING_MODE == 0 || MAPPING_MODE == 1) {
+  if (mappingMode == 0 || mappingMode == 1) {
     n->score = n->distance + n->guess;
-  } else if (MAPPING_MODE == 2 || MAPPING_MODE == 3) {
+  } else if (mappingMode == 2 || mappingMode == 3) {
     n->score = n->distance + n->guess * 10;
   }
 
@@ -865,7 +868,7 @@ void updateGoal() {
     return;
   }
 
-  if (MAPPING_MODE == 0 || MAPPING_MODE == 2) {
+  if (mappingMode == 0 || mappingMode == 2) {
     goal = nodes[closedNodes];
   } else {
     // Hallway following exception logic
@@ -1066,6 +1069,38 @@ void setup(void) {
   }
   digitalWrite(YELLOW_LED, LOW);
 
+  delay(20); // Switch "debounce"
+  
+  digitalWrite(LED0, HIGH);
+  digitalWrite(LED1, HIGH);
+  digitalWrite(LED2, HIGH);
+  long pressTime = millis();
+  long endPressTime = pressTime;
+  while (digitalRead(START_BUTTON)) {
+    /* spin, waiting for button release */
+    endPressTime = millis();
+    if (endPressTime - pressTime > 1000) {
+      digitalWrite(LED2, LOW);
+    }
+    if (endPressTime - pressTime > 3000) {
+      digitalWrite(LED1, LOW);
+    }
+  }
+  if (endPressTime - pressTime < 1000) {
+    shouldFloodFill = true;
+    mappingMode = 3;
+  }else if (endPressTime - pressTime < 3000) {
+    shouldFloodFill = false;
+    mappingMode = 3;
+  }else {
+    shouldFloodFill = false;
+    mappingMode = 0;
+  }
+  delay(500);
+  digitalWrite(LED0, LOW);
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+
   // We need to make sure that we've checked the square behind us before starting
   // (Normally, this isn't needed since the square
   //  behind us is the square we just came from)
@@ -1088,11 +1123,13 @@ void loop(void) {
   closeNode(current); // Marks the current node as closed
   printArray(nodes, 0, numNodes);
 
-  Serial.println("Running flood fill on all open nodes.");
-  for (int i = closedNodes; i < numNodes; i++) {
-    if (!ff(nodes[i])) {
-      Serial.printf("FF closing node x: %d, y: %d", nodes[i]->x, nodes[i]->y);
-      closeNode(nodes[i]);
+  if (shouldFloodFill) {
+    Serial.println("Running flood fill on all open nodes.");
+    for (int i = closedNodes; i < numNodes; i++) {
+      if (!ff(nodes[i])) {
+        Serial.printf("FF closing node x: %d, y: %d", nodes[i]->x, nodes[i]->y);
+        closeNode(nodes[i]);
+      }
     }
   }
 

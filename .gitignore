@@ -31,7 +31,9 @@
 *.out
 *.app
 
-# Emacs autosave
+# Emacs autosave (and desktop)
+.emacs.desktop
+.emacs.desktop.lock
 \#*
 *~
 
