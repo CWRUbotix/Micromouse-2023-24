@@ -2,10 +2,14 @@
 #define MICROMOUSE_PINS_2023_H
 
 // LEDS
-#define YELLOW_LED 5  // LED0
-#define BLUE_LED 6    // LED1
-#define GREEN_LED 10  // LED2
-#define RED_LED 11    // LED3
+#define LED0 5
+#define LED1 6
+#define LED2 10
+#define LED3 11
+#define YELLOW_LED LED0
+#define BLUE_LED LED1
+#define GREEN_LED LED2
+#define RED_LED LED3
 
 #define DEBUG_LED 13  // The LED on the teensy board
 
