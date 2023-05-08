@@ -1,3 +1,5 @@
 (sym_lib_table
   (lib (name "sym_library")(type "KiCad")(uri "${KIPRJMOD}/sym_library.kicad_sym")(options "")(descr ""))
+  (lib (name "LOGO_pololu")(type "KiCad")(uri "${KIPRJMOD}/LOGO_pololu.kicad_sym")(options "")(descr ""))
+  (lib (name "LOGO_cwrubotix")(type "KiCad")(uri "${KIPRJMOD}/LOGO_cwrubotix.kicad_sym")(options "")(descr ""))
 )
