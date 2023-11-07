@@ -3623,10 +3623,10 @@
     (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/345f6a9a-cbd6-4490-88e5-c3b7441e8a0d"
       (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/3e930551-cfc3-40d2-bead-0f2354ef7b83"
+    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/3e930551-cfc3-40d2-bead-0f2354ef7b83"
       (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
-    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/3e930551-cfc3-40d2-bead-0f2354ef7b83"
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/3e930551-cfc3-40d2-bead-0f2354ef7b83"
       (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
     (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/410bca59-1a22-4dd1-a334-b5a7a14df81c"
@@ -3845,10 +3845,10 @@
     (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/bda987d3-72b4-41ac-8beb-6db701cc66ec"
       (reference "J?") (unit 1) (value "Conn_01x06_Male") (footprint "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical")
     )
-    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/ed182167-db88-4a07-9101-77d017496e32"
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/ed182167-db88-4a07-9101-77d017496e32"
       (reference "J?") (unit 1) (value "Conn_01x05") (footprint "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical")
     )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/ed182167-db88-4a07-9101-77d017496e32"
+    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/ed182167-db88-4a07-9101-77d017496e32"
       (reference "J?") (unit 1) (value "Conn_01x05") (footprint "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical")
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/52a9a121-294a-438f-87da-b8fec44e960d"
@@ -3932,10 +3932,10 @@
     (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/6640f2b8-b8f8-422d-909b-d09277c64340"
       (reference "U?") (unit 1) (value "DRV8833") (footprint "custom_footprints:DRV_DRV8833_Pololu_2130")
     )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/66470e32-3148-4709-8153-530f9403774a"
+    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/66470e32-3148-4709-8153-530f9403774a"
       (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
     )
-    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/66470e32-3148-4709-8153-530f9403774a"
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/66470e32-3148-4709-8153-530f9403774a"
       (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
     )
   )
