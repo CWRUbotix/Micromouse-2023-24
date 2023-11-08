@@ -461,7 +461,7 @@
     (uuid ee34820f-9938-4e1f-97c7-aa5d193de88e)
   )
 
-  (text "DIGITAL 3V3 POWER SUPPLY" (at 46.355 132.715 0)
+  (text "DIGITAL 3V3 POWER SUPPLY (SAMPLE)" (at 31.75 133.35 0)
     (effects (font (size 5.08 5.08)) (justify left bottom))
     (uuid 06e6a4ca-bd9f-48ed-9166-50873389c9ba)
   )
@@ -469,6 +469,10 @@
     (at 94.615 176.53 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 79939603-db26-4899-920b-2c64ffd793b8)
+  )
+  (text "DIGITAL 3V3/3V POWER SUPPLY" (at 80.01 30.48 0)
+    (effects (font (size 5.08 5.08)) (justify left bottom))
+    (uuid 93bbdfa1-2f35-4686-a48a-32fe1759802e)
   )
 
   (symbol (lib_id "power:+3V3") (at 113.665 152.4 0) (unit 1)
