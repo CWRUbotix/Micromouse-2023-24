@@ -40,3 +40,5 @@
 # Kicad Backups
 *.zip
 
+# VS Files
+.vscode/
