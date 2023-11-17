@@ -257,7 +257,7 @@ void turnLeft(enum turning_direction_t direction) {
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-void moveForwardOneSquare() {
+void moveForward() {
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);

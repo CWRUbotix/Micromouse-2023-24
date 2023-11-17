@@ -1,8 +1,25 @@
 /* --- Includes --- */
 // Boolean definition necessary for C
 #include <stdbool.h>
-
+// Defines abs() function
+#include <stdlib.h>
 /* ---- Defines ---- */
+// #define DEBUG
+
+#ifdef DEBUG
+  #define log(...) printf(__VA_ARGS__);
+  #define logf(...) printf(__VA_ARGS__);
+  #define logln(...) printf(__VA_ARGS__); printf("\n");
+  #define LOGGING 1
+#else
+  #define log(...)
+  #define logf(...)
+  #define logln(...)
+  #define LOGGING 0
+#endif
+
+/* ---- User Variables ---- */
+
 typedef struct Node {
   int   x;
   int   y;
@@ -10,7 +27,7 @@ typedef struct Node {
   int   distance; // The length of the path up to this point, this.last.distance + 1
   int   guess;    // The heuristic, usually Manhattan to goal with no walls
   int   score;    //The guess + distance (depending on algo) (lower is better)
-  Node *last;     //The parent node, the node from which we discovered this node
+  struct Node *last;     //The parent node, the node from which we discovered this node
 } Node;
 
 // A node used in the Flood Fill sub-algorithm
@@ -83,7 +100,7 @@ struct RobotStruct {
   int y;
   enum cardinal_t facing;
 } robot = {
-  0, 0, NORTH
+  0, 0, EAST
 };
 
 bool shouldFloodFill = false;
@@ -92,36 +109,9 @@ int mappingMode = MAPPING_MODE;
 /* ---- User Functions ---- */
 // Method used to update the maze
 void updateMaze();
-
-// Moves the robot to a node which is adjacent to the current node
-// adjNode is goal, is x: 1, y: 0
-void moveRobot(Node *adjNode) {
-  // Figure out what direction the node is in
-  enum cardinal_t direction;
-  if (adjNode->x + 1 == robot.x) {
-    direction = WEST;
-  }else if (adjNode->x - 1 == robot.x) {
-    direction = EAST;
-  }else if (adjNode->y + 1 == robot.y) {
-    direction = NORTH;
-  }else if (adjNode->y - 1 == robot.y) {
-    direction = SOUTH;
-  }else if (adjNode->x == robot.x && adjNode->y == robot.y) {
-    log("WARN: moveRobot called with current location");
-    return;
-  }else {
-    log("AAAAahaaahhhah");
-    direction = NORTH;
-  }
-
-  logf("Spinning to direction #%d\n", direction);
-  turnTo(direction);
-
-  moveForwardOneSquare();
-
-  robot.x = adjNode->x;
-  robot.y = adjNode->y;
-}
+int moveForward();
+void turnRight();
+void turnLeft();
 
 //Causes the robot to do a point-turn to spin to the desired location
 void turnTo(enum cardinal_t direction) {
@@ -157,6 +147,37 @@ void turnTo(enum cardinal_t direction) {
   robot.facing = direction;
 }
 
+// Moves the robot to a node which is adjacent to the current node
+// adjNode is goal, is x: 1, y: 0
+void moveRobot(Node *adjNode) {
+  // Figure out what direction the node is in
+  enum cardinal_t direction;
+  if (adjNode->x + 1 == robot.x) {
+    direction = WEST;
+  }else if (adjNode->x - 1 == robot.x) {
+    direction = EAST;
+  }else if (adjNode->y + 1 == robot.y) {
+    direction = NORTH;
+  }else if (adjNode->y - 1 == robot.y) {
+    direction = SOUTH;
+  }else if (adjNode->x == robot.x && adjNode->y == robot.y) {
+    log("WARN: moveRobot called with current location");
+    return;
+  }else {
+    log("AAAAahaaahhhah");
+    direction = NORTH;
+  }
+
+  logf("Spinning to direction #%d\n", direction);
+  turnTo(direction);
+
+  moveForward();
+
+  robot.x = adjNode->x;
+  robot.y = adjNode->y;
+}
+
+
 /** A* algorithm **/
 
 //Heuristic function
@@ -178,6 +199,16 @@ void removeAt(Node **arr, int len, int i) {
   for (int j = i; j < len - 1; j++) {
     arr[j] = arr[j + 1];
   }
+}
+
+// Check if we are in any of the four finish squares
+int isGoal(int x, int y) {
+  return (
+    (x == 4 && y == 4) ||
+    (x == 4 && y == 5) ||
+    (x == 5 && y == 4) ||
+    (x == 5 && y == 5)
+  );
 }
 
 // Run Flood Fill at a node to see if it's possible to get from that node to the goal
@@ -366,16 +397,6 @@ void addNodeIfNotExists(int x, int y) {
   numNodes++;
 }
 
-// Check if we are in any of the four finish squares
-int isGoal(int x, int y) {
-  return (
-    (x == 4 && y == 4) ||
-    (x == 4 && y == 5) ||
-    (x == 5 && y == 4) ||
-    (x == 5 && y == 5)
-  );
-}
-
 // Once we've solved the maze, converts node tree into `mainPath` (a list)
 void createPath() {
   mainPath[0] = current;
@@ -527,7 +548,10 @@ void init_maze() {
   // We need to make sure that we've checked the square behind us before starting
   // (Normally, this isn't needed since the square
   //  behind us is the square we just came from)
-  updateMaze(); // Update the maze while we're pointed North,
-  turnTo(SOUTH); // Spin South
+  // Update the maze while we're pointed North,
+  turnTo(NORTH); // Spin South
+  
   updateMaze(); // Update the maze again
+  turnTo(SOUTH);
+  updateMaze();
 }

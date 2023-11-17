@@ -4,12 +4,12 @@
 #include "mouse.ino"
 /* ---- Defines ---- */
 // Comment out this line to hide logs
-// #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
-  #define log(...) Serial.print(__VA_ARGS__)
-  #define logln(...) Serial.println(__VA_ARGS__)
-  #define logf(...) Serial.printf(__VA_ARGS__)
+  #define log(...) Serial.fprintf(__VA_ARGS__)
+  #define logln(...) Serial.fprintf(__VA_ARGS__)
+  #define logf(...) Serial.fprintf(__VA_ARGS__)
   #define LOGGING 1
 #else
   #define log(...)
