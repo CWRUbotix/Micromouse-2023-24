@@ -1,5 +1,9 @@
 # Hardware Docs & Meeting Notes
 
+![Rendering of the Micromouse PCB in KiCad](./mms-20230103.png)
+
+The PCB for this year's Micromouse robot makes use of several pre-built modules to simplify the pCB design. The motor drivers, accel/gyro, and Teensy 4.1 are "socketed" using headers while a custom buck/boost converter is used to generate the 5V and 3V3 rails needed by everything.
+
 ## 10/9
 
 ### TODO

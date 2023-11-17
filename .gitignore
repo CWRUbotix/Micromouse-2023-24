@@ -1,6 +1,8 @@
 # Prerequisites
 *.d
 
+*.step
+
 # Compiled Object files
 *.slo
 *.lo
@@ -39,6 +41,10 @@
 
 # Kicad Backups
 *.zip
+*-bak
+
+# Mac OS
+.DS_Store
 
 # VS Files
 .vscode/
