@@ -4,12 +4,12 @@
 // Defines abs() function
 #include <stdlib.h>
 /* ---- Defines ---- */
-// #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
-  #define log(...) printf(__VA_ARGS__);
-  #define logf(...) printf(__VA_ARGS__);
-  #define logln(...) printf(__VA_ARGS__); printf("\n");
+  #define log(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
+  #define logf(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
+  #define logln(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
   #define LOGGING 1
 #else
   #define log(...)
@@ -19,7 +19,7 @@
 #endif
 
 /* ---- User Variables ---- */
-
+ 
 typedef struct Node {
   int   x;
   int   y;
@@ -46,7 +46,7 @@ typedef struct FFNode {
 // 2 - Greedy heuristic - when calculating score, we value getting close to the center 5x more than staying close to
 //                        the start (like a string pulled taunt from two sides, the shortest path values both equally)
 // 3 - Greedy heuristic and hallway following
-#define MAPPING_MODE       3
+#define MAPPING_MODE       0
 
 // This is the midpoint of the maze
 // Okay. The heuristic that A* uses is taxi-cab distance to the pin in the middle of
@@ -100,7 +100,7 @@ struct RobotStruct {
   int y;
   enum cardinal_t facing;
 } robot = {
-  0, 0, EAST
+  0, 0, NORTH
 };
 
 bool shouldFloodFill = false;
@@ -157,18 +157,18 @@ void moveRobot(Node *adjNode) {
   }else if (adjNode->x - 1 == robot.x) {
     direction = EAST;
   }else if (adjNode->y + 1 == robot.y) {
-    direction = NORTH;
-  }else if (adjNode->y - 1 == robot.y) {
     direction = SOUTH;
+  }else if (adjNode->y - 1 == robot.y) {
+    direction = NORTH;
   }else if (adjNode->x == robot.x && adjNode->y == robot.y) {
-    log("WARN: moveRobot called with current location");
+    // log("WARN: moveRobot called with current location\n");
     return;
   }else {
-    log("AAAAahaaahhhah");
+    log("AAAAahaaahhhah\n");
     direction = NORTH;
   }
 
-  logf("Spinning to direction #%d\n", direction);
+  // logf("Spinning to direction #%d\n", direction);
   turnTo(direction);
 
   moveForward();
@@ -412,7 +412,7 @@ void createPath() {
 
 // Most of the time, goal is just nodes[closedNodes]
 void updateGoal() {
-  logf("Updating goal; closedNodes: %d, numNodes: %d,\n", closedNodes, numNodes);
+  logf("Updating goal; closedNodes: %d, numNodes: %d\n", closedNodes, numNodes);
   if (closedNodes >= numNodes) {
     return;
   }
@@ -449,7 +449,7 @@ void updateGoal() {
 // Creates a path from the current node to the goal node
 // By backtracking through the nodes that we've seen
 void createBackPath() {
-  log("Creating backpath\n");
+  // log("Creating backpath\n");
 
   //finding backPath only needs to run once
   // Create a path.
@@ -541,6 +541,7 @@ void closeNode (Node* node) {
 /* ---- Init ---- */
 // Initializes maze state and variables
 void init_maze() {
+  turnTo(WEST);
   // Initialize current
   addNodeIfNotExists(0, 0);
   current = nodes[0];
@@ -549,9 +550,7 @@ void init_maze() {
   // (Normally, this isn't needed since the square
   //  behind us is the square we just came from)
   // Update the maze while we're pointed North,
-  turnTo(NORTH); // Spin South
   
   updateMaze(); // Update the maze again
-  turnTo(SOUTH);
-  updateMaze();
+  turnTo(EAST);
 }
