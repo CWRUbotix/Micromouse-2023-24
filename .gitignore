@@ -46,3 +46,5 @@
 # Mac OS
 .DS_Store
 
+# VS Files
+.vscode/
