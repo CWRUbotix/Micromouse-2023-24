@@ -3860,6 +3860,12 @@
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/087a6903-b5ed-44ed-8dac-11cdc247d089"
       (reference "Q1") (unit 1) (value "Q_PMOS_GDS") (footprint "Package_TO_SOT_SMD:TO-263-3_TabPin2")
     )
+    (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/0b509200-8439-42b0-ba9d-511249955abe"
+      (reference "Q?") (unit 1) (value "Q_NJFET_DSG") (footprint "")
+    )
+    (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/1d698b28-bc80-4f69-9543-eff22a367903"
+      (reference "Q?") (unit 1) (value "Q_NJFET_DSG") (footprint "")
+    )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/8a293f87-99df-4ad0-bf38-6ebdfc775577"
       (reference "R7") (unit 1) (value "12k") (footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
     )
@@ -3920,10 +3926,10 @@
     (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/6640f2b8-b8f8-422d-909b-d09277c64340"
       (reference "U?") (unit 1) (value "DRV8833") (footprint "custom_footprints:DRV_DRV8833_Pololu_2130")
     )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/66470e32-3148-4709-8153-530f9403774a"
+    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/66470e32-3148-4709-8153-530f9403774a"
       (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
     )
-    (path "/f82fc3ca-7708-401d-aad3-da95a9aed1ba/66470e32-3148-4709-8153-530f9403774a"
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/66470e32-3148-4709-8153-530f9403774a"
       (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
     )
   )
