@@ -4,7 +4,7 @@
 // Defines abs() function
 #include <stdlib.h>
 /* ---- Defines ---- */
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
   #define log(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
@@ -21,13 +21,14 @@
 /* ---- User Variables ---- */
  
 typedef struct Node {
-  int   x;
-  int   y;
-  bool  closed;
-  int   distance; // The length of the path up to this point, this.last.distance + 1
-  int   guess;    // The heuristic, usually Manhattan to goal with no walls
-  int   score;    //The guess + distance (depending on algo) (lower is better)
-  struct Node *last;     //The parent node, the node from which we discovered this node
+  // X-coordinate
+  int x;
+  // Y-coordinate
+  int y;
+  // Projected distance to goal
+  int guess;
+  // Next node to flood
+  struct Node *next;
 } Node;
 
 // A node used in the Flood Fill sub-algorithm
@@ -35,7 +36,7 @@ typedef struct FFNode {
   bool closed;
   int x;
   int y;
-} FFNode;
+} FFNode; 
 
 // Null pointer
 #define NULL ((void *)0)
@@ -77,7 +78,7 @@ int maze[MAZE_SIZE + 1][MAZE_SIZE + 1][2];
 // All other nodes are pointers into nodesStatic
 Node nodesStatic[MAZE_SIZE * MAZE_SIZE];
 // A*'s working list of nodes. 0..closedNodes-1 are closed, and closedNodes..numNodes-1 are open
-Node *nodes[MAZE_SIZE * MAZE_SIZE];
+Node *mazeNodes[MAZE_SIZE * MAZE_SIZE];
 int closedNodes = 0;
 int numNodes = 0;
 
@@ -176,31 +177,6 @@ void moveRobot(Node *adjNode) {
   robot.x = adjNode->x;
   robot.y = adjNode->y;
 }
-
-
-/** A* algorithm **/
-
-//Heuristic function
-int h(int x, int y) {
-  // See comment above the definition of END_X and END_Y
-  // Since this is taxi-cab distance, the distance is always a whole number
-  // To avoid introducing floating-point math, we multiply by 10 first and divide by 10 later
-  return (abs(END_X - (x * 10)) + abs(END_Y - (y * 10))) / 10;
-}
-
-void insertAt(Node **arr, int len, int i, Node *n) {
-  for (int j = len; j > i; j--) {
-    arr[j] = arr[j - 1];
-  }
-  arr[i] = n;
-}
-
-void removeAt(Node **arr, int len, int i) {
-  for (int j = i; j < len - 1; j++) {
-    arr[j] = arr[j + 1];
-  }
-}
-
 // Check if we are in any of the four finish squares
 int isGoal(int x, int y) {
   return (
@@ -211,344 +187,3 @@ int isGoal(int x, int y) {
   );
 }
 
-// Run Flood Fill at a node to see if it's possible to get from that node to the goal
-// Returns true if it's possible, false otherwise
-bool ff (Node *testingNode) {
-  FFNode ffnodes[MAZE_SIZE * MAZE_SIZE];
-  int ffnodeCount = 0;
-  int openFFNodeCount = 0;
-
-  FFNode* currentFFNode = &ffnodes[ffnodeCount];
-  currentFFNode->x = testingNode->x;
-  currentFFNode->y = testingNode->y;
-  currentFFNode->closed = false;
-  ffnodeCount++;
-  openFFNodeCount++;
-
-  // while we have open ffnodes
-  while (openFFNodeCount > 0) {
-    // loop over all open ffnodes
-    for (int i = ffnodeCount - 1; i >= 0; i--) {
-      if (!ffnodes[i].closed) {
-        currentFFNode = &ffnodes[i];
-
-        // If this node is at the goal, then return true
-        if (isGoal(currentFFNode->x, currentFFNode->y)) {
-          return true;
-        }
-
-        bool isBlockedNorth = false;
-        bool isBlockedSouth = false;
-        bool isBlockedEast = false;
-        bool isBlockedWest = false;
-
-        // Loop over all pre-existing ffn nodes, we don't want or need to cover them
-        for (int j = 0; j < ffnodeCount; j++) {
-          // North
-          if (currentFFNode->x == ffnodes[j].x && currentFFNode->y - 1 == ffnodes[j].y) {
-            isBlockedNorth = true;
-          }
-          // East
-          if (currentFFNode->x + 1 == ffnodes[j].x && currentFFNode->y == ffnodes[j].y) {
-            isBlockedEast = true;
-          }
-          // South
-          if (currentFFNode->x == ffnodes[j].x && currentFFNode->y + 1 == ffnodes[j].y) {
-            isBlockedSouth = true;
-          }
-          // West
-          if (currentFFNode->x - 1 == ffnodes[j].x && currentFFNode->y == ffnodes[j].y) {
-            isBlockedWest = true;
-          }
-        }
-
-        // Loop over all closed A* nodes
-        for (int j = 0; j < closedNodes; j++) {
-          // North
-          if (currentFFNode->x == nodes[j]->x && currentFFNode->y - 1 == nodes[j]->y) {
-            isBlockedNorth = true;
-          }
-          // East
-          if (currentFFNode->x + 1 == nodes[j]->x && currentFFNode->y == nodes[j]->y) {
-            isBlockedEast = true;
-          }
-          // South
-          if (currentFFNode->x == nodes[j]->x && currentFFNode->y + 1 == nodes[j]->y) {
-            isBlockedSouth = true;
-          }
-          // West
-          if (currentFFNode->x - 1 == nodes[j]->x && currentFFNode->y == nodes[j]->y) {
-            isBlockedWest = true;
-          }
-        }
-
-        // We can't go outside the board
-        if (currentFFNode->x == 0) {
-          isBlockedWest = true;
-        }
-        if (currentFFNode->x == MAZE_SIZE - 1) {
-          isBlockedEast = true;
-        }
-        if (currentFFNode->y == 0) {
-          isBlockedNorth = true;
-        }
-        if (currentFFNode->y == MAZE_SIZE - 1) {
-          isBlockedSouth = true;
-        }
-
-        // And we can't go through walls
-        // Remember, walls are 0 if we haven't seen them before, and we want to treat un-seen walls as open
-        // So we're blocked only if know there's a wall there; > 0
-        if (maze[currentFFNode->y][currentFFNode->x][0] > 0) {
-          isBlockedNorth = true;
-        }
-        if (maze[currentFFNode->y][currentFFNode->x + 1][1] > 0) {
-          isBlockedEast = true;
-        }
-        if (maze[currentFFNode->y + 1][currentFFNode->x][0] > 0) {
-          isBlockedSouth = true;
-        }
-        if (maze[currentFFNode->y][currentFFNode->x][1] > 0) {
-          isBlockedWest = true;
-        }
-
-        // If we can, create an ffnode in each direction
-        if (!isBlockedNorth) {
-          ffnodes[ffnodeCount].closed = false;
-          ffnodes[ffnodeCount].x = currentFFNode->x;
-          ffnodes[ffnodeCount].y = currentFFNode->y - 1;
-          ffnodeCount++;
-          openFFNodeCount++;
-        }
-        if (!isBlockedEast) {
-          ffnodes[ffnodeCount].closed = false;
-          ffnodes[ffnodeCount].x = currentFFNode->x + 1;
-          ffnodes[ffnodeCount].y = currentFFNode->y;
-          ffnodeCount++;
-          openFFNodeCount++;
-        }
-        if (!isBlockedSouth) {
-          ffnodes[ffnodeCount].closed = false;
-          ffnodes[ffnodeCount].x = currentFFNode->x;
-          ffnodes[ffnodeCount].y = currentFFNode->y + 1;
-          ffnodeCount++;
-          openFFNodeCount++;
-        }
-        if (!isBlockedWest) {
-          ffnodes[ffnodeCount].closed = false;
-          ffnodes[ffnodeCount].x = currentFFNode->x - 1;
-          ffnodes[ffnodeCount].y = currentFFNode->y;
-          ffnodeCount++;
-          openFFNodeCount++;
-        }
-
-        //Close the current ffn node
-        currentFFNode->closed = true;
-        openFFNodeCount--;
-      }
-    }
-  }
-
-  // If we finished the flood fill without finding the goal, return false
-  return false;
-}
-
-void addNodeIfNotExists(int x, int y) {
-  //Check if we've seen the node before
-  for (int i = 0; i < numNodes; i++) {
-    if (nodes[i]->x == x && nodes[i]->y == y) {
-      //We don't have to ever update the score on a node
-      //Because our heuristic is nice (just distance)
-      return;
-    }
-  }
-
-  Node *n = &nodesStatic[numNodes];
-
-  n->x = x;
-  n->y = y;
-  n->last  = current;
-  n->guess = h(x, y);
-  if (current == NULL) {
-    n->distance = 0;
-  }else {
-    n->distance = current->distance + 1;
-  }
-  if (mappingMode == 0 || mappingMode == 1) {
-    n->score = n->distance + n->guess;
-  } else if (mappingMode == 2 || mappingMode == 3) {
-    n->score = n->distance + n->guess * 10;
-  }
-
-  //Sort the new node in
-  for (int i = closedNodes; i < numNodes; i++) {
-    if (nodes[i]->score > n->score) {
-      //nodes.splice(i, 0, n);
-      //arr, length, index to insert, item
-      insertAt(nodes, numNodes, i, n);
-      numNodes++;
-      return;
-    }
-  }
-  //Otherwise, add the node to the end
-  //  nodes.splice(nodes.length, 0, n);
-  //  insertAt(nodes, numNodes, numNodes, n);
-  nodes[numNodes] = n;
-  numNodes++;
-}
-
-// Once we've solved the maze, converts node tree into `mainPath` (a list)
-void createPath() {
-  mainPath[0] = current;
-  Node *previous = current;
-
-  pathLength = 1;
-  while (previous->distance > 0) {
-    insertAt(mainPath, pathLength, 0, previous->last);
-    pathLength++;
-    previous = previous->last;
-  }
-}
-
-// Most of the time, goal is just nodes[closedNodes]
-void updateGoal() {
-  logf("Updating goal; closedNodes: %d, numNodes: %d\n", closedNodes, numNodes);
-  if (closedNodes >= numNodes) {
-    return;
-  }
-
-  if (mappingMode == 0 || mappingMode == 2) {
-    goal = nodes[closedNodes];
-  } else {
-    // Hallway following exception logic
-    // If there's one adjacent node, go there, otherwise go to A*
-    Node *adjacentNode = NULL;
-
-    for (int i = 0; i < numNodes; i++) {
-      // If it's open and adjacent
-      if (nodes[i]->last == current && !nodes[i]->closed) {
-        // If we already have one
-        if (adjacentNode != NULL) {
-          // Then we want to ignore it
-          adjacentNode = NULL;
-          break;
-        } else {
-          adjacentNode = nodes[i];
-        }
-      }
-    }
-
-    if (adjacentNode == NULL) {
-      goal = nodes[closedNodes];
-    } else {
-      goal = adjacentNode;
-    }
-  }
-}
-
-// Creates a path from the current node to the goal node
-// By backtracking through the nodes that we've seen
-void createBackPath() {
-  // log("Creating backpath\n");
-
-  //finding backPath only needs to run once
-  // Create a path.
-  //      Find a common parent of current and goal
-  backPath[0] = current;
-  backPath[1] = goal;
-
-  // memcpy(&backPath[0], current, sizeof(Node));
-  // memcpy(&backPath[1], goal, sizeof(Node));
-  int numMid = 1; //The number of nodes that we go up before going back down.
-
-  backPathLength = 2;
-
-  // 1
-  const int genDiff = abs(current->distance - goal->distance);
-
-  for (int i = 0; i < genDiff; i++) {
-    if (current->distance > goal->distance) {
-      // parentCur.push(parentCur[parentCur.length-1].last);
-      // backPath.splice(numMid, 0, backPath[numMid - 1].last);
-      insertAt(backPath, backPathLength, numMid, backPath[numMid - 1]->last);
-      numMid++;
-      backPathLength++;
-    } else {
-      // parentGoal.unshift(parentGoal[0].last);
-      // backPath.splice(numMid, 0, backPath[numMid].last);
-      insertAt(backPath, backPathLength, numMid, backPath[numMid]->last);
-      backPathLength++;
-    }
-  }
-  //Walk back up the tree until they're the same
-  while (backPath[numMid - 1] != backPath[numMid]) {
-    // parentCur.push(parentCur[parentCur.length-1].last);
-    // backPath.splice(numMid, 0, backPath[numMid-1].last);
-    insertAt(backPath, backPathLength, numMid, backPath[numMid - 1]->last);
-    numMid++;
-    backPathLength++;
-
-    // parentGoal.unshift(parentGoal[0].last);
-    // backPath.splice(numMid, 0, backPath[numMid].last);
-    insertAt(backPath, backPathLength, numMid, backPath[numMid]->last);
-    backPathLength++;
-  }
-
-  //Remove the duplicated shared parent, that they both pushed
-  // backPath.slice(numMid, 0, backPath[numMid].last);
-  removeAt(backPath, backPathLength, numMid);
-  backPathLength--;
-}
-
-// Moves us from current to goal, along a calculated backPath
-// Blocks until we're there
-void moveToGoal() {
-  // Move back along path
-  // backPath is a list of contiguous nodes. First is current, last is goal
-
-  logf("Moving to goal, backPath.length is %d\n", backPathLength);
-  while (backPathLength > 0) {
-    moveRobot(backPath[0]);
-    removeAt(backPath, backPathLength, 0);
-    backPathLength--;
-  }
-
-  // Then we're actually done
-  current = backPath[0];
-  backPathLength = 0;
-}
-
-void closeNode (Node* node) {
-  //Close the current node
-  node->closed = true;
-  //If this wasn't the next node scheduled to be closed, we need to move it to the closed section of the list
-  if (nodes[closedNodes] != node) {
-    Node *lastValue = nodes[closedNodes];
-    for (int i = closedNodes + 1; i < numNodes; i++) {
-      Node *tmp = nodes[i];
-      nodes[i]  = lastValue;
-      lastValue = tmp;
-      if (tmp == node) {
-        //Then we're done
-        break;
-      }
-    }
-    nodes[closedNodes] = node;
-  }
-  closedNodes++;
-}
-
-/* ---- Init ---- */
-// Initializes maze state and variables
-void init_maze() {
-  // Initialize current
-  addNodeIfNotExists(0, 0);
-  current = nodes[0];
-
-  // We need to make sure that we've checked the square behind us before starting
-  // (Normally, this isn't needed since the square
-  //  behind us is the square we just came from)
-  turnTo(WEST);
-  updateMaze();
-  turnTo(NORTH);
-}
