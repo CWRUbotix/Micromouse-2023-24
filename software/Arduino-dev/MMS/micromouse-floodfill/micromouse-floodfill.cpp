@@ -29,35 +29,38 @@ Node mazeNodes[MAZE_WIDTH][MAZE_HEIGHT];
 bool mazeWalls[MAZE_WIDTH + 1][MAZE_HEIGHT + 1][2] = {false};
 
 // Current robot facing
-uint8_t facing = EAST;
+uint8_t facing = NORTH;
 uint8_t xPos = 0;
 uint8_t yPos = 0;
+bool backtracking = false;
 
-void floodFill() {
+void floodFill(int goal[][2], int size) {
+  API_clearAllText();
   // Next node to update
   Node *curr;
   // Last node to update
   Node *last;
 
-  // Add four goal nodes to queue
-  curr = &mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2];
-  last = &mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2];
-  mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2].dist = 0;
-  last->next = &mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2];
-  last = &mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2];
-  mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2].dist = 0;
-  last->next = &mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2 - 1];
-  last = &mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2 - 1];
-  mazeNodes[MAZE_WIDTH / 2][MAZE_HEIGHT / 2 - 1].dist = 0;
-  last->next = &mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2 - 1];
-  last = &mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2 - 1];
-  mazeNodes[MAZE_WIDTH / 2 - 1][MAZE_HEIGHT / 2 - 1].dist = 0;
+  // Add goal nodes to queue
+  for(int i = 0; i < size; i++) {
+    if(i == 0) {
+      curr = &mazeNodes[goal[i][0]][goal[i][1]];
+    }
+    else {
+      last->next = &mazeNodes[goal[i][0]][goal[i][1]];
+    }
+    last = &mazeNodes[goal[i][0]][goal[i][1]];
+    mazeNodes[goal[i][0]][goal[i][1]].dist = 0;
+  }
 
   // Add unchecked nodes to queue and update projected distance from goal until all nodes have been updated
   while(curr) {
+    char distance_string[3];
+    sprintf(distance_string, "%d", curr->dist);
+    API_setText(curr->x, curr->y, distance_string);
     // If north side of node is open, add north node to queue
-    if(curr->y >= 1 && !mazeWalls[curr->x][curr->y][1] && mazeNodes[curr->x][curr->y - 1].dist > curr->dist + 1) {
-      last->next = &mazeNodes[curr->x][curr->y - 1];
+    if(curr->y + 1 < MAZE_WIDTH && !mazeWalls[curr->x][curr->y + 1][1] && mazeNodes[curr->x][curr->y + 1].dist > curr->dist + 1) {
+      last->next = &mazeNodes[curr->x][curr->y + 1];
       last = last->next;
       last->dist = curr->dist + 1;
     }
@@ -68,8 +71,8 @@ void floodFill() {
       last->dist = curr->dist + 1;
     }
     // If south side of node is open, add south node to queue
-    if(curr->y + 1 < MAZE_WIDTH && !mazeWalls[curr->x][curr->y + 1][1] && mazeNodes[curr->x][curr->y + 1].dist > curr->dist + 1) {
-      last->next = &mazeNodes[curr->x][curr->y + 1];
+    if(curr->y >= 1 && !mazeWalls[curr->x][curr->y][1] && mazeNodes[curr->x][curr->y - 1].dist > curr->dist + 1) {
+      last->next = &mazeNodes[curr->x][curr->y - 1];
       last = last->next;
       last->dist = curr->dist + 1;
     }
@@ -94,12 +97,13 @@ void setupMaze() {
       mazeNodes[x][y].next = NULL;
     }
   }
+  int goal[4][2] = {{MAZE_WIDTH / 2, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2, MAZE_HEIGHT / 2 - 1}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2 - 1}};
   // Calculate distances from center using flood fill
-  floodFill();
+  floodFill(goal, 4);
 }
 
 // Recalculate maze distances for each node
-void recalcMaze() {
+void recalcMaze(int goal[][2], int size) {
   // Iterate through all nodes, resetting distances
   for(int x = 0; x < MAZE_WIDTH; x++) {
     for(int y = 0; y < MAZE_HEIGHT; y++) {
@@ -108,7 +112,7 @@ void recalcMaze() {
     }
   }
   // Recalculate distances from center using flood fill
-  floodFill();
+  floodFill(goal, size);
 }
 
 // Update walls from sensor readings
@@ -120,61 +124,61 @@ void updateWalls() {
     // Facing North
     case NORTH:
       mazeWalls[xPos][yPos][0] = wallLeft;
-      mazeWalls[xPos][yPos][1] = wallFront;
+      mazeWalls[xPos][yPos + 1][1] = wallFront;
       mazeWalls[xPos + 1][yPos][0] = wallRight;
       if(wallLeft) {
-        API_setWall(yPos, xPos, 's');
+        API_setWall(xPos, yPos, 'w');
       }
       if(wallFront) {
-        API_setWall(yPos, xPos, 'w');
+        API_setWall(xPos, yPos, 'n');
       }
       if(wallRight) {
-        API_setWall(yPos, xPos, 'n');
+        API_setWall(xPos, yPos, 'e');
       }
       break;
     // Facing East
     case EAST:
-      mazeWalls[xPos][yPos][1] = wallLeft;
+      mazeWalls[xPos][yPos + 1][1] = wallLeft;
       mazeWalls[xPos + 1][yPos][0] = wallFront;
-      mazeWalls[xPos][yPos + 1][1] = wallRight;
+      mazeWalls[xPos][yPos][1] = wallRight;
       if(wallLeft) {
-        API_setWall(yPos, xPos, 'w');
+        API_setWall(xPos, yPos, 'n');
       }
       if(wallFront) {
-        API_setWall(yPos, xPos, 'n');
+        API_setWall(xPos, yPos, 'e');
       }
       if(wallRight) {
-        API_setWall(yPos, xPos, 'e');
+        API_setWall(xPos, yPos, 's');
       }
       break;
     // Facing South
     case SOUTH:
       mazeWalls[xPos + 1][yPos][0] = wallLeft;
-      mazeWalls[xPos][yPos + 1][1] = wallFront;
+      mazeWalls[xPos][yPos][1] = wallFront;
       mazeWalls[xPos][yPos][0] = wallRight;
       if(wallLeft) {
-        API_setWall(yPos, xPos, 'n');
+        API_setWall(xPos, yPos, 'e');
       }
       if(wallFront) {
-        API_setWall(yPos, xPos, 'e');
+        API_setWall(xPos, yPos, 's');
       }
       if(wallRight) {
-        API_setWall(yPos, xPos, 's');
+        API_setWall(xPos, yPos, 'w');
       }
       break;
     // Facing West
     case WEST:
-      mazeWalls[xPos][yPos + 1][1] = wallLeft;
+      mazeWalls[xPos][yPos][1] = wallLeft;
       mazeWalls[xPos][yPos][0] = wallFront;
-      mazeWalls[xPos][yPos][1] = wallRight;
+      mazeWalls[xPos][yPos + 1][1] = wallRight;
       if(wallLeft) {
-        API_setWall(yPos, xPos, 'e');
+        API_setWall(xPos, yPos, 's');
       }
       if(wallFront) {
-        API_setWall(yPos, xPos, 's');
+        API_setWall(xPos, yPos, 'w');
       }
       if(wallRight) {
-        API_setWall(yPos, xPos, 'w');
+        API_setWall(xPos, yPos, 'n');
       }
       break;
   }
@@ -207,10 +211,10 @@ void rotate(uint8_t dir) {
 // Returns true if the move was successful, or false if not
 bool rotateMove() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
-  // If moving South lowers distance to goal, move South
+  // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
-    rotate(SOUTH);
-    facing = SOUTH;
+    rotate(NORTH);
+    facing = NORTH;
     API_moveForward();
     yPos = yPos + 1;
     return true;
@@ -231,15 +235,24 @@ bool rotateMove() {
     xPos = xPos - 1;
     return true;
   }
-  // If moving North lowers distance to goal, move North
-  else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
-    rotate(NORTH);
-    facing = NORTH;
+  // If moving South lowers distance to goal, move South
+  if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
+    rotate(SOUTH);
+    facing = SOUTH;
     API_moveForward();
     yPos = yPos - 1;
     return true;
   }
-  recalcMaze();
+  if(mazeNodes[xPos][yPos].dist == 0) {
+    backtracking = !backtracking;
+  }
+  if(!backtracking) {
+    int goal[4][2] = {{MAZE_WIDTH / 2, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2, MAZE_HEIGHT / 2 - 1}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2 - 1}};
+    recalcMaze(goal, 4);
+    return false;
+  }
+  int goal[1][2] = {{0, 0}};
+  recalcMaze(goal, 1);
   return false;
 }
 
