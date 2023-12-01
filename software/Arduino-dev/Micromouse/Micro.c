@@ -541,7 +541,6 @@ void closeNode (Node* node) {
 /* ---- Init ---- */
 // Initializes maze state and variables
 void init_maze() {
-  turnTo(WEST);
   // Initialize current
   addNodeIfNotExists(0, 0);
   current = nodes[0];
@@ -549,8 +548,7 @@ void init_maze() {
   // We need to make sure that we've checked the square behind us before starting
   // (Normally, this isn't needed since the square
   //  behind us is the square we just came from)
-  // Update the maze while we're pointed North,
-  
-  updateMaze(); // Update the maze again
-  turnTo(EAST);
+  turnTo(WEST);
+  updateMaze();
+  turnTo(NORTH);
 }
