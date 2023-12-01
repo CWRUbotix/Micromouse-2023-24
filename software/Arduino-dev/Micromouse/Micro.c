@@ -40,7 +40,7 @@ typedef struct FFNode {
 // Null pointer
 #define NULL ((void *)0)
 
-#define MAZE_SIZE          10
+#define MAZE_SIZE          16
 // 0 - Basic A*
 // 1 - Hallway following - if there is only a single open node adjacent to the robot, we go there, regardless of score
 // 2 - Greedy heuristic - when calculating score, we value getting close to the center 5x more than staying close to
@@ -55,8 +55,8 @@ typedef struct FFNode {
 //  However, the distance from the center of any node to 4.5, 4.5, by taxi-cab distance is a whole number
 //  To avoid floating point math (I don't like floating point), we multiply by 10
 //  (Everywhere else, distances, scores, and node locations are absolute, we only multiple by 10 in h())
-#define END_X              45
-#define END_Y              45
+#define END_X              75
+#define END_Y              75
 
 // Used as parameters to the motor functions
 enum turning_direction_t {LEFT = -1, RIGHT = 1};
@@ -68,7 +68,7 @@ enum cardinal_t {NORTH, EAST, SOUTH, WEST};
 // maze[Y][X][1: vertical; 0: horizontal]
 // And the number represents the confidence
 // So 0 is we have no idea, and positive is wall, and negative is no wall
-int maze[11][11][2];
+int maze[MAZE_SIZE + 1][MAZE_SIZE + 1][2];
 
 // The list of nodes
 // Sorted such that closed nodes are 0..closedNodes-1
@@ -204,10 +204,10 @@ void removeAt(Node **arr, int len, int i) {
 // Check if we are in any of the four finish squares
 int isGoal(int x, int y) {
   return (
-    (x == 4 && y == 4) ||
-    (x == 4 && y == 5) ||
-    (x == 5 && y == 4) ||
-    (x == 5 && y == 5)
+    (x == END_X/10 && y == END_Y/10) ||
+    (x == END_X/10 && y == END_Y/10 + 1) ||
+    (x == END_X/10 + 1 && y == END_Y/10) ||
+    (x == END_X/10 + 1 && y == END_Y/10 + 1)
   );
 }
 
