@@ -34,7 +34,6 @@ uint8_t xPos = 0;
 uint8_t yPos = 0;
 bool backtracking = false;
 
-// TODO: Figure out what in the for loop is causing an error
 void floodFill(int goal[][2], int size) {
   API_clearAllText();
   // Next node to update
