@@ -1,4 +1,4 @@
-# Micromouse 2022-23 🐁
+# Micromouse 2023-24 🐁
 
 A fully autonomous maze-solving not-quite-mouse-sized robot. 
 
