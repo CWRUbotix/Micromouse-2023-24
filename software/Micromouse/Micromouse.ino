@@ -24,9 +24,9 @@ typedef enum motor_t {
 
 #define ANGLE_TOLERANCE 5
 
-const double wheelSeparation = 9.5;
-const double wheelRadius = 3;
-const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
+const double wheelSeparation = 9.5; // cm
+const double wheelRadius = 3; // cm
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12; // 1 encoder tick = robot turns 1 degree
 
 // The LiDAR sensors return a running average of readings,
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
@@ -364,8 +364,8 @@ double getAngle()
  *              Positive is CCW
  *              Negative is CW
  */
-void turn(double angle, turning_direction_t direction) {
-  // Encoder to turn
+void turn( angle, turning_direction_t direction) {
+  // Encoder to turndouble
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
@@ -541,6 +541,123 @@ void moveForwardOneSquare() {
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
   }
+}
+
+/** Differential Drive **/
+/*
+moveToPoint
+compute offset
+Compute Jacobian
+set left/right wheel velocities
+
+const double wheelSeparation = 9.5;
+const double wheelRadius = 3;
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
+*/
+
+double r = 10;
+double offsetConstant = 1; // How far away the point offset point is from the robot
+int threshold = 1; // How far robot can be from target
+double kp = 5; // velo
+
+// Called from backtracking algorithm
+// this function determines if the robot
+// should move straight or move in a 90 degree turn
+void moveToPoint(int startx, int starty, int endx, int endy) {
+  if (startx - endx < threshold || starty - endy < threshold) {
+    // move forward 1 square
+    return;
+  }
+
+  // Otherwise turn 90 degrees
+  turn90(true, abs(endx - startx), abs(endy - starty));
+
+  double angle = tan(dy / dx);
+
+  double X = r * cos(angle) + startx;
+  double Y = r * sin(angle) + starty;
+
+  theta = arctan((Y - (endy - )))
+}
+
+// This function starts the differential drive with the bool
+// rightTurn signifying if the robot should turn right
+void turn90(bool rightTurn, double dx, double dy) {
+  // Robot (x, y) position
+  double x = 0.0;
+  double y = 0.0;
+
+  // Destination (x, y)
+  double xf = dx;
+  double yf = dy;
+
+  // Radius of the turn
+  double r = sqrt(dx^2 + dy^2);
+
+  // Update the final coordinates based on the turn
+  if (!rightTurn) {
+    xf *= -1;
+  }
+
+  // Initial angle is 0 degrees
+  double theta = 0.0;
+
+  while (dist() >= threshold)
+  {
+    // TODO: Update the value of (x, y)
+
+    // Compute point ahead at current angle
+    // TODO: Check if need to change r to a constant variable
+    double X = offsetConstant * cos(theta) + x;
+    double Y = offsetConstant * sin(theta) + y;
+
+    // Compute offset distance (to goal) from point ahead
+    double ox = xf - X;
+    double oy = yf - Y;
+
+    // update theta of robot
+    // TODO: Maybe use Y instead of y? and X instead of x?
+    dx = x - ox;
+    dy = y - oy;
+    theta = atan2(dy, dx);
+    
+    // Drive to point
+
+    /*
+    // Compute Jacobian of robot
+    double J_const = wheelSeparation / offsetConstant; // b/a
+    double J11 = cos(theta) - J_const * sin(theta);
+    double J12 = sin(theta) + J_const * cos(theta)};
+    double J21 = cos(theta) + J_const * sin(theta);
+    double J22 = sin(theta) - J_const * cos(theta);
+
+    // Compute Wheel velocities
+    double vL = kp * (dx * J11 + dy * J21);
+    double vR = kp * (dx * J21 + dy * J22);
+
+    // Set wheel velocities
+    setWheelVelocities(vL, vR);
+    */
+  }
+
+  // TODO: Later
+  // Now that it's close to the end point of the curve, then drive to the end point of the curve
+}
+
+double dist(int x1, int y1, int x2, int y2) {
+  return sqrt((x2 - x1)^2 + (y2 - y1)^2);
+}
+
+void computeOffset(int x, int y, double theta, int offsetConstant) {
+  // return x + a * math.cos(theta), y + a * math.sin(theta)
+  return double[] {x + offsetConstant * cos(theta);, y + offsetConstant * sin(theta)}
+} 
+
+
+void setWheelVelocities(int velocityLeft, int velocityRight) {
+  // TODO: Update the encoder value
+  setMotor(LEFT_MOTOR, velocityLeft);
+  setMotor(RIGHT_MOTOR, velocityRight);
 }
 
 /** A* algorithm **/
