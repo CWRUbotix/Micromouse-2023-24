@@ -544,6 +544,22 @@ void moveForwardOneSquare() {
 }
 
 /** Differential Drive **/
+
+void midpointPath() {
+  /*
+  Steps:
+  1. Create path 
+  */
+  Node[] points = new Node[backPathLength + 1];
+
+}
+
+
+
+
+
+
+
 /*
 moveToPoint
 compute offset
@@ -572,7 +588,7 @@ void moveToPoint(int startx, int starty, int endx, int endy) {
   // Otherwise turn 90 degrees
   turn90(true, abs(endx - startx), abs(endy - starty));
 
-  double angle = tan(dy / dx);
+  double angle = tan2(dy, dx);
 
   double X = r * cos(angle) + startx;
   double Y = r * sin(angle) + starty;
@@ -650,7 +666,7 @@ double dist(int x1, int y1, int x2, int y2) {
 
 void computeOffset(int x, int y, double theta, int offsetConstant) {
   // return x + a * math.cos(theta), y + a * math.sin(theta)
-  return double[] {x + offsetConstant * cos(theta);, y + offsetConstant * sin(theta)}
+  return int[] {x + offsetConstant * cos(theta), y + offsetConstant * sin(theta)};
 } 
 
 
