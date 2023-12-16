@@ -1,0 +1,1 @@
+Change symbol #PWR0110 from 'power:+3.3V' to 'power:+3.3V': OK
