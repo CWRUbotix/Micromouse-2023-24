@@ -169,9 +169,9 @@ void loop(void) {
   if (shouldFloodFill) {
     logln("Running flood fill on all open nodes.");
     for (int i = closedNodes; i < numNodes; i++) {
-      if (!ff(nodes[i])) {
-        logf("FF closing node x: %d, y: %d", nodes[i]->x, nodes[i]->y);
-        closeNode(nodes[i]);
+      if (!ff(mazeNodes[i])) {
+        logf("FF closing node x: %d, y: %d", mazeNodes[i]->x, mazeNodes[i]->y);
+        closeNode(mazeNodes[i]);
       }
     }
   }

@@ -91,8 +91,8 @@ void clearAllColor() {
     fflush(stdout);
 }
 
-void setText(int x, int y, char* text) {
-    printf("setText %d %d %s\n", x, y, text);
+void setText(int x, int y, int text) {
+    printf("setText %d %d %d\n", x, y, text);
     fflush(stdout);
 }
 
