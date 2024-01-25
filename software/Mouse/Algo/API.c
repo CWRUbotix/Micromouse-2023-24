@@ -51,8 +51,13 @@ int wallLeft() {
     return getBoolean("wallLeft");
 }
 
-int moveForward() {
-    return getAck("moveForward");
+int moveForward(int number) {
+    printf("moveForward %d\n", number);
+    fflush(stdout);
+    char response[BUFFER_SIZE];
+    fgets(response, BUFFER_SIZE, stdin);
+    int success = (strcmp(response, "ack\n") == 0);
+    return success;
 }
 
 void turnRight() {
