@@ -20,7 +20,6 @@
   #define LOGGING 0
 #endif
 
-
 #define MAZE_SIZE 16
 #define MAZE_HEIGHT 16
 #define MAZE_WIDTH 16
@@ -278,14 +277,17 @@ void rotateMove() {
     yPos = yPos - 1;
     return;
   }
+  // If end of maze has been reached (or start of maze has been reached while backtracking), switch backtracking mode
   if(mazeNodes[xPos][yPos].dist == 0) {
     backtracking = !backtracking;
   }
+  // If solving maze, flood fill from center
   if(!backtracking) {
     int goal[4][2] = {{MAZE_WIDTH / 2, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2, MAZE_HEIGHT / 2 - 1}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2 - 1}};
     recalcMaze(goal, 4);
     return;
   }
+  // If backtracking, flood fill from start
   int goal[1][2] = {{0, 0}};
   recalcMaze(goal, 1);
   return;
@@ -304,7 +306,7 @@ void createPath() {
     x = path[i]->x;
     y = path[i]->y;
 
-  // If moving North lowers distance to goal, add East node
+  // If moving North lowers distance to goal, add North node
   if(y + 1 < MAZE_HEIGHT && !mazeWalls[x][y + 1][1] && mazeNodes[x][y + 1].dist < dist) {
     path[i + 1] = &mazeNodes[x][y + 1];
   }

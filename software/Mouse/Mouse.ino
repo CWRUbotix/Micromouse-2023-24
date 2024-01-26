@@ -25,9 +25,9 @@ typedef enum motor_t {
 
 #define ANGLE_TOLERANCE 5
 
-const double wheelSeparation = 9.5;
-const double wheelRadius = 3;
-const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
+const double wheelSeparation = 9.5; // 9.5 cm between wheels
+const double wheelRadius = 3; // 3 cm radius
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
@@ -69,9 +69,9 @@ double ultrasonic_distance_factor = 0.17;
 bool ultrasonic_errored;
 
 /**
- * Convert a value in range [-128..127] to a motor power value
+ * Convert a value in range [-127..127] to a motor power value
  *
- * @param p The input power [-128..127]
+ * @param p The input power [-127..127]
  * @return Output power [0..255]
  */
 uint8_t convertPower(int8_t p) {
@@ -79,12 +79,9 @@ uint8_t convertPower(int8_t p) {
     return 255;
   }
   if (p < 0) {
-    if (p == -128) {
-      p = -127;
-    }
     p = -p;
   }
-  return 255 - (((uint8_t)p) * 2);
+  return 255 - (((uint8_t) p) * 2);
 }
 
 /**
@@ -92,14 +89,13 @@ uint8_t convertPower(int8_t p) {
  *
  * @param m The motor to modify
  * @param power The power and direction of the motor
- *              (range: [-128..127])
+ *              (range: [-127..127])
  *              Positive is "forward"
  *              Negative is "backward"
  */
 void setMotor (motor_t m, int power) {
-  power = -power;
-  if (power < -128) {
-    power = -128;
+  if (power < -127) {
+    power = -127;
   }else if (power > 127) {
     power = 127;
   }
@@ -121,11 +117,11 @@ void setMotor (motor_t m, int power) {
       analogWrite(m1, 255);
       analogWrite(m2, 255);
   } else if (power > 0) {
-      analogWrite(m1, 255);
-      analogWrite(m2, convertPower(power));
-  } else {
       analogWrite(m1, convertPower(power));
       analogWrite(m2, 255);
+  } else {
+      analogWrite(m1, 255);
+      analogWrite(m2, convertPower(power));
   }
 }
 
