@@ -325,7 +325,7 @@ double p_controller(double p, double current, double goal, double min, double ma
   if (out > max) {
     out = max;
   }else if (out < min) {
-    out = min;    
+    out = min;
   }
   return out;
 }
@@ -364,7 +364,7 @@ double getAngle()
  *              Positive is CCW
  *              Negative is CW
  */
-void spotturn( angle, turning_direction_t direction) {
+void spotTurn( double angle, turning_direction_t direction) {
   // Encoder to turndouble
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
@@ -409,7 +409,7 @@ void spotturn( angle, turning_direction_t direction) {
 }
 
 
-void turn(turning_direction_t direction){
+void turn(double angle, turning_direction_t direction){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
@@ -1272,12 +1272,10 @@ void setup(void) {
   updateMaze(); // Update the maze while we're pointed North,
   spinTo(SOUTH); // Spin South
   updateMaze(); // Update the maze again
-  turn(LEFT);
 }
 
 /* ---- MAIN ---- */
 void loop(void) {
-  /*
   Serial.println("");
   Serial.printf("Robot at (x: %d, y: %d)\n", current->x, current->y);
 
@@ -1343,5 +1341,5 @@ void loop(void) {
       digitalWrite(RED_LED, HIGH);
       delay(100);
     }
-  }*/
+  }
 }
