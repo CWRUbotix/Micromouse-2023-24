@@ -408,6 +408,38 @@ void turn( angle, turning_direction_t direction) {
   setMotor(LEFT_MOTOR, 0);
 }
 
+
+void turn2(angle, turning_direction_t direction){
+  Encoder *turnEncoder;
+  Encoder *otherTurnEncoder;
+
+  ratio =  (SQUARE_SIZE + wheelSeparation)/(SQUARE_SIZE - wheelSeparation);
+  max = 45.125;
+
+  FAST_SPEED = max*ratio/(ratio + 1);
+  SLOW_SPEED = max*1/(ratio + 1);
+  
+  if(dir == LEFT){
+    setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
+    setMotor(LEFT_MOTOR, SLOW_SPEED*dir);
+  }
+  else{
+    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
+    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+  }
+  
+  int encoderAverage;
+    do {
+      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
+    } while (encoderAverage < target - ANGLE_TOLERANCE);
+
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+
+}
+
+
+
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
