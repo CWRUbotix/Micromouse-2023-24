@@ -1,0 +1,46 @@
+#######################################
+# Syntax Coloring Map For VL6180X_WE
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+VL6180X_WE	KEYWORD1
+VL6180x	KEYWORD1
+
+# ENUM TYPES
+vl6180x_als_gain	KEYWORD1
+VL6180xIdentification	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+VL6180xInit	KEYWORD2
+VL6180xDefautSettings	KEYWORD2
+getDistance	KEYWORD2
+getAmbientLight	KEYWORD2
+getIdentification	KEYWORD2
+changeAddress	KEYWORD2
+VL6180xSetDistInt	KEYWORD2
+VL6180xSetALSInt	KEYWORD2
+getDistanceContinously	KEYWORD2
+getLastDistanceFromHistory	KEYWORD2
+getAmbientLightContinously	KEYWORD2
+getLastAmbientLightFromHistory	KEYWORD2
+VL6180xClearInterrupt	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+# ENUM VALUES
+GAIN_20	LITERAL1
+GAIN_10	LITERAL1
+GAIN_5	LITERAL1
+GAIN_2_5	LITERAL1
+GAIN_1_67	LITERAL1
+GAIN_1_25	LITERAL1
+GAIN_1	LITERAL1
+GAIN_40	LITERAL1
