@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define sim
+// #define sim
 
 #define DEBUG
 
@@ -27,6 +27,8 @@
 
 // Represents cardinal direction with respect to the maze
 enum cardinal_t {NORTH, EAST, SOUTH, WEST};
+// Used as parameters to the motor functions
+enum turning_direction_t { LEFT, RIGHT };
 
 // Single node of maze
 typedef struct Node {
@@ -55,7 +57,9 @@ uint8_t yPos = 0;
 bool backtracking = false;
 
 void floodFill(int goal[][2], int size) {
+  #ifdef sim
   clearAllText();
+  #endif
   // Next node to update
   Node *curr;
   // Last node to update

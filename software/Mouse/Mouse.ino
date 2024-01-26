@@ -8,7 +8,7 @@
 // Pin definitions
 #include "micromouse_pins_2023.h"
 // Robot Logic and Algorithm definitions
-#include "Algo/Micro.c"
+#include "Algo/FMicro.cpp"
 /* ---- Defines ---- */
 typedef enum motor_t {
     LEFT_MOTOR = 0,
@@ -129,17 +129,17 @@ void setMotor (motor_t m, int power) {
   }
 }
 
-bool wallLeft(){
-  return lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX &&
-    lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+int wallLeft(){
+  return (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX) &&
+    (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
-bool wallRight(){
-  return lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX &&
-    lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
+int wallRight(){
+  return (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX) &&
+    (lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
 
-bool wallFront(){
+int wallFront(){
   return ultrasonic > SENSOR_RANGE_MAX;
 }
 
@@ -280,7 +280,7 @@ void turnLeft45(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-void moveForward() {
+int moveForward(int number) {
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -291,7 +291,7 @@ void moveForward() {
   // Create speed variables
   // (currentDistance is the distance inside the current square.)
   double currentDistance = 0;
-  double goalDistance = SQUARE_SIZE;
+  double goalDistance = SQUARE_SIZE * number;
   double velocity;
 
   // Center variables
@@ -402,6 +402,7 @@ void moveForward() {
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
   }
+  return 0;
 }
 
 /* ---- SETUP ---- */
@@ -463,10 +464,6 @@ void setup(void) {
   setMotor(LEFT_MOTOR, 0);
   Serial.println("Motors ready!");
 
-  // Initialize current
-  addNodeIfNotExists(0, 0);
-  current = nodes[0];
-
   pinMode(START_BUTTON, INPUT);
   int t = 0;
   // Spin until start button is pressed
@@ -502,14 +499,8 @@ void setup(void) {
     }
   }
   if (endPressTime - pressTime < 1000) {
-    shouldFloodFill = true;
-    mappingMode = 3;
   }else if (endPressTime - pressTime < 3000) {
-    shouldFloodFill = false;
-    mappingMode = 3;
   }else {
-    shouldFloodFill = false;
-    mappingMode = 0;
   }
   delay(500);
   digitalWrite(LED0, LOW);
