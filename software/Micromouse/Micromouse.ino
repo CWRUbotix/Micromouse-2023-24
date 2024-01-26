@@ -364,7 +364,7 @@ double getAngle()
  *              Positive is CCW
  *              Negative is CW
  */
-void turn( angle, turning_direction_t direction) {
+void spotturn( angle, turning_direction_t direction) {
   // Encoder to turndouble
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
@@ -409,7 +409,7 @@ void turn( angle, turning_direction_t direction) {
 }
 
 
-void turn2(angle, turning_direction_t direction){
+void turn(angle, turning_direction_t direction){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
