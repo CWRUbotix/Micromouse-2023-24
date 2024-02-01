@@ -15,6 +15,23 @@ typedef enum motor_t {
     RIGHT_MOTOR
 } motor_t;
 
+// #define TEST
+#undef log
+#undef logf
+#undef logln
+
+#ifdef TEST
+  #define log(...) Serial.print(__VA_ARGS__)
+  #define logf(...) Serial.printf(__VA_ARGS__)
+  #define logln(...) Serial.print(stderr, __VA_ARGS__); Serial.print(stderr, "\n")
+  #define LOGGING 1
+#else
+  #define log(...)
+  #define logf(...)
+  #define logln(...)
+  #define LOGGING 0
+#endif
+
 #define POWER_DEADBAND 6
 
 #define LIDAR_COUNT 4
@@ -163,7 +180,7 @@ void updateSensors () {
     ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
   }
 
-  Serial.printf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  logf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -186,20 +203,20 @@ double getAngle()
   // Average left and right sensors
   double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
   double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-  // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+  // logf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
   if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
     // If we have no good data, assume we're going straight
-    // Serial.printf("Using 0 as angle\n");
+    // logf("Using 0 as angle\n");
     return 0;
   } else if (back_left_errored || front_left_errored) {
-    // Serial.printf("Using right angle\n");
+    // logf("Using right angle\n");
     return rightAngle;
   } else if (back_right_errored || front_right_errored) {
-    // Serial.printf("Using left angle\n");
+    // logf("Using left angle\n");
     return leftAngle;
   } else {
-    // Serial.printf("Averaging angles\n");
+    // logf("Averaging angles\n");
     return (leftAngle + rightAngle) / 2;
   }
 }
@@ -297,29 +314,26 @@ int moveForward(int number) {
   while (1) {
     // update currentDistance and currentAngle
     {
-      // read LiDAR
+      // read LiDARs
       updateSensors();
-
       // Update angle
       currentAngle = getAngle();
 
       // Update current distance
-      // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
+      // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
       // num revolutions * pi * diameter (Zach says 60mm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // Serial.printf("Encoder left: %d\tright: %d; ", leftRevs, rightRevs);
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution
       currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
-      // Serial.printf("currentDistance: %f\n", currentDistance);
     }
 
-    Serial.printf("Moving forward. current: %d, ultrasonic: %f, cond: %d, %d, %d\n", currentDistance, ultrasonic, currentDistance >= goalDistance, ultrasonic < 150, ultrasonic > 95);
+    logf("Moving forward. current: %d, ultrasonic: %f, cond: %d, %d, %d\n", currentDistance, ultrasonic, currentDistance >= goalDistance, ultrasonic < 150, ultrasonic > 95);
 
-    // We're also not allowed to break out of the loop (stop going forward), if we're more than 95 mm in front
-    //  If we have a wall in front of us, but it's more than 95mm from the ultrasonic, then we're too far back and we need to go forward still
+    // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
     if (currentDistance >= goalDistance && ultrasonic < 150 && ultrasonic > 95) {
-      Serial.printf("Moving goalDistance forward.\n");
+      logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the ultrasonic ends up ULTRASONIC_FRONT (60mm) away from the wall in front of us
       goalDistance += ultrasonic - ULTRASONIC_FRONT;
     }
@@ -361,7 +375,7 @@ int moveForward(int number) {
     //                    2
     centerOffset = (double)front_right - (double)front_left;
     if (front_left_errored && front_right_errored) {
-        // Serial.printf("both errored, setting offset to 0\n");
+        // logf("both errored, setting offset to 0\n");
         centerOffset = 0;
     }else if (front_left_errored) {
         // If we don't have a left value
@@ -372,7 +386,7 @@ int moveForward(int number) {
         centerOffset = (240 - 84) / 2.0 - (double)front_left;
     }
 
-    // Serial.printf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
+    // logf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
 
     // p, current, goal, min, max
     // When the angle is 0.1, we need to bump left power by like 5, so P of 20
@@ -415,12 +429,12 @@ void setup(void) {
 
   // Start serial
   Serial.begin(115200);
-  Serial.println("Serial ready!");
+  logln("Serial ready!");
 
   // Starts I2C on the default pins (18 (SDA), 19 (SCL))
   // (I think, I can't find docs on it)
   I2C_LIDAR.begin();
-  Serial.println("I2C ready!");
+  logln("I2C ready!");
 
   // Setup LiDARs
   for (size_t i = 0; i < LIDAR_COUNT; ++i) {
@@ -438,17 +452,17 @@ void setup(void) {
     digitalWrite(lidar_cs_pins[i], HIGH);
     // Pass pointer to the Wire2 object since we're running on I2C bus 2
     if (!lidar_sensors[i].begin(&I2C_LIDAR)) {
-      Serial.print("Failed init on sensor ");
-      Serial.println(i);
+      log("Failed init on sensor ");
+      logln(i);
     } else {
       lidar_sensors[i].setAddress(LIDAR_ADDR_BASE + i);
     }
   }
-  Serial.println("LiDAR sensors ready!");
+  logln("LiDAR sensors ready!");
 
   pinMode(SONIC_TRIG1, OUTPUT);
   pinMode(SONIC_ECHO1, INPUT);
-  Serial.println("Ultrasonic sensor ready!");
+  logln("Ultrasonic sensor ready!");
 
   // Setup motors
   pinMode(MOTORLEFT_1, OUTPUT);
@@ -458,7 +472,7 @@ void setup(void) {
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
-  Serial.println("Motors ready!");
+  logln("Motors ready!");
 
   pinMode(START_BUTTON, INPUT);
   int t = 0;
@@ -506,7 +520,14 @@ void setup(void) {
   initialize();
 }
 
+void coolLights(){
+  if(millis() % 1000)
+    digitalWrite(BLUE_LED, HIGH);
+  else
+    digitalWrite(BLUE_LED, LOW);
+}
+
 /* ---- MAIN ---- */
 void loop() {
-  doRun();
+  coolLights();
 }

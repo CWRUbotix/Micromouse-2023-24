@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// #define sim
-
 #define DEBUG
 
 #ifdef DEBUG
