@@ -208,7 +208,8 @@ void spinTo(cardinal_t direction) {
     (robot.facing == WEST && direction == NORTH)
   ) {
     //Rotate 90º Right
-    rotate90(RIGHT);
+    rotate90(RIGHT)
+    //turn90(RIGHT);
   }else if (
     (robot.facing == NORTH && direction == WEST) ||
     (robot.facing == WEST && direction == SOUTH) ||
@@ -217,6 +218,7 @@ void spinTo(cardinal_t direction) {
   ) {
     //Rotate 90º Left
     rotate90(LEFT);
+    //turn90(LEFT);
   }else if (
     (robot.facing == NORTH && direction == SOUTH) ||
     (robot.facing == SOUTH && direction == NORTH) ||
@@ -409,15 +411,16 @@ void spotTurn( double angle, turning_direction_t direction) {
 }
 
 
-void turn(double angle, turning_direction_t direction){
+void turn(double angle, turning_direction_t dir){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  ratio =  (SQUARE_SIZE + wheelSeparation)/(SQUARE_SIZE - wheelSeparation);
-  max = 45.125;
+  double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
+  double max = 80;
+  int target = 900;
 
-  FAST_SPEED = max*ratio/(ratio + 1);
-  SLOW_SPEED = max*1/(ratio + 1);
+  double FAST_SPEED = max*ratio/(ratio + 1);
+  double SLOW_SPEED = max*1/(ratio + 1);
   
   if(dir == LEFT){
     setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
@@ -427,10 +430,13 @@ void turn(double angle, turning_direction_t direction){
     setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
     setMotor(LEFT_MOTOR, FAST_SPEED*dir);
   }
-  
+
+  leftEncoder.write(0);
+  rightEncoder.write(0);  
+
   int encoderAverage;
     do {
-      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
+      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
     } while (encoderAverage < target - ANGLE_TOLERANCE);
 
   setMotor(RIGHT_MOTOR, 0);
@@ -443,6 +449,16 @@ void turn(double angle, turning_direction_t direction){
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
+  if (direction == RIGHT) {
+    spotTurn(90.0 + getAngle() * 180.0 / PI, direction);
+  } else {
+    spotTurn(90.0 - getAngle() * 180.0 / PI, direction);
+  }
+}
+
+// Rotate 90 degrees
+// Takes a direction, either LEFT or RIGHT
+void turn90(turning_direction_t direction) {
   if (direction == RIGHT) {
     turn(90.0 + getAngle() * 180.0 / PI, direction);
   } else {
@@ -582,7 +598,7 @@ void midpointPath() {
   Steps:
   1. Create path 
   */
-  Node[] points = new Node[backPathLength + 1];
+  //Node[] points = new Node[backPathLength + 1];
 
 }
 
@@ -611,6 +627,7 @@ double kp = 5; // velo
 // Called from backtracking algorithm
 // this function determines if the robot
 // should move straight or move in a 90 degree turn
+/*
 void moveToPoint(int startx, int starty, int endx, int endy) {
   if (startx - endx < threshold || starty - endy < threshold) {
     // move forward 1 square
@@ -626,10 +643,11 @@ void moveToPoint(int startx, int starty, int endx, int endy) {
   double Y = r * sin(angle) + starty;
 
   theta = arctan((Y - (endy - )))
-}
+}*/
 
 // This function starts the differential drive with the bool
 // rightTurn signifying if the robot should turn right
+/*
 void turn90(bool rightTurn, double dx, double dy) {
   // Robot (x, y) position
   double x = 0.0;
@@ -671,7 +689,7 @@ void turn90(bool rightTurn, double dx, double dy) {
     
     // Drive to point
 
-    /*
+    
     // Compute Jacobian of robot
     double J_const = wheelSeparation / offsetConstant; // b/a
     double J11 = cos(theta) - J_const * sin(theta);
@@ -685,20 +703,22 @@ void turn90(bool rightTurn, double dx, double dy) {
 
     // Set wheel velocities
     setWheelVelocities(vL, vR);
-    */
+    
   }
 
   // TODO: Later
   // Now that it's close to the end point of the curve, then drive to the end point of the curve
-}
+}*/
 
+/*
 double dist(int x1, int y1, int x2, int y2) {
   return sqrt((x2 - x1)^2 + (y2 - y1)^2);
-}
+
+}*/
 
 void computeOffset(int x, int y, double theta, int offsetConstant) {
   // return x + a * math.cos(theta), y + a * math.sin(theta)
-  return int[] {x + offsetConstant * cos(theta), y + offsetConstant * sin(theta)};
+ // return int[] {x + offsetConstant * cos(theta), y + offsetConstant * sin(theta)};
 } 
 
 
@@ -1272,10 +1292,12 @@ void setup(void) {
   updateMaze(); // Update the maze while we're pointed North,
   spinTo(SOUTH); // Spin South
   updateMaze(); // Update the maze again
+  turn(90, LEFT);
+
 }
 
 /* ---- MAIN ---- */
-void loop(void) {
+void loop(void) { 
   Serial.println("");
   Serial.printf("Robot at (x: %d, y: %d)\n", current->x, current->y);
 
