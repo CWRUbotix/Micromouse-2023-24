@@ -547,6 +547,7 @@
     )
   )
 
+
   (junction (at 91.44 72.39) (diameter 0) (color 0 0 0 0)
     (uuid 027c4d9c-d3e6-48eb-ad08-84b2be3554bb)
   )
@@ -899,7 +900,7 @@
   (symbol (lib_id "power:+BATT") (at 168.91 62.23 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid b98eb3bd-9cda-43ff-9cf4-8c90ed297d37)
-    (property "Reference" "#PWR?" (id 0) (at 168.91 66.04 0)
+    (property "Reference" "#PWR0105" (id 0) (at 168.91 66.04 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+BATT" (id 1) (at 171.45 60.9599 0)
