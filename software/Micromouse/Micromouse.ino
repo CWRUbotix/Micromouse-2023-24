@@ -433,13 +433,14 @@ void turn(double angle, turning_direction_t dir){
   leftEncoder.write(0);
   rightEncoder.write(0);  
 
-  int encoderAverage;
+  int encoderAverage = 0;
     do {
       encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
     } while (encoderAverage < target);
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
+  Serial.print(encoderAverage)
 
 }
 
