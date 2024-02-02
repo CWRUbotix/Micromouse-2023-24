@@ -126,13 +126,11 @@ void setMotor (motor_t m, int power) {
 }
 
 bool wallLeft() {
-  return lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX &&
-    lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+  return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 }
 
 bool wallRight() {
-  return lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX &&
-    lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
+  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
 }
 
 bool wallFront() {
@@ -328,8 +326,8 @@ void moveForward() {
     // For the ultrasonic, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
     if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
-      setMotor(LEFT_MOTOR, 0);
-      setMotor(RIGHT_MOTOR, 0);
+      // setMotor(LEFT_MOTOR, 0);
+      // setMotor(RIGHT_MOTOR, 0);
       break;
     }
 

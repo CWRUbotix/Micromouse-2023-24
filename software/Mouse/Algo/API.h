@@ -7,7 +7,7 @@ int wallFront();
 int wallRight();
 int wallLeft();
 
-int moveForward();  // Returns 0 if crash, else returns 1
+int moveForward(int spaces);  // Returns 0 if crash, else returns 1
 void turnRight();
 void turnLeft();
 

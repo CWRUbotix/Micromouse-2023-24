@@ -52,6 +52,7 @@ uint8_t xPos = 0;
 uint8_t yPos = 0;
 
 bool backtracking = false;
+bool solving = false;
 
 void floodFill(int goal[][2], int size) {
   clearAllText();
@@ -238,16 +239,16 @@ void rotate(uint8_t dir) {
 }
 
 // Determines direction to move, rotates to that direction, and moves forward (recalculates projected distances if no reasonable move found)
-// Returns true if the move was successful, or false if not
-void rotateMove() {
+// Returns true if the goal has been reached, or false if not
+bool rotateMove() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
+  if(!solving) return rotateMoveHalf();
   // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
     rotate(NORTH);
     facing = NORTH;
     moveForward(1);
     yPos = yPos + 1;
-    return;
   }
   // If moving East lowers distance to goal, move East
   else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
@@ -255,7 +256,6 @@ void rotateMove() {
     facing = EAST;
     moveForward(1);
     xPos = xPos + 1;
-    return;
   }
   // If moving West lowers distance to goal, move West
   else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
@@ -263,7 +263,6 @@ void rotateMove() {
     facing = WEST;
     moveForward(1);
     xPos = xPos - 1;
-    return;
   }
   // If moving South lowers distance to goal, move South
   else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
@@ -271,22 +270,74 @@ void rotateMove() {
     facing = SOUTH;
     moveForward(1);
     yPos = yPos - 1;
-    return;
   }
   // If end of maze has been reached (or start of maze has been reached while backtracking), switch backtracking mode
   if(mazeNodes[xPos][yPos].dist == 0) {
     backtracking = !backtracking;
+    moveForward(0.5);
+    solving = false;
   }
   // If solving maze, flood fill from center
   if(!backtracking) {
     int goal[4][2] = {{MAZE_WIDTH / 2, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2, MAZE_HEIGHT / 2 - 1}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2 - 1}};
     recalcMaze(goal, 4);
-    return;
+    return !solving;
   }
   // If backtracking, flood fill from start
   int goal[1][2] = {{0, 0}};
   recalcMaze(goal, 1);
-  return;
+  return !solving;
+}
+
+// Determines direction to move, rotates to that direction, and moves forward a half space (recalculates projected distances if no reasonable move found)
+// Returns true if the goal has been reached, or false if not
+bool rotateMoveHalf() {
+  uint8_t dist = mazeNodes[xPos][yPos].dist;
+  solving = true;
+  // If moving North lowers distance to goal, move North
+  if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
+    rotate(NORTH);
+    facing = NORTH;
+    moveForward(0.5);
+    yPos = yPos + 1;
+  }
+  // If moving East lowers distance to goal, move East
+  else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
+    rotate(EAST);
+    facing = EAST;
+    moveForward(0.5);
+    xPos = xPos + 1;
+  }
+  // If moving West lowers distance to goal, move West
+  else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
+    rotate(WEST);
+    facing = WEST;
+    moveForward(0.5);
+    xPos = xPos - 1;
+  }
+  // If moving South lowers distance to goal, move South
+  else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
+    rotate(SOUTH);
+    facing = SOUTH;
+    moveForward(0.5);
+    yPos = yPos - 1;
+  }
+  // If end of maze has been reached (or start of maze has been reached while backtracking), switch backtracking mode
+  if(mazeNodes[xPos][yPos].dist == 0) {
+    backtracking = !backtracking;
+    moveForward(0.5);
+    solving = false;
+  }
+  // If solving maze, flood fill from center
+  if(!backtracking) {
+    int goal[4][2] = {{MAZE_WIDTH / 2, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2}, {MAZE_WIDTH / 2, MAZE_HEIGHT / 2 - 1}, {MAZE_WIDTH / 2 - 1, MAZE_HEIGHT / 2 - 1}};
+    recalcMaze(goal, 4);
+    return !solving;
+  }
+  // If backtracking, flood fill from start
+  int goal[1][2] = {{0, 0}};
+  recalcMaze(goal, 1);
+  return !solving;
 }
 
 void createPath() {
@@ -379,8 +430,9 @@ void moveOnPath() {
 }
 
 void doRun() {
-  // put your main code here, to run repeatedly:
-  updateWalls();
-  createPath();
-  rotateMove();
+  while(true) {
+    updateWalls();
+    createPath();
+    if(rotateMove()) break;
+  }
 }
