@@ -208,8 +208,7 @@ void spinTo(cardinal_t direction) {
     (robot.facing == WEST && direction == NORTH)
   ) {
     //Rotate 90º Right
-    rotate90(RIGHT)
-    //turn90(RIGHT);
+    rotate90(RIGHT);
   }else if (
     (robot.facing == NORTH && direction == WEST) ||
     (robot.facing == WEST && direction == SOUTH) ||
@@ -218,7 +217,6 @@ void spinTo(cardinal_t direction) {
   ) {
     //Rotate 90º Left
     rotate90(LEFT);
-    //turn90(LEFT);
   }else if (
     (robot.facing == NORTH && direction == SOUTH) ||
     (robot.facing == SOUTH && direction == NORTH) ||
@@ -403,7 +401,7 @@ void spotTurn( double angle, turning_direction_t direction) {
   int encoderAverage;
   do {
     encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
-  } while (encoderAverage < target - ANGLE_TOLERANCE);
+  } while (encoderAverage < target);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -416,8 +414,9 @@ void turn(double angle, turning_direction_t dir){
   Encoder *otherTurnEncoder;
 
   double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
-  double max = 80;
+  double max = 50;
   int target = 900;
+
 
   double FAST_SPEED = max*ratio/(ratio + 1);
   double SLOW_SPEED = max*1/(ratio + 1);
@@ -437,7 +436,7 @@ void turn(double angle, turning_direction_t dir){
   int encoderAverage;
     do {
       encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
-    } while (encoderAverage < target - ANGLE_TOLERANCE);
+    } while (encoderAverage < target);
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
@@ -449,16 +448,6 @@ void turn(double angle, turning_direction_t dir){
 // Rotate 90 degrees
 // Takes a direction, either LEFT or RIGHT
 void rotate90(turning_direction_t direction) {
-  if (direction == RIGHT) {
-    spotTurn(90.0 + getAngle() * 180.0 / PI, direction);
-  } else {
-    spotTurn(90.0 - getAngle() * 180.0 / PI, direction);
-  }
-}
-
-// Rotate 90 degrees
-// Takes a direction, either LEFT or RIGHT
-void turn90(turning_direction_t direction) {
   if (direction == RIGHT) {
     turn(90.0 + getAngle() * 180.0 / PI, direction);
   } else {
@@ -1289,15 +1278,28 @@ void setup(void) {
   // We need to make sure that we've checked the square behind us before starting
   // (Normally, this isn't needed since the square
   //  behind us is the square we just came from)
-  updateMaze(); // Update the maze while we're pointed North,
   spinTo(SOUTH); // Spin South
-  updateMaze(); // Update the maze again
-  turn(90, LEFT);
+  delay(10);
+  spinTo(WEST); // Spin South
+  delay(10);
+  spinTo(NORTH);
+  delay(10);
+  spinTo(EAST);
+  delay(10);
+  spinTo(SOUTH); // Spin South
+  delay(10);
+  spinTo(WEST); // Spin South
+  delay(10);
+  spinTo(NORTH);
 
+
+  updateMaze(); // Update the maze while we're pointed North,
+  //spinTo(SOUTH); // Spin South
+  updateMaze(); // Update the maze again
 }
 
 /* ---- MAIN ---- */
-void loop(void) { 
+void loop(void) { /*
   Serial.println("");
   Serial.printf("Robot at (x: %d, y: %d)\n", current->x, current->y);
 
@@ -1363,5 +1365,5 @@ void loop(void) {
       digitalWrite(RED_LED, HIGH);
       delay(100);
     }
-  }
+  }*/
 }
