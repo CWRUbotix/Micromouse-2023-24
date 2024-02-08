@@ -9,6 +9,7 @@
 #include "micromouse_pins_2023.h"
 // Robot Logic and Algorithm definitions
 #include "Algo/FMicro.cpp"
+#include "API.C"
 /* ---- Defines ---- */
 typedef enum motor_t {
     LEFT_MOTOR = 0,
@@ -23,7 +24,7 @@ typedef enum motor_t {
 #ifdef TEST
   #define log(...) Serial.print(__VA_ARGS__)
   #define logf(...) Serial.printf(__VA_ARGS__)
-  #define logln(...) Serial.print(stderr, __VA_ARGS__); Serial.print(stderr, "\n")
+  #define logln(...) Serial.println(stderr, __VA_ARGS__);
   #define LOGGING 1
 #else
   #define log(...)
@@ -143,13 +144,13 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft(){
-  return (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX) &&
-    (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
+  front_left = lidar_sensors[0].readRange();
+  return (lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
 int wallRight(){
-  return (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX) &&
-    (lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
+  front_right = lidar_sensors[1].readRange();
+  return (lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
 
 int wallFront(){
@@ -521,7 +522,7 @@ void setup(void) {
 }
 
 void coolLights(){
-  if(millis() % 1000)
+  if(digitalRead(BLUE_LED) == LOW)
     digitalWrite(BLUE_LED, HIGH);
   else
     digitalWrite(BLUE_LED, LOW);
@@ -530,4 +531,5 @@ void coolLights(){
 /* ---- MAIN ---- */
 void loop() {
   coolLights();
+  doRun();
 }

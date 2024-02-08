@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
   #define log(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
@@ -18,9 +18,9 @@
   #define LOGGING 0
 #endif
 
-#define MAZE_SIZE 16
-#define MAZE_HEIGHT 16
-#define MAZE_WIDTH 16
+#define MAZE_SIZE 10
+#define MAZE_HEIGHT 10
+#define MAZE_WIDTH 10
 
 // Represents cardinal direction with respect to the maze
 enum cardinal_t {NORTH, EAST, SOUTH, WEST};
