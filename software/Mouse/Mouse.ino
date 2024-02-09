@@ -203,11 +203,10 @@ double getAngle()
 }
 
 /**
- * Turn robot by a given angle (in degrees)
+ * Turn robot by a given angle in place
  *
- * @param angle The angle to turn (in degrees)
- *              Positive is CCW
- *              Negative is CW
+ * @param angle     The angle to turn (in degrees)
+ * @param direction The direction to turn (LEFT or RIGHT)
  */
 void turn(double angle, turning_direction_t direction) {
   // Encoder to turn
@@ -253,14 +252,48 @@ void turn(double angle, turning_direction_t direction) {
   setMotor(LEFT_MOTOR, 0);
 }
 
+/**
+ * Turn robot by a given angle in a circular path
+ * 
+ * @param angle     The angle to turn (in degrees)
+ * @param direction The direction to turn (LEFT/RIGHT)
+ */
+void movingTurn(double angle, turning_direction_t direction){
+  Encoder *turnEncoder;
+  Encoder *otherTurnEncoder;
+
+  ratio =  (SQUARE_SIZE + wheelSeparation)/(SQUARE_SIZE - wheelSeparation);
+  max = 45.125;
+
+  FAST_SPEED = max*ratio/(ratio + 1);
+  SLOW_SPEED = max*1/(ratio + 1);
+
+  if(dir == LEFT){
+    setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
+    setMotor(LEFT_MOTOR, SLOW_SPEED*dir);
+  }
+  else{
+    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
+    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+  }
+
+  int encoderAverage;
+    do {
+      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
+    } while (encoderAverage < target - ANGLE_TOLERANCE);
+
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
 // Rotate 90 degrees right
 void turnRight(){
-  turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -271,6 +304,10 @@ void turnRight45(){
 // Rotate 45 degrees left
 void turnLeft45(){
   turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+}
+
+void turn180(){
+  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
