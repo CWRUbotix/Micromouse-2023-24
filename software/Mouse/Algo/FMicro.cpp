@@ -295,8 +295,9 @@ bool rotateMoveHalf() {
 // Returns true if the goal has been reached, or false if not
 bool rotateMove() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
-  float moveDist = 1
-  if(!solving) moveDist = 0.5;
+  float moveDist = 1;
+  if(!solving) 
+    moveDist = 0.5;
   // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
     rotate(NORTH);

@@ -226,7 +226,7 @@ double getAngle()
  *              Positive is CCW
  *              Negative is CW
  */
-void turn(double angle, turning_direction_t direction) {
+void spotTurn(double angle, turning_direction_t direction) {
   // Encoder to turn
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
@@ -266,6 +266,39 @@ void turn(double angle, turning_direction_t direction) {
   } while (encoderAverage < target - ANGLE_TOLERANCE);
 
   // Stop both motors
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
+void turn(double angle, turning_direction_t dir){
+  Encoder *turnEncoder;
+  Encoder *otherTurnEncoder;
+
+  double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
+  double max = 50;
+  int target = 1800;
+
+
+  double FAST_SPEED = max*ratio/(ratio + 1);
+  double SLOW_SPEED = max*1/(ratio + 1);
+  
+  if(dir == LEFT){
+    setMotor(RIGHT_MOTOR, 50*dir);
+    setMotor(LEFT_MOTOR, 50*dir);
+  }
+  else{
+    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
+    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+  }
+
+  leftEncoder.write(0);
+  rightEncoder.write(0);  
+
+  int encoderAverage = 0;
+    do {
+      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
+    } while (encoderAverage < target);
+
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
 }
@@ -340,8 +373,8 @@ int moveForward(int number) {
     // For the ultrasonic, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
     if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
-      // setMotor(LEFT_MOTOR, 0);
-      // setMotor(RIGHT_MOTOR, 0);
+      setMotor(LEFT_MOTOR, 0);
+      setMotor(RIGHT_MOTOR, 0);
       break;
     }
 
@@ -508,7 +541,9 @@ void setup(void) {
   }
   if (endPressTime - pressTime < 1000) {
   }else if (endPressTime - pressTime < 3000) {
+    turnLeft();
   }else {
+    moveForward(1);
   }
   delay(500);
   digitalWrite(LED0, LOW);
@@ -516,6 +551,7 @@ void setup(void) {
   digitalWrite(LED2, LOW);
 
   initialize();
+  
 }
 
 void coolLights(){
@@ -523,6 +559,7 @@ void coolLights(){
     digitalWrite(BLUE_LED, HIGH);
   else
     digitalWrite(BLUE_LED, LOW);
+    delay(100);
 }
 
 /* ---- MAIN ---- */
