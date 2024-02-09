@@ -9,7 +9,6 @@
 #include "micromouse_pins_2023.h"
 // Robot Logic and Algorithm definitions
 #include "Algo/FMicro.cpp"
-#include "API.C"
 /* ---- Defines ---- */
 typedef enum motor_t {
     LEFT_MOTOR = 0,
@@ -129,7 +128,6 @@ void setMotor (motor_t m, int power) {
   }else {
     return;
   }
-
   // Set power
   if (power < POWER_DEADBAND && power > -POWER_DEADBAND) {
       analogWrite(m1, 255);
@@ -143,11 +141,11 @@ void setMotor (motor_t m, int power) {
   }
 }
 
-bool wallLeft() {
+int wallLeft() {
   return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 }
 
-bool wallRight() {
+int wallRight() {
   return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
 }
 
@@ -530,5 +528,5 @@ void coolLights(){
 /* ---- MAIN ---- */
 void loop() {
   coolLights();
-  doRun();
+  // doRun();
 }
