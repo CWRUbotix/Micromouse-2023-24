@@ -253,21 +253,58 @@ void turn(double angle, turning_direction_t direction) {
 }
 
 /**
- * Turn robot by a given angle in a circular path
+ * Turn robot by a given angle along a circular path
  * 
  * @param angle     The angle to turn (in degrees)
  * @param direction The direction to turn (LEFT/RIGHT)
  */
-void movingTurn(double angle, turning_direction_t direction){
+void movingTurn(double angle, turning_direction_t direction) {
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  ratio =  (SQUARE_SIZE + wheelSeparation)/(SQUARE_SIZE - wheelSeparation);
-  max = 45.125;
+  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
 
-  FAST_SPEED = max*ratio/(ratio + 1);
-  SLOW_SPEED = max*1/(ratio + 1);
+  double target = angle * turnRatio;
 
+  FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
+  SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
+
+  if(dir == LEFT){
+    turnEncoder = &rightEncoder;
+    otherTurnEncoder = &leftEncoder;
+    turnEncoder->write(0);
+    otherTurnEncoder->write(0);
+    setMotor(RIGHT_MOTOR, FAST_SPEED);
+    setMotor(LEFT_MOTOR, SLOW_SPEED);
+  }
+  else{
+    turnEncoder = &leftEncoder;
+    otherTurnEncoder = &rightEncoder;
+    turnEncoder->write(0);
+    otherTurnEncoder->write(0);
+    setMotor(RIGHT_MOTOR, SLOW_SPEED);
+    setMotor(LEFT_MOTOR, FAST_SPEED);
+  }
+
+  do {
+    // wait
+  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
+
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
+/*
+void turn(double angle, turning_direction_t dir){
+
+  double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
+  double max = 50;
+  int target = 900;
+
+
+  double FAST_SPEED = max*ratio/(ratio + 1);
+  double SLOW_SPEED = max*1/(ratio + 1);
+  
   if(dir == LEFT){
     setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
     setMotor(LEFT_MOTOR, SLOW_SPEED*dir);
@@ -277,14 +314,18 @@ void movingTurn(double angle, turning_direction_t direction){
     setMotor(LEFT_MOTOR, FAST_SPEED*dir);
   }
 
-  int encoderAverage;
+  leftEncoder.write(0);
+  rightEncoder.write(0);
+
+  int encoderAverage = 0;
     do {
-      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
-    } while (encoderAverage < target - ANGLE_TOLERANCE);
+      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
+    } while (encoderAverage < target);
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
 }
+*/
 
 // Rotate 90 degrees right
 void turnRight(){
