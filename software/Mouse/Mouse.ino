@@ -126,13 +126,11 @@ void setMotor (motor_t m, int power) {
 }
 
 bool wallLeft() {
-  return lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX &&
-    lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+  return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 }
 
 bool wallRight() {
-  return lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX &&
-    lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
+  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
 }
 
 bool wallFront() {
@@ -205,11 +203,10 @@ double getAngle()
 }
 
 /**
- * Turn robot by a given angle (in degrees)
+ * Turn robot by a given angle in place
  *
- * @param angle The angle to turn (in degrees)
- *              Positive is CCW
- *              Negative is CW
+ * @param angle     The angle to turn (in degrees)
+ * @param direction The direction to turn (LEFT or RIGHT)
  */
 void turn(double angle, turning_direction_t direction) {
   // Encoder to turn
@@ -255,14 +252,89 @@ void turn(double angle, turning_direction_t direction) {
   setMotor(LEFT_MOTOR, 0);
 }
 
+/**
+ * Turn robot by a given angle along a circular path
+ * 
+ * @param angle     The angle to turn (in degrees)
+ * @param direction The direction to turn (LEFT/RIGHT)
+ */
+void movingTurn(double angle, turning_direction_t direction) {
+  Encoder *turnEncoder;
+  Encoder *otherTurnEncoder;
+
+  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
+
+  double target = angle * turnRatio;
+
+  FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
+  SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
+
+  if(dir == LEFT){
+    turnEncoder = &rightEncoder;
+    otherTurnEncoder = &leftEncoder;
+    turnEncoder->write(0);
+    otherTurnEncoder->write(0);
+    setMotor(RIGHT_MOTOR, FAST_SPEED);
+    setMotor(LEFT_MOTOR, SLOW_SPEED);
+  }
+  else{
+    turnEncoder = &leftEncoder;
+    otherTurnEncoder = &rightEncoder;
+    turnEncoder->write(0);
+    otherTurnEncoder->write(0);
+    setMotor(RIGHT_MOTOR, SLOW_SPEED);
+    setMotor(LEFT_MOTOR, FAST_SPEED);
+  }
+
+  do {
+    // wait
+  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
+
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+
+/*
+void turn(double angle, turning_direction_t dir){
+
+  double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
+  double max = 50;
+  int target = 900;
+
+
+  double FAST_SPEED = max*ratio/(ratio + 1);
+  double SLOW_SPEED = max*1/(ratio + 1);
+  
+  if(dir == LEFT){
+    setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
+    setMotor(LEFT_MOTOR, SLOW_SPEED*dir);
+  }
+  else{
+    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
+    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+  }
+
+  leftEncoder.write(0);
+  rightEncoder.write(0);
+
+  int encoderAverage = 0;
+    do {
+      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
+    } while (encoderAverage < target);
+
+  setMotor(RIGHT_MOTOR, 0);
+  setMotor(LEFT_MOTOR, 0);
+}
+*/
+
 // Rotate 90 degrees right
 void turnRight(){
-  turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -273,6 +345,10 @@ void turnRight45(){
 // Rotate 45 degrees left
 void turnLeft45(){
   turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+}
+
+void turn180(){
+  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
@@ -328,8 +404,8 @@ void moveForward() {
     // For the ultrasonic, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
     if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
-      setMotor(LEFT_MOTOR, 0);
-      setMotor(RIGHT_MOTOR, 0);
+      // setMotor(LEFT_MOTOR, 0);
+      // setMotor(RIGHT_MOTOR, 0);
       break;
     }
 
