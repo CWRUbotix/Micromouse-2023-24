@@ -921,13 +921,13 @@
       )
     )
     (symbol "Teensy_4.1_1" (in_bom yes) (on_board yes)
-      (property "Reference" "U2" (at 22.225 30.48 0)
+      (property "Reference" "U1" (at 22.225 30.48 0)
         (effects (font (size 1.27 1.27)))
       )
       (property "Value" "Teensy_4.0" (at 22.225 27.94 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Footprint" "" (at 0 0 0)
+      (property "Footprint" "custom_footprints:Teensy40" (at 0 0 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (property "Datasheet" "" (at 0 0 0)
@@ -942,130 +942,136 @@
           (fill (type background))
         )
       )
+      (symbol "Teensy_4.1_1_1_0"
+        (pin bidirectional line (at 34.29 20.32 180) (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "G3" (effects (font (size 1.27 1.27))))
+        )
+      )
       (symbol "Teensy_4.1_1_1_1"
-        (pin bidirectional line (at 19.05 -20.32 90) (length 2.54)
-          (name "3.3V" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 10.16 20.32 0) (length 2.54)
+          (name "IO0" (effects (font (size 1.27 1.27))))
+          (number "0" (effects (font (size 1.27 1.27))))
         )
-        (pin bidirectional line (at 10.16 22.86 0) (length 2.54)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 21.59 -20.32 90) (length 2.54)
-          (name "GND" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 15.24 180) (length 2.54)
-          (name "IO23" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 26.67 -20.32 90) (length 2.54)
-          (name "On/Off" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 24.13 -20.32 90) (length 2.54)
-          (name "Prog." (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 16.51 -20.32 90) (length 2.54)
-          (name "VBat" (effects (font (size 1.27 1.27))))
-          (number "" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 10.16 0 0) (length 2.54)
-          (name "IO8" (effects (font (size 1.27 1.27))))
-          (number "10" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 10.16 -2.54 0) (length 2.54)
-          (name "IO9" (effects (font (size 1.27 1.27))))
-          (number "11" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 10.16 17.78 0) (length 2.54)
+          (name "IO1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 -5.08 0) (length 2.54)
           (name "IO10" (effects (font (size 1.27 1.27))))
-          (number "12" (effects (font (size 1.27 1.27))))
+          (number "10" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 -7.62 0) (length 2.54)
           (name "IO11" (effects (font (size 1.27 1.27))))
-          (number "13" (effects (font (size 1.27 1.27))))
+          (number "11" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 -10.16 0) (length 2.54)
           (name "IO12" (effects (font (size 1.27 1.27))))
+          (number "12" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 -10.16 180) (length 2.54)
+          (name "IO13" (effects (font (size 1.27 1.27))))
+          (number "13" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 -7.62 180) (length 2.54)
+          (name "IO14" (effects (font (size 1.27 1.27))))
           (number "14" (effects (font (size 1.27 1.27))))
         )
-        (pin bidirectional line (at 34.29 12.7 180) (length 2.54)
-          (name "IO22" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 34.29 -5.08 180) (length 2.54)
+          (name "IO15" (effects (font (size 1.27 1.27))))
+          (number "15" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 -2.54 180) (length 2.54)
+          (name "IO16" (effects (font (size 1.27 1.27))))
           (number "16" (effects (font (size 1.27 1.27))))
         )
-        (pin bidirectional line (at 34.29 10.16 180) (length 2.54)
-          (name "IO21" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 34.29 0 180) (length 2.54)
+          (name "IO17" (effects (font (size 1.27 1.27))))
           (number "17" (effects (font (size 1.27 1.27))))
         )
-        (pin bidirectional line (at 34.29 7.62 180) (length 2.54)
-          (name "IO20" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 34.29 2.54 180) (length 2.54)
+          (name "IO18" (effects (font (size 1.27 1.27))))
           (number "18" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 34.29 5.08 180) (length 2.54)
           (name "IO19" (effects (font (size 1.27 1.27))))
           (number "19" (effects (font (size 1.27 1.27))))
         )
-        (pin bidirectional line (at 10.16 20.32 0) (length 2.54)
-          (name "IO0" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 2.54 180) (length 2.54)
-          (name "IO18" (effects (font (size 1.27 1.27))))
-          (number "20" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 0 180) (length 2.54)
-          (name "IO17" (effects (font (size 1.27 1.27))))
-          (number "21" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 -2.54 180) (length 2.54)
-          (name "IO16" (effects (font (size 1.27 1.27))))
-          (number "22" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 -5.08 180) (length 2.54)
-          (name "IO15" (effects (font (size 1.27 1.27))))
-          (number "23" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 -7.62 180) (length 2.54)
-          (name "IO14" (effects (font (size 1.27 1.27))))
-          (number "24" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 34.29 -10.16 180) (length 2.54)
-          (name "IO13" (effects (font (size 1.27 1.27))))
-          (number "25" (effects (font (size 1.27 1.27))))
-        )
-        (pin bidirectional line (at 10.16 17.78 0) (length 2.54)
-          (name "IO1" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27))))
-        )
         (pin bidirectional line (at 10.16 15.24 0) (length 2.54)
           (name "IO2" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
         )
-        (pin power_in line (at 34.29 22.86 180) (length 2.54)
-          (name "VIN" (effects (font (size 1.27 1.27))))
-          (number "48" (effects (font (size 1.27 1.27))))
+        (pin bidirectional line (at 34.29 7.62 180) (length 2.54)
+          (name "IO20" (effects (font (size 1.27 1.27))))
+          (number "20" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 10.16 180) (length 2.54)
+          (name "IO21" (effects (font (size 1.27 1.27))))
+          (number "21" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 12.7 180) (length 2.54)
+          (name "IO22" (effects (font (size 1.27 1.27))))
+          (number "22" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 34.29 15.24 180) (length 2.54)
+          (name "IO23" (effects (font (size 1.27 1.27))))
+          (number "23" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 12.7 0) (length 2.54)
           (name "IO3" (effects (font (size 1.27 1.27))))
-          (number "5" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 19.05 -20.32 90) (length 2.54)
+          (name "3.3V" (effects (font (size 1.27 1.27))))
+          (number "3.3V" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 10.16 0) (length 2.54)
           (name "IO4" (effects (font (size 1.27 1.27))))
-          (number "6" (effects (font (size 1.27 1.27))))
+          (number "4" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 7.62 0) (length 2.54)
           (name "IO5" (effects (font (size 1.27 1.27))))
-          (number "7" (effects (font (size 1.27 1.27))))
+          (number "5" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 5.08 0) (length 2.54)
           (name "IO6" (effects (font (size 1.27 1.27))))
-          (number "8" (effects (font (size 1.27 1.27))))
+          (number "6" (effects (font (size 1.27 1.27))))
         )
         (pin bidirectional line (at 10.16 2.54 0) (length 2.54)
           (name "IO7" (effects (font (size 1.27 1.27))))
+          (number "7" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 10.16 0 0) (length 2.54)
+          (name "IO8" (effects (font (size 1.27 1.27))))
+          (number "8" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 10.16 -2.54 0) (length 2.54)
+          (name "IO9" (effects (font (size 1.27 1.27))))
           (number "9" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 10.16 22.86 0) (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "G1" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 21.59 -20.32 90) (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "G2" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 26.67 -20.32 90) (length 2.54)
+          (name "On/Off" (effects (font (size 1.27 1.27))))
+          (number "On/Off" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 24.13 -20.32 90) (length 2.54)
+          (name "Prg" (effects (font (size 1.27 1.27))))
+          (number "Prg" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 16.51 -20.32 90) (length 2.54)
+          (name "VBat" (effects (font (size 1.27 1.27))))
+          (number "VBat" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line (at 34.29 22.86 180) (length 2.54)
+          (name "Vin" (effects (font (size 1.27 1.27))))
+          (number "Vin" (effects (font (size 1.27 1.27))))
         )
       )
     )
@@ -1454,6 +1460,10 @@
   (wire (pts (xy 226.06 115.57) (xy 231.14 115.57))
     (stroke (width 0) (type default))
     (uuid 2c4fc29a-b15a-4e50-825b-87be097e06ed)
+  )
+  (wire (pts (xy 226.06 110.49) (xy 231.14 110.49))
+    (stroke (width 0) (type default))
+    (uuid 2e49b806-1ea5-4d66-9d51-7c3cacfa7f29)
   )
   (wire (pts (xy 27.94 60.96) (xy 40.64 60.96))
     (stroke (width 0) (type default))
@@ -2146,7 +2156,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 96.52 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 0780bd87-a158-46cc-a0f1-0ed19911d837)
-    (property "Reference" "#PWR?" (at 24.13 96.52 0)
+    (property "Reference" "#PWR0120" (at 24.13 96.52 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 96.5199 90)
@@ -2162,7 +2172,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0120") (unit 1)
         )
       )
     )
@@ -2171,7 +2181,7 @@
   (symbol (lib_id "power:GND") (at 165.1 73.66 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0a886120-bada-479d-a353-7761410af676)
-    (property "Reference" "#PWR?" (at 165.1 80.01 0)
+    (property "Reference" "#PWR0115" (at 165.1 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 165.1 81.28 90)
@@ -2187,7 +2197,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0115") (unit 1)
         )
       )
     )
@@ -2196,7 +2206,7 @@
   (symbol (lib_id "power:GND") (at 99.695 65.405 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1804746d-fb89-40fe-aa1d-802a5ebfd05e)
-    (property "Reference" "#PWR?" (at 99.695 71.755 0)
+    (property "Reference" "#PWR0126" (at 99.695 71.755 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 99.695 69.85 0)
@@ -2212,7 +2222,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0126") (unit 1)
         )
       )
     )
@@ -2221,7 +2231,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 120.65 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 1cd2bfe9-d769-41bd-9e46-097adf8bed88)
-    (property "Reference" "J?" (at 22.86 132.08 0)
+    (property "Reference" "J7" (at 22.86 132.08 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 129.54 0)
@@ -2241,7 +2251,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J7") (unit 1)
         )
       )
     )
@@ -2250,7 +2260,7 @@
   (symbol (lib_id "Device:C") (at 140.97 111.76 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 1e3545bc-a698-4448-9bc6-5b58ddb5f2ec)
-    (property "Reference" "C?" (at 144.78 110.4899 0)
+    (property "Reference" "C4" (at 144.78 110.4899 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "1 µF" (at 144.78 113.0299 0)
@@ -2267,7 +2277,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C4") (unit 1)
         )
       )
     )
@@ -2276,7 +2286,7 @@
   (symbol (lib_id "Connector:Conn_01x06_Male") (at 245.11 56.515 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2a1d5586-7cce-484d-a0eb-fe4471229096)
-    (property "Reference" "J?" (at 246.38 53.9749 0)
+    (property "Reference" "J9" (at 246.38 53.9749 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "Conn_01x06_Male" (at 246.38 56.5149 0)
@@ -2297,7 +2307,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J9") (unit 1)
         )
       )
     )
@@ -2306,7 +2316,7 @@
   (symbol (lib_id "Device:LED") (at 81.915 57.785 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 32fb5f4b-f8fa-4d71-8013-d441f4be086f)
-    (property "Reference" "D?" (at 80.01 60.325 0)
+    (property "Reference" "D4" (at 80.01 60.325 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LED" (at 80.01 55.245 0)
@@ -2323,7 +2333,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "D?") (unit 1)
+          (reference "D4") (unit 1)
         )
       )
     )
@@ -2332,7 +2342,7 @@
   (symbol (lib_id "Device:LED") (at 81.915 50.165 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 455a2b0f-a586-40af-a054-06f7a01a7d14)
-    (property "Reference" "D?" (at 80.01 52.705 0)
+    (property "Reference" "D3" (at 80.01 52.705 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LED" (at 80.01 47.625 0)
@@ -2349,7 +2359,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "D?") (unit 1)
+          (reference "D3") (unit 1)
         )
       )
     )
@@ -2358,7 +2368,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 63.5 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 499594cf-0a10-4af7-b848-e21cf31f83bf)
-    (property "Reference" "J?" (at 22.86 74.93 0)
+    (property "Reference" "J3" (at 22.86 74.93 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 72.39 0)
@@ -2378,7 +2388,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J3") (unit 1)
         )
       )
     )
@@ -2387,7 +2397,7 @@
   (symbol (lib_name "TPIC74101_1") (lib_id "sym_library:TPIC74101") (at 111.76 128.27 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4a3b0c17-1891-4dc3-bf66-5cc023b35e7c)
-    (property "Reference" "U?" (at 111.76 148.59 0)
+    (property "Reference" "U3" (at 111.76 148.59 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LM3151/2/3" (at 111.76 151.13 0)
@@ -2413,7 +2423,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "U?") (unit 1)
+          (reference "U3") (unit 1)
         )
       )
     )
@@ -2422,7 +2432,7 @@
   (symbol (lib_id "power:+3V3") (at 238.76 43.815 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4aae3a09-ba98-4573-8860-504cb6fbb40b)
-    (property "Reference" "#PWR?" (at 238.76 47.625 0)
+    (property "Reference" "#PWR0129" (at 238.76 47.625 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 238.76 40.005 0)
@@ -2438,7 +2448,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0129") (unit 1)
         )
       )
     )
@@ -2447,7 +2457,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 68.58 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4abef4bd-090a-4112-b16f-956707dea403)
-    (property "Reference" "#PWR?" (at 24.13 68.58 0)
+    (property "Reference" "#PWR0119" (at 24.13 68.58 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 68.5799 90)
@@ -2463,7 +2473,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0119") (unit 1)
         )
       )
     )
@@ -2472,7 +2482,7 @@
   (symbol (lib_name "GND_3") (lib_id "power:GND") (at 140.97 115.57 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4ae55b0c-13f3-4c58-90e4-73fea417ed73)
-    (property "Reference" "#PWR?" (at 140.97 121.92 0)
+    (property "Reference" "#PWR0101" (at 140.97 121.92 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 140.97 120.65 0)
@@ -2488,7 +2498,32 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0101") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_name "GND_1") (lib_id "power:GND") (at 231.14 110.49 90) (mirror x) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 4eb642c7-b434-44e4-8c39-a1ca4f20f60e)
+    (property "Reference" "#PWR01" (at 237.49 110.49 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "GND" (at 234.95 110.4899 90)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "" (at 231.14 110.49 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 231.14 110.49 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 5edfbe23-0a85-4a84-a985-37a89e8972cf))
+    (instances
+      (project "UpdatedPCB2024"
+        (path "/5fc7237d-899a-432a-80a6-13a354218a79"
+          (reference "#PWR01") (unit 1)
         )
       )
     )
@@ -2497,7 +2532,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 125.73 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4f405a7c-732f-45f9-b918-e9e1d5d5a2c9)
-    (property "Reference" "#PWR?" (at 24.13 125.73 0)
+    (property "Reference" "#PWR0122" (at 24.13 125.73 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 125.7299 90)
@@ -2513,7 +2548,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0122") (unit 1)
         )
       )
     )
@@ -2522,7 +2557,7 @@
   (symbol (lib_id "power:GND") (at 27.94 72.39 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 548c5193-78aa-4ceb-ad13-556d27a4d4f9)
-    (property "Reference" "#PWR?" (at 34.29 72.39 0)
+    (property "Reference" "#PWR0117" (at 34.29 72.39 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 72.39 90)
@@ -2538,7 +2573,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0117") (unit 1)
         )
       )
     )
@@ -2547,7 +2582,7 @@
   (symbol (lib_id "Device:C") (at 167.64 119.38 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 59b1f3d6-e9d0-4f26-a1e4-ba813ae1b59c)
-    (property "Reference" "C?" (at 171.45 118.1099 0)
+    (property "Reference" "C6" (at 171.45 118.1099 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "150 µF" (at 171.45 120.6499 0)
@@ -2564,7 +2599,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C6") (unit 1)
         )
       )
     )
@@ -2573,7 +2608,7 @@
   (symbol (lib_name "GND_5") (lib_id "power:GND") (at 82.55 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5c4cd5e7-e238-433e-8bd5-9d9e19bd2e20)
-    (property "Reference" "#PWR?" (at 82.55 143.51 0)
+    (property "Reference" "#PWR0104" (at 82.55 143.51 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 82.55 142.24 0)
@@ -2589,7 +2624,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0104") (unit 1)
         )
       )
     )
@@ -2598,7 +2633,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 35.56 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5daa26ed-da68-4fa4-80fe-1be0097f6b30)
-    (property "Reference" "J?" (at 22.86 46.99 0)
+    (property "Reference" "J1" (at 22.86 46.99 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 44.45 0)
@@ -2618,7 +2653,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J1") (unit 1)
         )
       )
     )
@@ -2627,7 +2662,7 @@
   (symbol (lib_id "Connector:Conn_01x06_Male") (at 201.295 56.515 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5e77d810-67f1-4d94-af23-db0a3ff43be6)
-    (property "Reference" "J?" (at 202.565 53.9749 0)
+    (property "Reference" "J8" (at 202.565 53.9749 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "Conn_01x06_Male" (at 202.565 56.5149 0)
@@ -2648,7 +2683,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J8") (unit 1)
         )
       )
     )
@@ -2657,7 +2692,7 @@
   (symbol (lib_id "Device:L") (at 157.48 129.54 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 634d8af7-6f63-43f3-adcf-3160f9aea8b4)
-    (property "Reference" "L?" (at 157.48 123.19 90)
+    (property "Reference" "L1" (at 157.48 123.19 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "1.65 µH" (at 157.48 125.73 90)
@@ -2674,7 +2709,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "L?") (unit 1)
+          (reference "L1") (unit 1)
         )
       )
     )
@@ -2683,7 +2718,7 @@
   (symbol (lib_name "GND_1") (lib_id "power:GND") (at 129.54 147.32 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 65f94f95-fd7c-47e7-8e65-6d24ca788f31)
-    (property "Reference" "#PWR?" (at 129.54 153.67 0)
+    (property "Reference" "#PWR0102" (at 129.54 153.67 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 129.54 152.4 0)
@@ -2699,7 +2734,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0102") (unit 1)
         )
       )
     )
@@ -2708,7 +2743,7 @@
   (symbol (lib_id "Device:Q_NJFET_DSG") (at 147.32 137.16 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 663d011f-6916-4fe4-b9bf-68d049b2a386)
-    (property "Reference" "Q?" (at 152.4 135.8899 0)
+    (property "Reference" "Q2" (at 152.4 135.8899 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Q_NJFET_DSG" (at 152.4 138.4299 0)
@@ -2726,7 +2761,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "Q?") (unit 1)
+          (reference "Q2") (unit 1)
         )
       )
     )
@@ -2735,7 +2770,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 105.41 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 699318f1-e123-4ed5-838c-3e68ebf637f8)
-    (property "Reference" "J?" (at 22.86 116.84 0)
+    (property "Reference" "J6" (at 22.86 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 114.3 0)
@@ -2755,7 +2790,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J6") (unit 1)
         )
       )
     )
@@ -2764,7 +2799,7 @@
   (symbol (lib_id "power:+3V3") (at 194.945 43.815 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6a4fb881-4b75-43f4-8ecd-d953016fb956)
-    (property "Reference" "#PWR?" (at 194.945 47.625 0)
+    (property "Reference" "#PWR0130" (at 194.945 47.625 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 194.945 40.005 0)
@@ -2780,7 +2815,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0130") (unit 1)
         )
       )
     )
@@ -2789,7 +2824,7 @@
   (symbol (lib_id "Device:C_Polarized_US") (at 165.1 67.945 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6ab0a226-9f11-45a5-95e9-0500b8106cfc)
-    (property "Reference" "C?" (at 168.91 66.0399 0)
+    (property "Reference" "C5" (at 168.91 66.0399 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100uF" (at 168.91 68.5799 0)
@@ -2806,7 +2841,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C5") (unit 1)
         )
       )
     )
@@ -2815,7 +2850,7 @@
   (symbol (lib_id "power:GND") (at 27.94 30.48 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6b1b078c-fb40-4702-97ab-78ca8c57f651)
-    (property "Reference" "#PWR?" (at 34.29 30.48 0)
+    (property "Reference" "#PWR0109" (at 34.29 30.48 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 30.48 90)
@@ -2831,7 +2866,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0109") (unit 1)
         )
       )
     )
@@ -2840,7 +2875,7 @@
   (symbol (lib_id "power:+BATT") (at 66.04 120.65 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6ed1bc00-cb8d-4f4a-9739-80ee1ec3d01f)
-    (property "Reference" "#PWR?" (at 69.85 120.65 0)
+    (property "Reference" "#PWR0118" (at 69.85 120.65 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+BATT" (at 62.23 120.6499 90)
@@ -2856,7 +2891,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0118") (unit 1)
         )
       )
     )
@@ -2865,7 +2900,7 @@
   (symbol (lib_id "Device:LED") (at 81.915 42.545 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 73ce9735-1c6d-4e69-929f-6409ced521c0)
-    (property "Reference" "D?" (at 80.01 45.085 0)
+    (property "Reference" "D2" (at 80.01 45.085 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LED" (at 80.01 40.005 0)
@@ -2882,7 +2917,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "D?") (unit 1)
+          (reference "D2") (unit 1)
         )
       )
     )
@@ -2891,7 +2926,7 @@
   (symbol (lib_id "power:GND") (at 27.94 100.33 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 73eb73a0-ec07-48c0-8b58-f8e5135015c4)
-    (property "Reference" "#PWR?" (at 34.29 100.33 0)
+    (property "Reference" "#PWR0124" (at 34.29 100.33 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 100.33 90)
@@ -2907,7 +2942,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0124") (unit 1)
         )
       )
     )
@@ -2916,7 +2951,7 @@
   (symbol (lib_id "Device:Q_NJFET_DSG") (at 147.32 123.19 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 7716d6f9-0bab-48fb-916e-2fb25480ce81)
-    (property "Reference" "Q?" (at 152.4 121.9199 0)
+    (property "Reference" "Q1" (at 152.4 121.9199 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "Q_NJFET_DSG" (at 152.4 124.4599 0)
@@ -2934,7 +2969,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "Q?") (unit 1)
+          (reference "Q1") (unit 1)
         )
       )
     )
@@ -2943,7 +2978,7 @@
   (symbol (lib_id "Device:C") (at 82.55 133.35 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 7813455d-469f-40ba-b9da-47a833de0d6b)
-    (property "Reference" "C?" (at 86.36 132.0799 0)
+    (property "Reference" "C2" (at 86.36 132.0799 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.068 µF" (at 86.36 134.6199 0)
@@ -2960,7 +2995,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C2") (unit 1)
         )
       )
     )
@@ -2969,7 +3004,7 @@
   (symbol (lib_id "power:+BATT") (at 149.86 110.49 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 7a6c1498-7ed5-4053-8b7a-2185e37d64c4)
-    (property "Reference" "#PWR?" (at 149.86 114.3 0)
+    (property "Reference" "#PWR0113" (at 149.86 114.3 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+BATT" (at 152.4 109.2199 0)
@@ -2985,7 +3020,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0113") (unit 1)
         )
       )
     )
@@ -2994,7 +3029,7 @@
   (symbol (lib_name "GND_1") (lib_id "power:GND") (at 193.04 107.95 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 80bb2f63-a660-4ef0-9cb5-6dbc47a7c2b2)
-    (property "Reference" "#PWR?" (at 186.69 107.95 0)
+    (property "Reference" "#PWR0132" (at 186.69 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 189.23 107.9499 90)
@@ -3010,7 +3045,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0132") (unit 1)
         )
       )
     )
@@ -3019,7 +3054,7 @@
   (symbol (lib_id "power:GND") (at 149.225 70.485 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 80d16b95-99e2-422d-9040-3927bb41380f)
-    (property "Reference" "#PWR?" (at 149.225 76.835 0)
+    (property "Reference" "#PWR0114" (at 149.225 76.835 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 149.225 78.105 90)
@@ -3035,7 +3070,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0114") (unit 1)
         )
       )
     )
@@ -3044,7 +3079,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 54.61 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 812a4649-50a0-4545-b749-d7da3dc4263b)
-    (property "Reference" "#PWR?" (at 24.13 54.61 0)
+    (property "Reference" "#PWR0107" (at 24.13 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 54.6099 90)
@@ -3060,7 +3095,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0107") (unit 1)
         )
       )
     )
@@ -3069,7 +3104,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 49.53 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 8425f3e3-5196-4708-8baa-350ca7030140)
-    (property "Reference" "J?" (at 22.86 60.96 0)
+    (property "Reference" "J2" (at 22.86 60.96 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 58.42 0)
@@ -3089,7 +3124,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J2") (unit 1)
         )
       )
     )
@@ -3098,7 +3133,7 @@
   (symbol (lib_id "power:GND") (at 27.94 58.42 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 87de9ff7-d657-4514-9e1f-593fab18cf73)
-    (property "Reference" "#PWR?" (at 34.29 58.42 0)
+    (property "Reference" "#PWR0106" (at 34.29 58.42 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 58.42 90)
@@ -3114,7 +3149,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0106") (unit 1)
         )
       )
     )
@@ -3123,7 +3158,7 @@
   (symbol (lib_name "GND_2") (lib_id "power:GND") (at 167.64 123.19 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 8e80a55c-0b25-4896-a2af-f112a97c067b)
-    (property "Reference" "#PWR?" (at 167.64 129.54 0)
+    (property "Reference" "#PWR0131" (at 167.64 129.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 167.64 128.27 0)
@@ -3139,7 +3174,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0131") (unit 1)
         )
       )
     )
@@ -3148,7 +3183,7 @@
   (symbol (lib_id "Device:LED") (at 81.915 34.925 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9321e22d-ccea-4584-8097-c26f47521086)
-    (property "Reference" "D?" (at 80.01 37.465 0)
+    (property "Reference" "D1" (at 80.01 37.465 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "LED" (at 80.01 32.385 0)
@@ -3165,7 +3200,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "D?") (unit 1)
+          (reference "D1") (unit 1)
         )
       )
     )
@@ -3174,7 +3209,7 @@
   (symbol (lib_id "Device:R") (at 92.71 34.925 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9522c11a-3830-44d6-b9a6-b8972a50347b)
-    (property "Reference" "R?" (at 95.25 32.385 90)
+    (property "Reference" "R1" (at 95.25 32.385 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470" (at 90.805 32.385 90)
@@ -3191,7 +3226,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "R?") (unit 1)
+          (reference "R1") (unit 1)
         )
       )
     )
@@ -3200,7 +3235,7 @@
   (symbol (lib_id "power:GND") (at 192.405 64.135 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a28b72bb-432b-4db3-908a-faa5b0d18d17)
-    (property "Reference" "#PWR?" (at 192.405 70.485 0)
+    (property "Reference" "#PWR0112" (at 192.405 70.485 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 192.405 71.755 90)
@@ -3216,7 +3251,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0112") (unit 1)
         )
       )
     )
@@ -3225,7 +3260,7 @@
   (symbol (lib_id "Device:R") (at 92.71 57.785 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid a3d0cffb-b1ae-4e1f-b2b0-9e5b4766fe3f)
-    (property "Reference" "R?" (at 95.25 55.245 90)
+    (property "Reference" "R4" (at 95.25 55.245 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470" (at 90.805 55.245 90)
@@ -3242,7 +3277,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "R?") (unit 1)
+          (reference "R4") (unit 1)
         )
       )
     )
@@ -3251,7 +3286,7 @@
   (symbol (lib_id "Device:C") (at 72.39 127 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a3f751b4-5ae7-4cb6-9e67-a2dcccfc86cb)
-    (property "Reference" "C?" (at 76.2 125.7299 0)
+    (property "Reference" "C1" (at 76.2 125.7299 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "100 µF" (at 76.2 128.2699 0)
@@ -3268,7 +3303,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C1") (unit 1)
         )
       )
     )
@@ -3277,7 +3312,7 @@
   (symbol (lib_name "+BATT_1") (lib_id "power:+BATT") (at 228.6 104.14 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a4aa1dcf-0db1-4fcf-85b5-43d7ef0db2ad)
-    (property "Reference" "#PWR?" (at 228.6 107.95 0)
+    (property "Reference" "#PWR0127" (at 228.6 107.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+BATT" (at 228.6 99.06 0)
@@ -3293,7 +3328,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0127") (unit 1)
         )
       )
     )
@@ -3302,7 +3337,7 @@
   (symbol (lib_id "Device:R") (at 92.71 50.165 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid aa0eacc7-42c7-474a-9c73-a33428c04bcb)
-    (property "Reference" "R?" (at 95.25 47.625 90)
+    (property "Reference" "R3" (at 95.25 47.625 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470" (at 90.805 47.625 90)
@@ -3319,7 +3354,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "R?") (unit 1)
+          (reference "R3") (unit 1)
         )
       )
     )
@@ -3328,7 +3363,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 82.55 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ab8d1d84-8612-4c5c-a0df-b83d5b18ae63)
-    (property "Reference" "#PWR?" (at 24.13 82.55 0)
+    (property "Reference" "#PWR0116" (at 24.13 82.55 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 82.5499 90)
@@ -3344,7 +3379,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0116") (unit 1)
         )
       )
     )
@@ -3359,43 +3394,44 @@
     (property "Value" "Teensy_4.0" (at 213.995 102.87 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 191.77 130.81 0)
-      (effects (font (size 1.27 1.27)))
+    (property "Footprint" "custom_footprints:Teensy40" (at 191.77 130.81 0)
+      (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "" (at 191.77 130.81 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "" (uuid 45bb7196-ec92-4a8f-8f7e-1609a8b455f0))
-    (pin "10" (uuid 847b3e40-22e9-46c6-918e-c5f010eb0a1d))
-    (pin "11" (uuid 29aca488-8e6b-45a9-81cb-b8abb42b4fa0))
-    (pin "12" (uuid 084981f4-19e5-43f7-8701-b12d43aaafe3))
-    (pin "13" (uuid 157ef25d-b8a3-4c38-8ac3-43d88c5b5858))
-    (pin "14" (uuid 0fca04b4-405f-4ec6-a824-f24447308063))
-    (pin "16" (uuid 48fe7c88-710e-4acd-bff2-c9dec8faa423))
-    (pin "17" (uuid a37b98db-51d6-4688-881b-e529b4472701))
-    (pin "18" (uuid 443b2fda-5726-4518-b372-62c50f4e2bff))
-    (pin "19" (uuid 9e5bfd5b-83b5-4149-99eb-04446ffd02b1))
-    (pin "2" (uuid 09b3d214-c664-4fb7-b7d6-763f2f54a0dd))
-    (pin "20" (uuid 16f868ef-be21-4b71-8e7f-545d778ff61b))
-    (pin "21" (uuid 340b603b-97fb-4995-866f-b964524c18c6))
-    (pin "22" (uuid fdc76c32-4236-4281-a29c-8a2e8cd85a8a))
-    (pin "23" (uuid 0be22261-6c5d-4c78-9905-f161417c363e))
-    (pin "24" (uuid cb8a1a36-483c-44f8-98fa-d11d5816c0ab))
-    (pin "25" (uuid 828a90ca-0b38-4666-abc4-f00e18f3484c))
-    (pin "3" (uuid 9992b905-52ab-47d6-90c7-a0777900e3d8))
-    (pin "4" (uuid fe1dde37-3499-4441-83a2-6f40807b7266))
-    (pin "48" (uuid f4dea855-63ac-4e1d-8785-659e4a5aa85b))
-    (pin "5" (uuid 1a79aac6-8a93-4876-8a10-69d5197d0a6b))
-    (pin "6" (uuid 1c36a623-d0af-459b-9050-443e6c723b89))
-    (pin "7" (uuid 2743bd70-2b28-40a1-907e-10c2f655c474))
-    (pin "8" (uuid 428d2f56-0fad-4e5d-b84c-04d573bd9d39))
-    (pin "9" (uuid d457c68c-d978-4d98-93e3-2d1dd1794b2a))
+    (pin "G3" (uuid dc796d5d-b67a-4b14-bbf4-d73275c44140))
+    (pin "0" (uuid ff15ed95-1a2b-4974-b7a9-fa7ebd56ddf2))
+    (pin "1" (uuid 6f8e58ee-9363-40b7-ac38-44d8dd23f506))
+    (pin "10" (uuid ebb8cda4-632d-4c9c-89e2-2d279ec67824))
+    (pin "11" (uuid 81eafcb6-c26c-49b9-ab44-8778b0aeab0a))
+    (pin "12" (uuid d14eb3c1-a604-48af-8fb5-ddac38e38565))
+    (pin "13" (uuid b5318c15-8402-4b8d-8422-2704cb8d9974))
+    (pin "14" (uuid 092b95a6-b493-46cc-8b48-c7d359c43622))
+    (pin "15" (uuid 32adf2cf-4ac4-4413-941e-b2d8bea7af68))
+    (pin "16" (uuid 0b2c532b-0e6d-4caa-8e71-237a4dafd2a1))
+    (pin "17" (uuid d8bb9c84-ce8f-4b65-af27-a3f3ee36a612))
+    (pin "18" (uuid 975c2cd5-46cc-43a6-92be-90223109e419))
+    (pin "19" (uuid b0b619c1-5079-4038-b068-6104b2ecfbbe))
+    (pin "2" (uuid 20292b0a-ace0-4d23-8e45-c48200621031))
+    (pin "20" (uuid 4e12cb20-7dc3-4437-84e3-b51a19d44313))
+    (pin "21" (uuid a551c86e-dea8-48cd-a01b-e865958d7f10))
+    (pin "22" (uuid bcf220b3-dac5-454d-bc06-10b542a9ce8e))
+    (pin "23" (uuid 2d62ea1b-9c06-4b68-9944-1d606ec71659))
+    (pin "3" (uuid b74e8554-4489-4383-8221-731a9d31a297))
+    (pin "3.3V" (uuid 4ec307a7-5e59-4623-baa9-875fe7f63d1c))
+    (pin "4" (uuid 1d92ff6b-144a-48b1-9940-943002f0a307))
+    (pin "Vin" (uuid 59e7e258-e507-4723-89db-ecba92d22bf8))
+    (pin "5" (uuid f37c30c9-1180-4be9-bec2-50efffca50f7))
+    (pin "6" (uuid b049c13e-9bfe-48c7-a599-76e458473660))
+    (pin "7" (uuid eaa7b223-cab6-48ac-81f4-b3f78db3ca9e))
+    (pin "8" (uuid 510c2ca3-0b50-4d68-8922-6016650ea4ce))
+    (pin "9" (uuid 0f564294-acc1-4d3d-b6f9-8d37ee22634f))
+    (pin "G1" (uuid 4f05e771-38cc-4728-9722-dd6dafaf7791))
+    (pin "G2" (uuid 1822eda2-538b-4192-a303-be966581f827))
+    (pin "On/Off" (uuid 38d149c7-bfed-4e48-a4da-c721b5481ad4))
+    (pin "Prg" (uuid 90960cac-fdf7-44dc-abf1-3b3b6feb9352))
+    (pin "VBat" (uuid 8a301292-f866-4f63-b777-adfe013d5d5b))
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
@@ -3408,7 +3444,7 @@
   (symbol (lib_id "power:GND") (at 236.22 64.135 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid acf9b1f0-a462-417e-92b1-a2f5d2e52ab2)
-    (property "Reference" "#PWR?" (at 236.22 70.485 0)
+    (property "Reference" "#PWR0128" (at 236.22 70.485 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 236.22 71.755 90)
@@ -3424,7 +3460,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0128") (unit 1)
         )
       )
     )
@@ -3433,7 +3469,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 40.64 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ad2e3b51-7edc-402e-970a-f9e6ef0372c6)
-    (property "Reference" "#PWR?" (at 24.13 40.64 0)
+    (property "Reference" "#PWR0110" (at 24.13 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 40.6399 90)
@@ -3449,7 +3485,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0110") (unit 1)
         )
       )
     )
@@ -3458,7 +3494,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 91.44 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid c54e3f70-ec2e-4722-bd19-78cab2de5e59)
-    (property "Reference" "J?" (at 22.86 102.87 0)
+    (property "Reference" "J5" (at 22.86 102.87 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 100.33 0)
@@ -3478,7 +3514,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J5") (unit 1)
         )
       )
     )
@@ -3487,7 +3523,7 @@
   (symbol (lib_id "power:+BATT") (at 167.005 61.595 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid cb42ba2a-6b76-4548-a4a5-73afb1d8fff1)
-    (property "Reference" "#PWR?" (at 163.195 61.595 0)
+    (property "Reference" "#PWR0111" (at 163.195 61.595 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+BATT" (at 170.18 61.5949 90)
@@ -3503,7 +3539,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0111") (unit 1)
         )
       )
     )
@@ -3512,7 +3548,7 @@
   (symbol (lib_id "Connector_Generic:Conn_01x05") (at 22.86 77.47 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid d7ce076f-015f-4455-a850-bd5407454a79)
-    (property "Reference" "J?" (at 22.86 88.9 0)
+    (property "Reference" "J4" (at 22.86 88.9 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "Conn_01x05" (at 22.86 86.36 0)
@@ -3532,7 +3568,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "J?") (unit 1)
+          (reference "J4") (unit 1)
         )
       )
     )
@@ -3541,7 +3577,7 @@
   (symbol (lib_name "GND_6") (lib_id "power:GND") (at 72.39 130.81 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid dbf6f488-76da-4a7c-b4a1-972667826860)
-    (property "Reference" "#PWR?" (at 72.39 137.16 0)
+    (property "Reference" "#PWR0105" (at 72.39 137.16 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 72.39 135.89 0)
@@ -3557,7 +3593,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0105") (unit 1)
         )
       )
     )
@@ -3566,7 +3602,7 @@
   (symbol (lib_id "power:GND") (at 27.94 44.45 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid dd0fb118-9025-4cb7-a687-f70ea6413b04)
-    (property "Reference" "#PWR?" (at 34.29 44.45 0)
+    (property "Reference" "#PWR0108" (at 34.29 44.45 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 44.45 90)
@@ -3582,7 +3618,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0108") (unit 1)
         )
       )
     )
@@ -3603,22 +3639,22 @@
     (property "Datasheet" "" (at 154.305 60.325 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 2d543f77-dc2b-4ceb-bd1c-7b8d5c46e446))
-    (pin "10" (uuid 67a40794-bc41-4ab3-a1c8-f896af69a56c))
-    (pin "11" (uuid 80858b24-631f-48f9-93d9-1dd8a938d65a))
-    (pin "12" (uuid 9f8036ff-ad76-4e2e-9d4e-1dce682d6c7c))
-    (pin "13" (uuid 6246f70e-bad8-44fd-a95e-bf4a13183331))
-    (pin "14" (uuid 833590a1-2e03-42ad-b88b-bf3e9ca66161))
-    (pin "15" (uuid cd94e9b3-66de-4634-8564-568c6ebd5b08))
-    (pin "16" (uuid b293a5a8-61da-4046-b69c-5a30e14c0830))
-    (pin "2" (uuid a77ae27a-55eb-497a-9639-3da2fb853379))
-    (pin "3" (uuid df1d75f1-ed0f-4d3c-905e-dc2edf3e9529))
-    (pin "4" (uuid 003a6ee5-1432-4a93-90e2-eb53ccfdc12d))
-    (pin "5" (uuid a6da8ba8-14b1-4b10-8590-8d87de3ae4ae))
-    (pin "6" (uuid 0521cd61-f6ff-4541-b14e-5db3adacfadf))
-    (pin "7" (uuid e25a4ff4-1e44-4e0f-8d45-e8f417102a64))
-    (pin "8" (uuid 87812555-fc41-45cd-9444-46a8e8bbb808))
-    (pin "9" (uuid 6758347e-3688-4c39-a82d-fab0fb7df43b))
+    (pin "1" (uuid 0cf49434-27cf-4286-954b-2dc1d37875a2))
+    (pin "10" (uuid c39089f4-fc44-4d52-8e7e-1bf05ee0db29))
+    (pin "11" (uuid 7d8e0544-40ae-430f-844f-e56f1ac5534c))
+    (pin "12" (uuid 299f7fb6-e2ca-45ca-bafc-4fe8ab6e9c6f))
+    (pin "13" (uuid 1f2021cd-115f-49b3-a23f-e1a9d1849a9d))
+    (pin "14" (uuid 3d3069c2-5b38-4adf-81cf-c877f48676ae))
+    (pin "15" (uuid 878631f2-b32a-4102-b619-d3ef1475115d))
+    (pin "16" (uuid 820b898a-6e87-4b23-9d32-fcfb4c360d56))
+    (pin "2" (uuid 3e9e9b0b-3c70-4c57-a8fb-6ba3a2f69a6b))
+    (pin "3" (uuid 87b761f1-1f51-42a9-bd98-b3f8265b6808))
+    (pin "4" (uuid 84dc27a5-f5ef-45d3-9dd2-51324d570e1a))
+    (pin "5" (uuid 87fff344-0fbb-40c0-aa1c-bf85adca6014))
+    (pin "6" (uuid 5fe42786-dd6c-4d4e-8ece-08c3136af897))
+    (pin "7" (uuid dfc20253-d354-4e9b-a309-f9fb75fea310))
+    (pin "8" (uuid 1d88c555-e14e-4db6-918a-b296e0fe1841))
+    (pin "9" (uuid dea74c55-056d-45f8-962b-a36d370b4eae))
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
@@ -3631,7 +3667,7 @@
   (symbol (lib_id "power:+3V3") (at 27.94 110.49 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ea0c9d2a-c38c-454c-a8a1-0f65272ed60b)
-    (property "Reference" "#PWR?" (at 24.13 110.49 0)
+    (property "Reference" "#PWR0123" (at 24.13 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (at 31.75 110.4899 90)
@@ -3647,7 +3683,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0123") (unit 1)
         )
       )
     )
@@ -3656,7 +3692,7 @@
   (symbol (lib_id "power:GND") (at 27.94 115.57 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ece3e2c1-fe8f-484b-a4d0-4142a7fafa26)
-    (property "Reference" "#PWR?" (at 34.29 115.57 0)
+    (property "Reference" "#PWR0125" (at 34.29 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 115.57 90)
@@ -3672,7 +3708,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0125") (unit 1)
         )
       )
     )
@@ -3681,7 +3717,7 @@
   (symbol (lib_id "power:GND") (at 27.94 86.36 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid eceb17e0-581c-4810-89d5-f819fb4fafb4)
-    (property "Reference" "#PWR?" (at 34.29 86.36 0)
+    (property "Reference" "#PWR0121" (at 34.29 86.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 35.56 86.36 90)
@@ -3697,7 +3733,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0121") (unit 1)
         )
       )
     )
@@ -3706,7 +3742,7 @@
   (symbol (lib_id "Device:C") (at 132.08 125.73 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ee47061f-2396-4c45-a892-1ba907351c28)
-    (property "Reference" "C?" (at 135.89 124.4599 0)
+    (property "Reference" "C3" (at 135.89 124.4599 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "0.47 µF" (at 135.89 126.9999 0)
@@ -3723,7 +3759,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "C?") (unit 1)
+          (reference "C3") (unit 1)
         )
       )
     )
@@ -3732,7 +3768,7 @@
   (symbol (lib_id "Device:R") (at 92.71 42.545 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f4f565fc-84f8-48ba-8763-827651863f5d)
-    (property "Reference" "R?" (at 95.25 40.005 90)
+    (property "Reference" "R2" (at 95.25 40.005 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "470" (at 90.805 40.005 90)
@@ -3749,7 +3785,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "R?") (unit 1)
+          (reference "R2") (unit 1)
         )
       )
     )
@@ -3758,7 +3794,7 @@
   (symbol (lib_name "GND_4") (lib_id "power:GND") (at 101.6 142.24 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid f4fc8538-ade5-466b-b2c5-2c495d7c608c)
-    (property "Reference" "#PWR?" (at 101.6 148.59 0)
+    (property "Reference" "#PWR0103" (at 101.6 148.59 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 101.6 147.32 0)
@@ -3774,7 +3810,7 @@
     (instances
       (project "UpdatedPCB2024"
         (path "/5fc7237d-899a-432a-80a6-13a354218a79"
-          (reference "#PWR?") (unit 1)
+          (reference "#PWR0103") (unit 1)
         )
       )
     )
