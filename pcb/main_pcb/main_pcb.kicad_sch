@@ -3559,8 +3559,14 @@
     (path "/4e618dfb-828b-44a9-b1f3-249375cca950/95b4f818-dddd-47ab-aa56-c2b4a4d53152"
       (reference "#PWR0112") (unit 1) (value "GND") (footprint "")
     )
-    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/a24602cd-3bd9-41b6-9eea-940982e52015"
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/ccf257d3-0559-4e90-b727-feda633a5fcf"
       (reference "#PWR0113") (unit 1) (value "+BATT") (footprint "")
+    )
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/3eb407d9-9794-447c-b047-74a773468ad7"
+      (reference "#PWR?") (unit 1) (value "+BATT") (footprint "")
+    )
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/5c3dc85d-ad8f-4ef6-aadb-415a11bf3ee2"
+      (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
     (path "/922e5fdd-f699-4ece-8b2c-9b27e43cb136/fef2d265-e71d-48f1-9ae0-9b8a4df9d851"
       (reference "C1") (unit 1) (value "100 µF") (footprint "")
@@ -3660,6 +3666,12 @@
     )
     (path "/4e618dfb-828b-44a9-b1f3-249375cca950/6640f2b8-b8f8-422d-909b-d09277c64340"
       (reference "U3") (unit 1) (value "DRV8833") (footprint "custom_footprints:DRV_DRV8833_Pololu_2130")
+    )
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/95198633-7210-47a0-ae91-397060095186"
+      (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
+    )
+    (path "/4e618dfb-828b-44a9-b1f3-249375cca950/c60e32f9-81a8-4595-9bd4-651f00770899"
+      (reference "U?") (unit 1) (value "Teensy_4.0") (footprint "")
     )
   )
 )
