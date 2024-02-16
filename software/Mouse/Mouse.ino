@@ -351,11 +351,21 @@ void movingTurn(double angle, turning_direction_t dir){
 
 // Rotate 90 degrees right
 void turnRight(){
-  movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
+  turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
+  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+}
+
+// Rotate 90 degrees right while moving forward
+void movingTurnRight(){
+  movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
+}
+
+// Rotate 90 degrees left while moving forward
+void movingTurnLeft(){
   movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 

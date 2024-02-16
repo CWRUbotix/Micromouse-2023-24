@@ -68,6 +68,16 @@ void turnLeft() {
     getAck("turnLeft");
 }
 
+void movingTurnRight() {
+    turnRight();
+    moveForward();
+}
+
+void movingTurnLeft() {
+    turnLeft();
+    moveForward();
+}
+
 void setWall(int x, int y, char direction) {
     printf("setWall %d %d %c\n", x, y, direction);
     fflush(stdout);
