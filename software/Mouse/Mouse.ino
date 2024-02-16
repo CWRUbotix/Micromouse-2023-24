@@ -220,13 +220,12 @@ double getAngle()
 }
 
 /**
- * Turn robot by a given angle (in degrees)
+ * Turn robot by a given angle in place
  *
- * @param angle The angle to turn (in degrees)
- *              Positive is CCW
- *              Negative is CW
+ * @param angle     The angle to turn (in degrees)
+ * @param direction The direction to turn (LEFT or RIGHT)
  */
-void spotTurn(double angle, turning_direction_t direction) {
+void turn(double angle, turning_direction_t direction) {
   // Encoder to turn
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
@@ -270,7 +269,7 @@ void spotTurn(double angle, turning_direction_t direction) {
   setMotor(LEFT_MOTOR, 0);
 }
 
-void turn(double angle, turning_direction_t dir){
+void movingTurn(double angle, turning_direction_t dir){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
@@ -308,12 +307,12 @@ void turn(double angle, turning_direction_t dir){
 
 // Rotate 90 degrees right
 void turnRight(){
-  turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -324,6 +323,10 @@ void turnRight45(){
 // Rotate 45 degrees left
 void turnLeft45(){
   turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+}
+
+void turn180(){
+  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
@@ -575,15 +578,5 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-  redLights();
-  logf("Move Dist: %d\n", SQUARE_SIZE * (int)1);
-  moveForward(1);
-  redLights();
-  coolLights();
-  turnRight();
-  coolLights();
-  redLights();
-  turnLeft();
-  redLights();
-  logln("End.");
+  doRun();
 }
