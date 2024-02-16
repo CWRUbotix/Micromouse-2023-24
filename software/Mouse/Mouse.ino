@@ -284,10 +284,10 @@ void movingTurn(double angle, turning_direction_t direction) {
 
   double target = angle * turnRatio;
 
-  FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
-  SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
+  double FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
+  double SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
 
-  if(dir == LEFT){
+  if(direction == LEFT){
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
     turnEncoder->write(0);
