@@ -12,10 +12,10 @@
 /* ---- Defines ---- */
 typedef enum motor_t {
     LEFT_MOTOR = 0,
-    RIGHT_MOTOR
+    RIGHT_MOTOR = 1
 } motor_t;
 
-// #define TEST
+#define TEST
 #undef log
 #undef logf
 #undef logln
@@ -23,7 +23,7 @@ typedef enum motor_t {
 #ifdef TEST
   #define log(...) Serial.print(__VA_ARGS__)
   #define logf(...) Serial.printf(__VA_ARGS__)
-  #define logln(...) Serial.println(stderr, __VA_ARGS__);
+  #define logln(...) Serial.println(__VA_ARGS__)
   #define LOGGING 1
 #else
   #define log(...)
@@ -178,7 +178,7 @@ void updateSensors () {
     ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
   }
 
-  logf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  // logf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -274,6 +274,9 @@ void turn(double angle, turning_direction_t dir){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
+  leftEncoder.write(0);
+  rightEncoder.write(0);
+
   double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
   double max = 50;
   int target = 1800;
@@ -283,20 +286,20 @@ void turn(double angle, turning_direction_t dir){
   double SLOW_SPEED = max*1/(ratio + 1);
   
   if(dir == LEFT){
-    setMotor(RIGHT_MOTOR, 50*dir);
-    setMotor(LEFT_MOTOR, 50*dir);
+    turnEncoder = &rightEncoder;
+    otherTurnEncoder = &leftEncoder;
+    setMotor(RIGHT_MOTOR, FAST_SPEED);
+    setMotor(LEFT_MOTOR, SLOW_SPEED);
   }
   else{
-    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
-    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+    turnEncoder = &leftEncoder;
+    otherTurnEncoder = &rightEncoder;
+    setMotor(RIGHT_MOTOR, SLOW_SPEED);
+    setMotor(LEFT_MOTOR, FAST_SPEED);
   }
-
-  leftEncoder.write(0);
-  rightEncoder.write(0);  
-
   int encoderAverage = 0;
     do {
-      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
+      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
     } while (encoderAverage < target);
 
   setMotor(RIGHT_MOTOR, 0);
@@ -355,11 +358,13 @@ int moveForward(int number) {
       // num revolutions * pi * diameter (Zach says 60mm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution  
       currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
     }
+    logf("Current: %lf\n", currentDistance);
+    logf("Goal: %lf\n", goalDistance);
 
-    logf("Moving forward. current: %d, ultrasonic: %f, cond: %d, %d, %d\n", currentDistance, ultrasonic, currentDistance >= goalDistance, ultrasonic < 150, ultrasonic > 95);
+    // logf("Moving forward. current: %d, ultra: %d, goal: %d, cond: %d, %d\n", currentDistance, ultrasonic, goalDistance, ultrasonic < 150, ultrasonic > 95);
 
     // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
@@ -375,6 +380,7 @@ int moveForward(int number) {
     if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
+      logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
       break;
     }
 
@@ -541,9 +547,7 @@ void setup(void) {
   }
   if (endPressTime - pressTime < 1000) {
   }else if (endPressTime - pressTime < 3000) {
-    turnLeft();
   }else {
-    moveForward(1);
   }
   delay(500);
   digitalWrite(LED0, LOW);
@@ -559,11 +563,27 @@ void coolLights(){
     digitalWrite(BLUE_LED, HIGH);
   else
     digitalWrite(BLUE_LED, LOW);
-    delay(100);
+    delay(500);
 }
 
+void redLights(){
+  if(digitalRead(LED3) == LOW)
+    digitalWrite(LED3, HIGH);
+  else
+    digitalWrite(LED3, LOW);
+    delay(500);
+}
 /* ---- MAIN ---- */
 void loop() {
+  redLights();
+  logf("Move Dist: %d\n", SQUARE_SIZE * (int)1);
+  moveForward(1);
+  redLights();
   coolLights();
-  // doRun();
+  turnRight();
+  coolLights();
+  redLights();
+  turnLeft();
+  redLights();
+  logln("End.");
 }
