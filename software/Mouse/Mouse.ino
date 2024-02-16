@@ -8,12 +8,29 @@
 // Pin definitions
 #include "micromouse_pins_2023.h"
 // Robot Logic and Algorithm definitions
-#include "Algo/Micro.c"
+#include "Algo/FMicro.cpp"
 /* ---- Defines ---- */
 typedef enum motor_t {
     LEFT_MOTOR = 0,
-    RIGHT_MOTOR
+    RIGHT_MOTOR = 1
 } motor_t;
+
+#define TEST
+#undef log
+#undef logf
+#undef logln
+
+#ifdef TEST
+  #define log(...) Serial.print(__VA_ARGS__)
+  #define logf(...) Serial.printf(__VA_ARGS__)
+  #define logln(...) Serial.println(__VA_ARGS__)
+  #define LOGGING 1
+#else
+  #define log(...)
+  #define logf(...)
+  #define logln(...)
+  #define LOGGING 0
+#endif
 
 #define POWER_DEADBAND 6
 
@@ -111,7 +128,6 @@ void setMotor (motor_t m, int power) {
   }else {
     return;
   }
-
   // Set power
   if (power < POWER_DEADBAND && power > -POWER_DEADBAND) {
       analogWrite(m1, 255);
@@ -125,15 +141,16 @@ void setMotor (motor_t m, int power) {
   }
 }
 
-bool wallLeft() {
+int wallLeft() {
   return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 }
 
-bool wallRight() {
+int wallRight() {
   return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
 }
 
-bool wallFront() {
+int wallFront(){
+  ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   return ultrasonic > SENSOR_RANGE_MAX;
 }
 
@@ -161,7 +178,7 @@ void updateSensors () {
     ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
   }
 
-  Serial.printf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
+  // logf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -184,20 +201,20 @@ double getAngle()
   // Average left and right sensors
   double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
   double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
-  // Serial.printf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
+  // logf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
   if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
     // If we have no good data, assume we're going straight
-    // Serial.printf("Using 0 as angle\n");
+    // logf("Using 0 as angle\n");
     return 0;
   } else if (back_left_errored || front_left_errored) {
-    // Serial.printf("Using right angle\n");
+    // logf("Using right angle\n");
     return rightAngle;
   } else if (back_right_errored || front_right_errored) {
-    // Serial.printf("Using left angle\n");
+    // logf("Using left angle\n");
     return leftAngle;
   } else {
-    // Serial.printf("Averaging angles\n");
+    // logf("Averaging angles\n");
     return (leftAngle + rightAngle) / 2;
   }
 }
@@ -252,80 +269,41 @@ void turn(double angle, turning_direction_t direction) {
   setMotor(LEFT_MOTOR, 0);
 }
 
-/**
- * Turn robot by a given angle along a circular path
- * 
- * @param angle     The angle to turn (in degrees)
- * @param direction The direction to turn (LEFT/RIGHT)
- */
-void movingTurn(double angle, turning_direction_t direction) {
+void movingTurn(double angle, turning_direction_t dir){
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
-
-  double target = angle * turnRatio;
-
-  FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
-  SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
-
-  if(dir == LEFT){
-    turnEncoder = &rightEncoder;
-    otherTurnEncoder = &leftEncoder;
-    turnEncoder->write(0);
-    otherTurnEncoder->write(0);
-    setMotor(RIGHT_MOTOR, FAST_SPEED);
-    setMotor(LEFT_MOTOR, SLOW_SPEED);
-  }
-  else{
-    turnEncoder = &leftEncoder;
-    otherTurnEncoder = &rightEncoder;
-    turnEncoder->write(0);
-    otherTurnEncoder->write(0);
-    setMotor(RIGHT_MOTOR, SLOW_SPEED);
-    setMotor(LEFT_MOTOR, FAST_SPEED);
-  }
-
-  do {
-    // wait
-  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
-
-  setMotor(RIGHT_MOTOR, 0);
-  setMotor(LEFT_MOTOR, 0);
-}
-
-/*
-void turn(double angle, turning_direction_t dir){
+  leftEncoder.write(0);
+  rightEncoder.write(0);
 
   double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
   double max = 50;
-  int target = 900;
+  int target = 1800;
 
 
   double FAST_SPEED = max*ratio/(ratio + 1);
   double SLOW_SPEED = max*1/(ratio + 1);
   
   if(dir == LEFT){
-    setMotor(RIGHT_MOTOR, FAST_SPEED*dir);
-    setMotor(LEFT_MOTOR, SLOW_SPEED*dir);
+    turnEncoder = &rightEncoder;
+    otherTurnEncoder = &leftEncoder;
+    setMotor(RIGHT_MOTOR, FAST_SPEED);
+    setMotor(LEFT_MOTOR, SLOW_SPEED);
   }
   else{
-    setMotor(RIGHT_MOTOR, SLOW_SPEED*dir);
-    setMotor(LEFT_MOTOR, FAST_SPEED*dir);
+    turnEncoder = &leftEncoder;
+    otherTurnEncoder = &rightEncoder;
+    setMotor(RIGHT_MOTOR, SLOW_SPEED);
+    setMotor(LEFT_MOTOR, FAST_SPEED);
   }
-
-  leftEncoder.write(0);
-  rightEncoder.write(0);
-
   int encoderAverage = 0;
     do {
-      encoderAverage = (leftEncoder.read() - rightEncoder.read()) / 2;
+      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
     } while (encoderAverage < target);
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
 }
-*/
 
 // Rotate 90 degrees right
 void turnRight(){
@@ -352,7 +330,7 @@ void turn180(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-void moveForward() {
+int moveForward(int number) {
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -363,7 +341,7 @@ void moveForward() {
   // Create speed variables
   // (currentDistance is the distance inside the current square.)
   double currentDistance = 0;
-  double goalDistance = SQUARE_SIZE;
+  double goalDistance = SQUARE_SIZE * number;
   double velocity;
 
   // Center variables
@@ -373,29 +351,28 @@ void moveForward() {
   while (1) {
     // update currentDistance and currentAngle
     {
-      // read LiDAR
+      // read LiDARs
       updateSensors();
-
       // Update angle
       currentAngle = getAngle();
 
       // Update current distance
-      // rev / 4560 is num revolutions (380:1 gearbox * 12 ticks per rev normally)
+      // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
       // num revolutions * pi * diameter (Zach says 60mm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // Serial.printf("Encoder left: %d\tright: %d; ", leftRevs, rightRevs);
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution  
       currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
-      // Serial.printf("currentDistance: %f\n", currentDistance);
     }
+    logf("Current: %lf\n", currentDistance);
+    logf("Goal: %lf\n", goalDistance);
 
-    Serial.printf("Moving forward. current: %d, ultrasonic: %f, cond: %d, %d, %d\n", currentDistance, ultrasonic, currentDistance >= goalDistance, ultrasonic < 150, ultrasonic > 95);
+    // logf("Moving forward. current: %d, ultra: %d, goal: %d, cond: %d, %d\n", currentDistance, ultrasonic, goalDistance, ultrasonic < 150, ultrasonic > 95);
 
-    // We're also not allowed to break out of the loop (stop going forward), if we're more than 95 mm in front
-    //  If we have a wall in front of us, but it's more than 95mm from the ultrasonic, then we're too far back and we need to go forward still
+    // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
     if (currentDistance >= goalDistance && ultrasonic < 150 && ultrasonic > 95) {
-      Serial.printf("Moving goalDistance forward.\n");
+      logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the ultrasonic ends up ULTRASONIC_FRONT (60mm) away from the wall in front of us
       goalDistance += ultrasonic - ULTRASONIC_FRONT;
     }
@@ -404,8 +381,9 @@ void moveForward() {
     // For the ultrasonic, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
     if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
-      // setMotor(LEFT_MOTOR, 0);
-      // setMotor(RIGHT_MOTOR, 0);
+      setMotor(LEFT_MOTOR, 0);
+      setMotor(RIGHT_MOTOR, 0);
+      logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
       break;
     }
 
@@ -437,7 +415,7 @@ void moveForward() {
     //                    2
     centerOffset = (double)front_right - (double)front_left;
     if (front_left_errored && front_right_errored) {
-        // Serial.printf("both errored, setting offset to 0\n");
+        // logf("both errored, setting offset to 0\n");
         centerOffset = 0;
     }else if (front_left_errored) {
         // If we don't have a left value
@@ -448,7 +426,7 @@ void moveForward() {
         centerOffset = (240 - 84) / 2.0 - (double)front_left;
     }
 
-    // Serial.printf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
+    // logf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
 
     // p, current, goal, min, max
     // When the angle is 0.1, we need to bump left power by like 5, so P of 20
@@ -474,6 +452,7 @@ void moveForward() {
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
   }
+  return 0;
 }
 
 /* ---- SETUP ---- */
@@ -490,12 +469,12 @@ void setup(void) {
 
   // Start serial
   Serial.begin(115200);
-  Serial.println("Serial ready!");
+  logln("Serial ready!");
 
   // Starts I2C on the default pins (18 (SDA), 19 (SCL))
   // (I think, I can't find docs on it)
   I2C_LIDAR.begin();
-  Serial.println("I2C ready!");
+  logln("I2C ready!");
 
   // Setup LiDARs
   for (size_t i = 0; i < LIDAR_COUNT; ++i) {
@@ -513,17 +492,17 @@ void setup(void) {
     digitalWrite(lidar_cs_pins[i], HIGH);
     // Pass pointer to the Wire2 object since we're running on I2C bus 2
     if (!lidar_sensors[i].begin(&I2C_LIDAR)) {
-      Serial.print("Failed init on sensor ");
-      Serial.println(i);
+      log("Failed init on sensor ");
+      logln(i);
     } else {
       lidar_sensors[i].setAddress(LIDAR_ADDR_BASE + i);
     }
   }
-  Serial.println("LiDAR sensors ready!");
+  logln("LiDAR sensors ready!");
 
   pinMode(SONIC_TRIG1, OUTPUT);
   pinMode(SONIC_ECHO1, INPUT);
-  Serial.println("Ultrasonic sensor ready!");
+  logln("Ultrasonic sensor ready!");
 
   // Setup motors
   pinMode(MOTORLEFT_1, OUTPUT);
@@ -533,11 +512,7 @@ void setup(void) {
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
-  Serial.println("Motors ready!");
-
-  // Initialize current
-  addNodeIfNotExists(0, 0);
-  current = nodes[0];
+  logln("Motors ready!");
 
   pinMode(START_BUTTON, INPUT);
   int t = 0;
@@ -574,14 +549,8 @@ void setup(void) {
     }
   }
   if (endPressTime - pressTime < 1000) {
-    shouldFloodFill = true;
-    mappingMode = 3;
   }else if (endPressTime - pressTime < 3000) {
-    shouldFloodFill = false;
-    mappingMode = 3;
   }else {
-    shouldFloodFill = false;
-    mappingMode = 0;
   }
   delay(500);
   digitalWrite(LED0, LOW);
@@ -589,8 +558,24 @@ void setup(void) {
   digitalWrite(LED2, LOW);
 
   initialize();
+  
 }
 
+void coolLights(){
+  if(digitalRead(BLUE_LED) == LOW)
+    digitalWrite(BLUE_LED, HIGH);
+  else
+    digitalWrite(BLUE_LED, LOW);
+    delay(500);
+}
+
+void redLights(){
+  if(digitalRead(LED3) == LOW)
+    digitalWrite(LED3, HIGH);
+  else
+    digitalWrite(LED3, LOW);
+    delay(500);
+}
 /* ---- MAIN ---- */
 void loop() {
   doRun();

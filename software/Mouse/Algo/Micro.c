@@ -146,7 +146,7 @@ void moveRobot(Node *adjNode) {
 
   // logf("Spinning to direction #%d\n", direction);
   spinTo(direction);
-  moveForward();
+  moveForward(1);
   robot.x = adjNode->x;
   robot.y = adjNode->y;
 }

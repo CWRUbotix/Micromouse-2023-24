@@ -1,4 +1,6 @@
-#pragma once
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int mazeWidth();
 int mazeHeight();
@@ -10,6 +12,9 @@ int wallLeft();
 int moveForward(int spaces);  // Returns 0 if crash, else returns 1
 void turnRight();
 void turnLeft();
+void turnRight45();
+void turnLeft45();
+void turn180();
 
 void setWall(int x, int y, char direction);
 void clearWall(int x, int y, char direction);

@@ -4,9 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// #define sim
-
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
   #define log(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
@@ -20,12 +18,14 @@
   #define LOGGING 0
 #endif
 
-#define MAZE_SIZE 16
-#define MAZE_HEIGHT 16
-#define MAZE_WIDTH 16
+#define MAZE_SIZE 10
+#define MAZE_HEIGHT 10
+#define MAZE_WIDTH 10
 
 // Represents cardinal direction with respect to the maze
 enum cardinal_t {NORTH, EAST, SOUTH, WEST};
+// Used as parameters to the motor functions
+enum turning_direction_t { LEFT, RIGHT };
 
 // Single node of maze
 typedef struct Node {
@@ -55,7 +55,9 @@ bool backtracking = false;
 bool solving = false;
 
 void floodFill(int goal[][2], int size) {
+  #ifdef sim
   clearAllText();
+  #endif
   // Next node to update
   Node *curr;
   // Last node to update
@@ -224,7 +226,7 @@ void rotateMove(uint8_t dir) {
      (facing == WEST && dir == NORTH)) {
       turnRight();
       #ifdef sim
-        moveForward();
+        moveForward(1);
       #endif
      }
   else if((facing == NORTH && dir == SOUTH) ||
@@ -237,7 +239,7 @@ void rotateMove(uint8_t dir) {
       #else
         turn180();
       #endif
-      moveForward();
+      moveForward(1);
      }
   else if((facing == NORTH && dir == WEST) ||
      (facing == EAST && dir == NORTH) ||
@@ -245,11 +247,11 @@ void rotateMove(uint8_t dir) {
      (facing == WEST && dir == SOUTH)) {
       turnLeft();
       #ifdef sim
-        moveForward();
+        moveForward(1);
       #endif
      }
   else {
-    moveForward();
+    moveForward(1);
   }
   facing = dir;
 }
@@ -258,7 +260,7 @@ void rotateMove(uint8_t dir) {
 // Returns true if the goal has been reached, or false if not
 bool navigate() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
-  float moveDist = 1
+  float moveDist = 1;
   #ifndef sim
     if(!solving) moveDist = 0.5;
   #endif
@@ -381,7 +383,7 @@ void moveOnPath() {
     else{
       // Moved forward numSquares, now rotate
       moveForward(numSquares);
-      rotate(direction);
+      rotateMove(direction);
       numSquares = 0;
       current = path[i - 1];
 
@@ -391,10 +393,11 @@ void moveOnPath() {
   moveForward(numSquares + 1);
 }
 
+// Does one iteration of the floodfill algorithm
 void doRun() {
-  while(true) {
     updateWalls();
-    createPath();
-    if(navigate()) break;
-  }
+    #ifdef sim
+      createPath();
+    #endif
+    navigate();
 }
