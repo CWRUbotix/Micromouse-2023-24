@@ -216,10 +216,8 @@ void updateWalls() {
   }
 }
 
-// Rotates to a particular facing while moving
-
-// Rotates to a particular facing and moves forward
-void rotateMove(uint8_t dir) {
+// Rotates to a particular facing and moves to next space
+void move(uint8_t dir) {
   if((facing == NORTH && dir == EAST) ||
      (facing == EAST && dir == SOUTH) ||
      (facing == SOUTH && dir == WEST) ||
@@ -256,32 +254,119 @@ void rotateMove(uint8_t dir) {
   facing = dir;
 }
 
+void setupMove() {
+  uint8_t dist = mazeNodes[xPos][yPos].dist;
+  // If moving North lowers distance to goal, move North
+  if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
+    switch(facing) {
+      case EAST: {
+        turn(90, LEFT);
+        break;
+      }
+      case SOUTH: {
+        rotate180();
+        break;
+      }
+      case WEST: {
+        turn(90, RIGHT);
+        break;
+      }
+    }
+    facing = NORTH;
+    moveForward(0.5);
+    yPos = yPos + 1;
+  }
+  // If moving East lowers distance to goal, move East
+  else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
+    switch(facing) {
+      case SOUTH: {
+        turn(90, LEFT);
+        break;
+      }
+      case WEST: {
+        rotate180();
+        break;
+      }
+      case NORTH: {
+        turn(90, RIGHT);
+        break;
+      }
+    }
+    facing = EAST;
+    moveForward(0.5);
+    xPos = xPos + 1;
+  }
+  // If moving West lowers distance to goal, move West
+  else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
+    switch(facing) {
+      case NORTH: {
+        turn(90, LEFT);
+        break;
+      }
+      case EAST: {
+        rotate180();
+        break;
+      }
+      case SOUTH: {
+        turn(90, RIGHT);
+        break;
+      }
+    }
+    facing = WEST;
+    moveForward(0.5);
+    xPos = xPos - 1;
+  }
+  // If moving South lowers distance to goal, move South
+  else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
+    switch(facing) {
+      case WEST: {
+        turn(90, LEFT);
+        break;
+      }
+      case NORTH: {
+        rotate180();
+        break;
+      }
+      case EAST: {
+        turn(90, RIGHT);
+        break;
+      }
+    }
+    facing = SOUTH;
+    moveForward(0.5);
+    yPos = yPos - 1;
+  }
+}
+
 // Determines direction to move, rotates to that direction, and moves forward (recalculates projected distances if no reasonable move found)
 // Returns true if the goal has been reached, or false if not
 bool navigate() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
   float moveDist = 1;
   #ifndef sim
-    if(!solving) moveDist = 0.5;
+    if(!solving) {
+      setupMove();
+      return false;
+    }
   #endif
   // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
-    rotateMove(NORTH);
+    move(NORTH);
     yPos = yPos + 1;
   }
   // If moving East lowers distance to goal, move East
   else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
-    rotateMove(EAST);
+    move(EAST);
     xPos = xPos + 1;
   }
   // If moving West lowers distance to goal, move West
   else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
-    rotateMove(WEST);
+    move(WEST);
     xPos = xPos - 1;
   }
   // If moving South lowers distance to goal, move South
   else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
-    rotateMove(SOUTH);
+    move(SOUTH);
     yPos = yPos - 1;
   }
   // If end of maze has been reached (or start of maze has been reached while backtracking), switch backtracking mode
