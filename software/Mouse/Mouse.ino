@@ -44,7 +44,7 @@ typedef enum motor_t {
 
 const double wheelSeparation = 9.5; // 9.5 cm between wheels
 const double wheelRadius = 3; // 3 cm radius
-const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
@@ -55,8 +55,8 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
 // When centered, there should be 60mm in front of the ultrasonic
 #define ULTRASONIC_FRONT 60
 
-// Squares are 10in by 10in, but we work in mm. 10in = 254mm
-#define SQUARE_SIZE 254
+// Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
+#define SQUARE_SIZE 25.4
 
 /* ---- User Variables ---- */
 
@@ -279,17 +279,17 @@ void movingTurn(double angle, turning_direction_t direction) {
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 380 * 12; // degree to encoder tick conversion ratio
-
+  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
 
   double target = angle * turnRatio;
 
-  double FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.7;
-  double SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.7;
+  double FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.35;
+  double SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.35;
 
   if(direction == LEFT){
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
+    target = target * 10.5 / 12; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, FAST_SPEED);
@@ -298,6 +298,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   else{
     turnEncoder = &leftEncoder;
     otherTurnEncoder = &rightEncoder;
+    target = target * 9 / 12; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, SLOW_SPEED);
@@ -412,11 +413,11 @@ int moveForward(int number) {
 
       // Update current distance
       // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
-      // num revolutions * pi * diameter (Zach says 60mm)
+      // num revolutions * pi * diameter (Zach says 6 cm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution  
-      currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * cm per revolution  
+      currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 6.0;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
