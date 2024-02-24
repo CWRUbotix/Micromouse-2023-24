@@ -25,12 +25,14 @@
 #define LIDAR_CS5 7
 #define LIDAR_CS6 9
 
+/*
 #define SONIC_TRIG1 40
 #define SONIC_TRIG2 38
 #define SONIC_TRIG3 36
 #define SONIC_ECHO1 41 
 #define SONIC_ECHO2 39
 #define SONIC_ECHO3 37
+*/
 
 #define ENCODER_LEFT_1 22
 #define ENCODER_LEFT_2 23
