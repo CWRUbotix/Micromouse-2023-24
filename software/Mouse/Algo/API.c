@@ -51,7 +51,7 @@ int wallLeft() {
     return getBoolean("wallLeft");
 }
 
-int moveForward(int number) {
+int moveForward(double number) {
     printf("moveForward %d\n", number);
     fflush(stdout);
     char response[BUFFER_SIZE];
@@ -70,12 +70,12 @@ void turnLeft() {
 
 void movingTurnRight() {
     turnRight();
-    moveForward();
+    moveForward(1);
 }
 
 void movingTurnLeft() {
     turnLeft();
-    moveForward();
+    moveForward(1);
 }
 
 void setWall(int x, int y, char direction) {

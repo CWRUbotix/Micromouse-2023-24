@@ -352,21 +352,25 @@ void movingTurn(double angle, turning_direction_t dir){
 
 // Rotate 90 degrees right
 void turnRight(){
+  logln("Turning Right");
   turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
+  logln("Turning Left");
   turn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 90 degrees right while moving forward
 void movingTurnRight(){
+  logln("Moving Turn Right");
   movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left while moving forward
 void movingTurnLeft(){
+  logln("Moving Turn Left");
   movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
@@ -385,7 +389,8 @@ void turn180(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-int moveForward(int number) {
+int moveForward(double number) {
+  logln("Moving Forward");
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -633,5 +638,6 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
+  updateSensors();
   doRun();
 }
