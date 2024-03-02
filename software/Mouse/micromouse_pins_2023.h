@@ -33,6 +33,7 @@
 #define SONIC_ECHO2 39
 #define SONIC_ECHO3 37
 */
+#define SONIC_ECHO3 37
 
 #define ENCODER_LEFT_1 22
 #define ENCODER_LEFT_2 23

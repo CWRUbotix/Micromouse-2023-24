@@ -72,7 +72,7 @@ const int lidar_cs_pins[LIDAR_COUNT + LONG_RANGE_LIDAR_COUNT] = {LIDAR_CS1, LIDA
 Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 Adafruit_VL53L0X long_range_lidar_sensors[LONG_RANGE_LIDAR_COUNT];
 
-bool back_right_errored, front_right_errored, back_left_errored, front_left_errored, forward_errored;
+bool back_right_errored, front_right_errored, back_left_errored, front_left_errored, forward_errored, long_range_errored;
 uint8_t back_right;
 uint8_t front_right;
 uint8_t back_left;
@@ -189,7 +189,7 @@ void updateSensors () {
 
   // Read the long range LIDAR sensor and update their value
   long_range = lidar_sensors[5].readRange();
-  long_range_error = lidar_sensors[5].readRangeStatus() != VL53L0X_ERROR_NONE || forward > SENSOR_RANGE_MAX;
+  long_range_errored = long_range_lidar_sensors[0].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX;
 
   /*
   // Read front ultrasonic sensor
@@ -409,7 +409,7 @@ void turnLeft45(){
 void turn180(){
   turn(180.0 + getAngle() * 180.0 / PI, LEFT);
 }
-// CONTINUE HERE:
+
 // Moves the robot forward 1 square in the direction the robot is currently facing
 int moveForward(int number) {
   // Reset encoders
@@ -452,21 +452,20 @@ int moveForward(int number) {
 
     // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
-    if (currentDistance >= goalDistance && ultrasonic < 150 && ultrasonic > 95) {
+    if (currentDistance >= goalDistance && long_range < 150 && long_range > 95) {
       logf("Moving goalDistance forward.\n");
-      // Increase goal distance such that the ultrasonic ends up ULTRASONIC_FRONT (60mm) away from the wall in front of us
-      // reading
-      goalDistance += reading - LIDAR_front_offset;
+      // Increase goal distance such that the long_range ends up (60mm) away from the wall in front of us
+      goalDistance += long_range - LIDAR_front_offset;
       //goalDistance += ultrasonic - ULTRASONIC_FRONT;
     }
 
     // check if currentDistance and currentAngle are within tolerance
     // For the lidar, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
-    if (currentDistance >= goalDistance || (!ultrasonic_errored && ultrasonic < ULTRASONIC_FRONT)) {
+    if (currentDistance >= goalDistance || (!long_range_errored && long_range < LIDAR_front_offset)) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
-      logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
+      logf("Stopped. Long Range Lidar: %d, %d, %lf\n", !long_range_errored, long_range < LIDAR_front_offset, long_range);
       break;
     }
 
