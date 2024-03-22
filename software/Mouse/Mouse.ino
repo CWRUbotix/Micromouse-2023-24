@@ -142,14 +142,17 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft() {
-  return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+  logf("Left: %d\n", !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX));
+  return !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
 int wallRight() {
-  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
+  logf("Right: %d\n", !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
+  return !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
 
 int wallFront(){
+  logf("Front: %d\n", ultrasonic > SENSOR_RANGE_MAX);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   return ultrasonic > SENSOR_RANGE_MAX;
 }
@@ -422,7 +425,7 @@ int moveForward(double number) {
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
       // ((Num ticks of both wheels / 2) / num ticks per revolution) * cm per revolution  
-      currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 6.0;
+      currentDistance = (leftRevs + rightRevs) / 2.0 / (150 * 12) * PI * 6.0;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
