@@ -42,9 +42,11 @@ typedef enum motor_t {
 
 #define ANGLE_TOLERANCE 5
 
+const double encoderTicks = 12;
+const double gearRatio = 190;
 const double wheelSeparation = 9.5; // 9.5 cm between wheels
 const double wheelRadius = 3; // 3 cm radius
-const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
@@ -152,9 +154,9 @@ int wallRight() {
 }
 
 int wallFront(){
-  logf("Front: %d\n", ultrasonic > SENSOR_RANGE_MAX);
+  logf("Front: %d\n", !(ultrasonic > SENSOR_RANGE_MAX));
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
-  return ultrasonic > SENSOR_RANGE_MAX;
+  return !(ultrasonic > SENSOR_RANGE_MAX);
 }
 
 void updateSensors () {
@@ -424,8 +426,9 @@ int moveForward(double number) {
       // num revolutions * pi * diameter (Zach says 6 cm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // ((Num ticks of both wheels / 2) / num ticks per revolution) * cm per revolution  
-      currentDistance = (leftRevs + rightRevs) / 2.0 / (150 * 12) * PI * 6.0;
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * PI * diameter 
+      // Becomes revolutions * cm per revolution
+      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 6.0;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
@@ -449,7 +452,7 @@ int moveForward(double number) {
       logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
       break;
     }
-
+ 
     // How far away from the center we are
     // Right is positive
     // (ASCII art by Zach)
@@ -641,6 +644,8 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-  updateSensors();
-  doRun();
+  turnLeft();
+  coolLights();
+  while(!digitalRead(START_BUTTON));
+  coolLights();
 }
