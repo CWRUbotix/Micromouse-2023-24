@@ -43,7 +43,7 @@ typedef enum motor_t {
 #define ANGLE_TOLERANCE 5
 
 const double encoderTicks = 12;
-const double gearRatio = 190;
+const double gearRatio = 150;
 const double wheelSeparation = 9.5; // 9.5 cm between wheels
 const double wheelRadius = 3; // 3 cm radius
 const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
@@ -284,7 +284,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
+  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
   double target = angle * turnRatio;
 
@@ -585,7 +585,7 @@ void setup(void) {
   // Spin until start button is pressed
   // t is ms
   // On for 300 (0-300) off for 500 (300-800)
-  while(!digitalRead(START_BUTTON)) {
+  while(digitalRead(START_BUTTON)) {
     if (t == 0) {
       digitalWrite(YELLOW_LED, HIGH);
     }else if (t == 300) {
@@ -644,8 +644,8 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-  turnLeft();
-  coolLights();
-  while(!digitalRead(START_BUTTON));
-  coolLights();
+    movingTurnRight();
+    coolLights();
+    coolLights();
+    while(!digitalRead(START_BUTTON));
 }
