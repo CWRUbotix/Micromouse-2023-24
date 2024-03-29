@@ -294,7 +294,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   if(direction == LEFT){
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
-    target = target * 10.5 / 12; // correction
+    target = target * 13.0 / 12.0; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, FAST_SPEED);
@@ -303,7 +303,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   else{
     turnEncoder = &leftEncoder;
     otherTurnEncoder = &rightEncoder;
-    target = target * 9 / 12; // correction
+    target = target * 11.5 / 12.0; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, SLOW_SPEED);
@@ -653,7 +653,7 @@ void redLights(){
 /* ---- MAIN ---- */
 void loop() {
     //movingTurnRight();
-    moveForward(1);
+    movingTurnLeft();
     coolLights();
     coolLights();
     while(!digitalRead(START_BUTTON));
