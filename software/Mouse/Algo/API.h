@@ -9,8 +9,9 @@ int wallFront();
 int wallRight();
 int wallLeft();
 
-int moveForward(int spaces);  // Returns 0 if crash, else returns 1
-int moveForwardHalf(int spaces);
+int moveForward(double spaces);  // Returns 0 if crash, else returns 1
+void movingTurnRight();
+void movingTurnLeft();
 void turnRight();
 void turnLeft();
 void turnRight45();

@@ -45,9 +45,11 @@ typedef enum motor_t {
 
 #define ANGLE_TOLERANCE 5
 
+const double encoderTicks = 12;
+const double gearRatio = 150;
 const double wheelSeparation = 9.5; // 9.5 cm between wheels
 const double wheelRadius = 3; // 3 cm radius
-const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
+const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
@@ -152,22 +154,27 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft() {
-  return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+  logf("Left: %d\n", !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX));
+  return !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
 int wallRight() {
-  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
+  logf("Right: %d\n", !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
+  return !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
 
 int wallFront() {
-  //ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
-  //return ultrasonic > SENSOR_RANGE_MAX;
-  return lidar_sensors[5].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
+  logf("Front: %d\n", !(lidar_sensors[5].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
+  return !(lidar_sensors[5].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
 
 // TODO: Update to check number of squares using SQUARE_SIZE
+// TODO: Update for specific lidar technology
 int numSquares() {
-  return lidar_sensors[6].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX;
+  long_range = idar_sensors[6].readRange();
+  if(!(lidar_sensors[6].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX));
+    return long_range / SQUARE_SIZE;
+  return 0;
 }
 
 void updateSensors () {
@@ -190,21 +197,6 @@ void updateSensors () {
   // Read the long range LIDAR sensor and update their value
   long_range = lidar_sensors[5].readRange();
   long_range_errored = long_range_lidar_sensors[0].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX;
-
-  /*
-  // Read front ultrasonic sensor
-  digitalWrite(SONIC_TRIG1, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(SONIC_TRIG1, LOW);
-  ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
-  ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
-  // And keep a running average
-  if (!ultrasonic_errored) {
-    ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
-  }
-
-  // logf("Ultrasonic: %f (avg: %f); back_left (%d): %d, front_right (%d): %d, back_left (%d): %d, front_left (%d): %d\n", ultrasonic, ultrasonic_running_average, back_right_errored, back_right, front_right_errored, front_right, back_left_errored, back_left, front_left_errored, front_left);
-  */
 }
 
 // p_controller(80.0, currentAngle, 0, -127.0, 127.0);
@@ -305,7 +297,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   Encoder *turnEncoder;
   Encoder *otherTurnEncoder;
 
-  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 12; // degree to encoder tick conversion ratio
+  double turnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
   double target = angle * turnRatio;
 
@@ -378,21 +370,25 @@ void movingTurn(double angle, turning_direction_t dir){
 
 // Rotate 90 degrees right
 void turnRight(){
+  logln("Turning Right");
   turn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left
 void turnLeft(){
+  logln("Turning Left");
   turn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 90 degrees right while moving forward
 void movingTurnRight(){
+  logln("Moving Turn Right");
   movingTurn(90.0 + getAngle() * 180.0 / PI, RIGHT);
 }
 
 // Rotate 90 degrees left while moving forward
 void movingTurnLeft(){
+  logln("Moving Turn Left");
   movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
 }
 
@@ -411,7 +407,8 @@ void turn180(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-int moveForward(int number) {
+int moveForward(double number) {
+  logln("Moving Forward");
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -442,8 +439,9 @@ int moveForward(int number) {
       // num revolutions * pi * diameter (Zach says 6 cm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
-      // ((Num ticks of both wheels / 2) / num ticks per revolution) * cm per revolution  
-      currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 6.0;
+      // ((Num ticks of both wheels / 2) / num ticks per revolution) * PI * diameter 
+      // Becomes revolutions * cm per revolution
+      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 6.0;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
@@ -468,7 +466,7 @@ int moveForward(int number) {
       logf("Stopped. Long Range Lidar: %d, %d, %lf\n", !long_range_errored, long_range < LIDAR_front_offset, long_range);
       break;
     }
-
+ 
     // How far away from the center we are
     // Right is positive
     // (ASCII art by Zach)
@@ -663,5 +661,8 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-  doRun();
+    movingTurnRight();
+    coolLights();
+    coolLights();
+    while(!digitalRead(START_BUTTON));
 }

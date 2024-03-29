@@ -51,8 +51,8 @@ int wallLeft() {
     return getBoolean("wallLeft");
 }
 
-int moveForward(int number) {
-    printf("moveForward %d\n", number);
+int moveForward(double spaces) {
+    printf("moveForward %d\n", spaces);
     fflush(stdout);
     char response[BUFFER_SIZE];
     fgets(response, BUFFER_SIZE, stdin);
@@ -64,18 +64,21 @@ void turnRight() {
     getAck("turnRight");
 }
 
+void turnRight45(){
+    getAck("turnRight45");
+}
 void turnLeft() {
     getAck("turnLeft");
 }
 
 void movingTurnRight() {
     turnRight();
-    moveForward();
+    moveForward(1);
 }
 
 void movingTurnLeft() {
     turnLeft();
-    moveForward();
+    moveForward(1);
 }
 
 void setWall(int x, int y, char direction) {

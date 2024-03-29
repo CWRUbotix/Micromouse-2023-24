@@ -387,7 +387,7 @@ void moveOnPath() {
     else{
       // Moved forward numSquares, now rotate
       moveForward(numSquares);
-      rotateMove(direction);
+      // rotateMove(direction);
       numSquares = 0;
       current = path[i - 1];
 
