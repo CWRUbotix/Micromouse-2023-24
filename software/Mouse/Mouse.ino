@@ -294,7 +294,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   if(direction == LEFT){
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
-    target = target * 10.5 / 12; // correction
+    target = target * 13.0 / 12.0; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, FAST_SPEED);
@@ -303,7 +303,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   else{
     turnEncoder = &leftEncoder;
     otherTurnEncoder = &rightEncoder;
-    target = target * 9 / 12; // correction
+    target = target * 11.5 / 12.0; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, SLOW_SPEED);
@@ -317,6 +317,14 @@ void movingTurn(double angle, turning_direction_t direction) {
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
 }
+
+/*
+  TODO: when new robot is built
+  Variables to adjust:
+  Starting spot for turn
+  turning ratio
+  how far to turn
+*/
 
 /*
 void movingTurn(double angle, turning_direction_t dir){
@@ -501,7 +509,7 @@ int moveForward(double number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance, goalDistance, -64, 64);
+    velocity = p_controller(12.25, currentDistance * 10.0, goalDistance * 10.0, -64, 64);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
@@ -644,7 +652,8 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-    movingTurnRight();
+    //movingTurnRight();
+    movingTurnLeft();
     coolLights();
     coolLights();
     while(!digitalRead(START_BUTTON));
