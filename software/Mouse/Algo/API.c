@@ -51,7 +51,7 @@ int wallLeft() {
     return getBoolean("wallLeft");
 }
 
-int moveForward(double spaces) {
+int moveForward(int spaces) {
     printf("moveForward %d\n", spaces);
     fflush(stdout);
     char response[BUFFER_SIZE];
