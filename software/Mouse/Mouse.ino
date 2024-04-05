@@ -41,14 +41,15 @@ typedef enum motor_t {
 #define LIDAR_ADDR_BASE 0x50
 
 // The physical distance between the sensors
+// TODO
 #define LIDAR_SEPERATION 123 // 123 mm between sensors
 
 #define ANGLE_TOLERANCE 5
 
 const double encoderTicks = 12;
-const double gearRatio = 150;
-const double wheelSeparation = 9.5; // 9.5 cm between wheels
-const double wheelRadius = 3; // 3 cm radius
+const double gearRatio = 75;
+const double wheelSeparation = 8.5; // 8.5 cm between wheels
+const double wheelRadius = 1.727; // Ari measured 1.727 cm, listed as 1.74625 cm
 const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
@@ -60,6 +61,7 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 
 // When centered, there should be 60mm in front of the ultrasonic
 //#define ULTRASONIC_FRONT 60
+// TODO
 #define LIDAR_front_offset 0 // TODO: figure out how much is ahead of the LIDAR
 
 // Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
