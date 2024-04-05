@@ -61,8 +61,7 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 
 // When centered, there should be 60mm in front of the ultrasonic
 //#define ULTRASONIC_FRONT 60
-// TODO
-#define LIDAR_front_offset 0 // TODO: figure out how much is ahead of the LIDAR
+#define LIDAR_front_offset 4.057 // TODO: Change if this is the distance before the sensor reads
 
 // Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
 #define SQUARE_SIZE 25.4
