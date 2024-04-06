@@ -172,7 +172,7 @@ int wallFront() {
 // TODO: Update to check number of squares using SQUARE_SIZE
 // TODO: Update for specific lidar technology
 int numSquares() {
-  long_range = idar_sensors[6].readRange();
+  long_range = lidar_sensors[6].readRange();
   if(!(lidar_sensors[6].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX));
     return long_range / SQUARE_SIZE;
   return 0;
