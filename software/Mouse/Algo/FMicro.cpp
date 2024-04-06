@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
   #define log(...) fprintf(stderr, __VA_ARGS__); fflush(stderr)
@@ -18,9 +18,9 @@
   #define LOGGING 0
 #endif
 
-#define MAZE_SIZE 16
-#define MAZE_HEIGHT 16
-#define MAZE_WIDTH 16
+#define MAZE_SIZE 10
+#define MAZE_HEIGHT 10
+#define MAZE_WIDTH 10
 
 // Represents cardinal direction with respect to the maze
 enum cardinal_t {NORTH, EAST, SOUTH, WEST};
@@ -54,6 +54,7 @@ uint8_t yPos = 0;
 bool backtracking = false;
 
 void floodFill(int goal[][2], int size) {
+  logln("Flooding");
   #ifdef sim
   clearAllText();
   #endif
@@ -111,6 +112,7 @@ void floodFill(int goal[][2], int size) {
 
 // Set up maze by assigning starting distances for each node
 void initialize() {
+  logln("Init");
   // Iterate through all nodes, setting initial values
   for(int x = 0; x < MAZE_WIDTH; x++) {
     for(int y = 0; y < MAZE_HEIGHT; y++) {
@@ -127,6 +129,7 @@ void initialize() {
 
 // Recalculate maze distances for each node
 void recalcMaze(int goal[][2], int size) {
+  logln("Recalculating");
   // Iterate through all nodes, resetting distances
   for(int x = 0; x < MAZE_WIDTH; x++) {
     for(int y = 0; y < MAZE_HEIGHT; y++) {
@@ -140,6 +143,7 @@ void recalcMaze(int goal[][2], int size) {
 
 // Update walls from sensor readings
 void updateWalls() {
+  logln("Updating Walls");
   bool left = wallLeft();
   bool front = wallFront();
   bool right = wallRight();
@@ -217,6 +221,7 @@ void updateWalls() {
 
 // Rotates to a particular facing
 void rotate(uint8_t dir) {
+  logln("Rotating");
   if((facing == NORTH && dir == EAST) ||
      (facing == EAST && dir == SOUTH) ||
      (facing == SOUTH && dir == WEST) ||
@@ -245,6 +250,7 @@ void rotateMove() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
   // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
+    logln("Move North");
     rotate(NORTH);
     facing = NORTH;
     moveForward(1);
@@ -253,6 +259,7 @@ void rotateMove() {
   }
   // If moving East lowers distance to goal, move East
   else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
+    logln("Move EAST");
     rotate(EAST);
     facing = EAST;
     moveForward(1);
@@ -261,6 +268,7 @@ void rotateMove() {
   }
   // If moving West lowers distance to goal, move West
   else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
+    logln("Move WEST");
     rotate(WEST);
     facing = WEST;
     moveForward(1);
@@ -269,6 +277,7 @@ void rotateMove() {
   }
   // If moving South lowers distance to goal, move South
   else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
+    logln("Move South");
     rotate(SOUTH);
     facing = SOUTH;
     moveForward(1);

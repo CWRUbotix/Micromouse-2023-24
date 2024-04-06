@@ -32,7 +32,7 @@ typedef enum motor_t {
   #define LOGGING 0
 #endif
 
-#define POWER_DEADBAND 6
+#define POWER_DEADBAND 12
 
 #define LIDAR_COUNT 4
 #define LIDAR_ADDR_BASE 0x50
@@ -154,8 +154,11 @@ int wallRight() {
 }
 
 int wallFront(){
-  logf("Front: %d\n", !(ultrasonic > SENSOR_RANGE_MAX));
+  digitalWrite(SONIC_TRIG1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(SONIC_TRIG1, LOW);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
+  logf("Front: %d\n", !(ultrasonic > SENSOR_RANGE_MAX));
   return !(ultrasonic > SENSOR_RANGE_MAX);
 }
 
@@ -247,7 +250,7 @@ void turn(double angle, turning_direction_t direction) {
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
   } else {
-    // Turn right
+    // Turn righ
     turnEncoder = &leftEncoder;
     otherTurnEncoder = &rightEncoder;
     dir = -1;
@@ -394,7 +397,7 @@ void turn180(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-int moveForward(double number) {
+int moveForward(int number) {
   logln("Moving Forward");
   // Reset encoders
   leftEncoder.write(0);
@@ -501,7 +504,7 @@ int moveForward(double number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance, goalDistance, -64, 64);
+    velocity = p_controller(12.25, currentDistance * 10, goalDistance * 10, -64, 64);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
@@ -585,7 +588,7 @@ void setup(void) {
   // Spin until start button is pressed
   // t is ms
   // On for 300 (0-300) off for 500 (300-800)
-  while(digitalRead(START_BUTTON)) {
+  while(!digitalRead(START_BUTTON)) {
     if (t == 0) {
       digitalWrite(YELLOW_LED, HIGH);
     }else if (t == 300) {
@@ -622,9 +625,7 @@ void setup(void) {
   digitalWrite(LED0, LOW);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
-
   initialize();
-  
 }
 
 void coolLights(){
@@ -642,10 +643,16 @@ void redLights(){
     digitalWrite(LED3, LOW);
     delay(500);
 }
+
+void greenLights(){
+  if(digitalRead(GREEN_LED) == LOW)
+    digitalWrite(GREEN_LED, HIGH);
+  else
+    digitalWrite(GREEN_LED, LOW);
+    delay(500);
+}
 /* ---- MAIN ---- */
 void loop() {
-    movingTurnRight();
-    coolLights();
-    coolLights();
-    while(!digitalRead(START_BUTTON));
+  updateSensors();
+  doRun();
 }
