@@ -16,36 +16,36 @@
 // I2C BUSES
 #define I2C_LIDAR Wire
 
-// LIDAR /CS PINS -> done
+// LIDAR /CS PINS
 #define LIDAR_CS1 20
 #define LIDAR_CS2 23
 #define LIDAR_CS3 21
 #define LIDAR_CS4 22
 #define LIDAR_CS5 16
 #define LIDAR_CS6 14
+#define LIDAR_CS7 15
 
-/*
-#define SONIC_TRIG1 40
-#define SONIC_TRIG2 38
-#define SONIC_TRIG3 36
-#define SONIC_ECHO1 41 
-#define SONIC_ECHO2 39
-#define SONIC_ECHO3 37
-*/
-#define SONIC_ECHO3 37 // TODO
+// Map the pins to where the sensor is on the robot
+#define LIDAR_FrontShort LIDAR_CS1
+#define LIDAR_FrontLeft LIDAR_CS3
+#define LIDAR_FrontRight LIDAR_CS2
+#define LIDAR_BackLeft LIDAR_CS7
+#define LIDAR_BackRight LIDAR_CS6
+#define LIDAR_FrontLong LIDAR_CS4
+#define LIDAR_Button LIDAR_CS5
 
-// Done
+// Encoders
 #define ENCODER_LEFT_1 10
 #define ENCODER_LEFT_2 12
 #define ENCODER_RIGHT_1 9
 #define ENCODER_RIGHT_2 11
 
-// Done
+// Motors
 #define MOTORLEFT_1 8
 #define MOTORLEFT_2 7
 #define MOTORRIGHT_1 5
 #define MOTORRIGHT_2 6
 
-#define START_BUTTON SONIC_ECHO3
+#define START_BUTTON LIDAR_Button
 #endif
 
