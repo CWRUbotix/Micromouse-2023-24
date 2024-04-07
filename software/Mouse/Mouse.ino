@@ -59,6 +59,7 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 #define SENSOR_RANGE_MAX 110
 #define LONG_RANGE_SENSOR_RANGE_MAX 110 // TODO: Fill in value
 
+// TODO: Check
 // When centered, there should be 60mm in front of the ultrasonic
 //#define ULTRASONIC_FRONT 60
 #define LIDAR_front_offset 4.057 // TODO: Change if this is the distance before the sensor reads
@@ -70,33 +71,21 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 
 // GPIO pin numbers for the CS line on each LiDAR sensor
 // TODO: Check inputs are correct
-const int lidar_cs_pins[LIDAR_COUNT + LONG_RANGE_LIDAR_COUNT] = {LIDAR_CS1, LIDAR_CS2, LIDAR_CS3, LIDAR_CS4, LIDAR_CS5, LIDAR_CS6};
+const int lidar_cs_pins[LIDAR_COUNT + LONG_RANGE_LIDAR_COUNT] = {LIDAR_FrontShort, LIDAR_FrontLeft, LIDAR_FrontRight, LIDAR_BackLeft, LIDAR_BackRight, LIDAR_FrontLong};
 
 Adafruit_VL6180X lidar_sensors[LIDAR_COUNT];
 Adafruit_VL53L0X long_range_lidar_sensors[LONG_RANGE_LIDAR_COUNT];
 
-bool back_right_errored, front_right_errored, back_left_errored, front_left_errored, forward_errored, long_range_errored;
-uint8_t back_right;
+bool forward_errored, front_left_errored, front_right_errored, back_left_errored, back_right_errored, long_range_errored;
+uint8_t forward;
+uint8_t front_left;
 uint8_t front_right;
 uint8_t back_left;
-uint8_t front_left;
-uint8_t forward;
+uint8_t back_right;
 uint8_t long_range;
 
 Encoder rightEncoder (ENCODER_RIGHT_1, ENCODER_RIGHT_2);
 Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
-
-/*
-double ultrasonic;
-double ultrasonic_running_average;
-const double ultrasonic_ave_factor = 0.1;
-
-// Magic constant that converts the time the ultrasonic takes to read the sensors into millimeters
-// Based on the speed of sound
-double ultrasonic_distance_factor = 0.17;
-
-bool ultrasonic_errored;
-*/
 
 /**
  * Convert a value in range [-127..127] to a motor power value
@@ -447,15 +436,12 @@ int moveForward(double number) {
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
 
-    // logf("Moving forward. current: %d, ultra: %d, goal: %d, cond: %d, %d\n", currentDistance, ultrasonic, goalDistance, ultrasonic < 150, ultrasonic > 95);
-
     // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
     if (currentDistance >= goalDistance && long_range < 150 && long_range > 95) {
       logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the long_range ends up (60mm) away from the wall in front of us
       goalDistance += long_range - LIDAR_front_offset;
-      //goalDistance += ultrasonic - ULTRASONIC_FRONT;
     }
 
     // check if currentDistance and currentAngle are within tolerance
@@ -581,12 +567,6 @@ void setup(void) {
     }
   }
   logln("LiDAR sensors ready!");
-
-  /*
-  pinMode(SONIC_TRIG1, OUTPUT);
-  pinMode(SONIC_ECHO1, INPUT);
-  logln("Ultrasonic sensor ready!");
-  */
 
   // Setup motors
   pinMode(MOTORLEFT_1, OUTPUT);
