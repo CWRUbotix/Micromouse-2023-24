@@ -504,7 +504,7 @@ int moveForward(int number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance * 10, goalDistance * 10, -64, 64);
+    velocity = p_controller(12.25, currentDistance * 10, goalDistance * 10, -32, 32);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
