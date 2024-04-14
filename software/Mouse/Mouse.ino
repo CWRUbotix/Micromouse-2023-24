@@ -40,7 +40,7 @@ typedef enum motor_t {
 // The physical distance between the sensors
 #define LIDAR_SEPERATION 123 // 123 mm between sensors
 
-#define ANGLE_TOLERANCE 5
+int ANGLE_TOLERANCE = -30;
 
 const double encoderTicks = 12;
 const double gearRatio = 150;
@@ -367,7 +367,7 @@ void turnRight(){
 // Rotate 90 degrees left
 void turnLeft(){
   logln("Turning Left");
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 90 degrees right while moving forward
@@ -379,7 +379,7 @@ void movingTurnRight(){
 // Rotate 90 degrees left while moving forward
 void movingTurnLeft(){
   logln("Moving Turn Left");
-  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -389,11 +389,11 @@ void turnRight45(){
 
 // Rotate 45 degrees left
 void turnLeft45(){
-  turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(45.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 void turn180(){
-  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(180.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
