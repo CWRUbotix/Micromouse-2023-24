@@ -15,7 +15,7 @@ typedef enum motor_t {
     RIGHT_MOTOR = 1
 } motor_t;
 
-#define TEST
+// #define TEST
 #undef log
 #undef logf
 #undef logln
@@ -40,7 +40,8 @@ typedef enum motor_t {
 // The physical distance between the sensors
 #define LIDAR_SEPERATION 123 // 123 mm between sensors
 
-int ANGLE_TOLERANCE = -30;
+int ANGLE_TOLERANCE = 0;
+int speed = 32;
 
 const double encoderTicks = 12;
 const double gearRatio = 150;
@@ -54,8 +55,8 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 // If the LiDAR is greater than this value, we assume that it's not sensing the wall.
 #define SENSOR_RANGE_MAX 110
 
-// When centered, there should be 60mm in front of the ultrasonic
-#define ULTRASONIC_FRONT 60
+// When centered, there should be 60mm in front of the ultrasonic - changed to 90 for more leeway and turn space
+#define ULTRASONIC_FRONT 90
 
 // Squares are 10in by 10in, but we work in mm. 10in = 254 mm
 #define SQUARE_SIZE 254
@@ -144,11 +145,13 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft() {
+  front_left = lidar_sensors[3].readRange();
   logf("Left: %d\n", !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX));
   return !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
 int wallRight() {
+  front_right = lidar_sensors[2].readRange();
   logf("Right: %d\n", !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
   return !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
@@ -158,6 +161,7 @@ int wallFront(){
   delayMicroseconds(10);
   digitalWrite(SONIC_TRIG1, LOW);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
+  ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
   logf("Front: %d\n", !(ultrasonic > SENSOR_RANGE_MAX));
   return !(ultrasonic > SENSOR_RANGE_MAX);
 }
@@ -201,8 +205,10 @@ double p_controller(double p, double current, double goal, double min, double ma
 }
 
 /**
+ * Counter-clockwise is a positive angle
  * @return angle given by lidar sensors
  */
+
 double getAngle()
 {
   // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
@@ -270,7 +276,7 @@ void turn(double angle, turning_direction_t direction) {
   int encoderAverage;
   do {
     encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
-  } while (encoderAverage < target - ANGLE_TOLERANCE);
+  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -398,7 +404,6 @@ void turn180(){
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
 int moveForward(int number) {
-  logln("Moving Forward");
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -433,8 +438,6 @@ int moveForward(int number) {
       // Becomes revolutions * mm per revolution
       currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 2 * wheelRadius;
     }
-    logf("Current: %lf\n", currentDistance);
-    logf("Goal: %lf\n", goalDistance);
 
     // logf("Moving forward. current: %d, ultra: %d, goal: %d, cond: %d, %d\n", currentDistance, ultrasonic, goalDistance, ultrasonic < 150, ultrasonic > 95);
 
@@ -444,6 +447,7 @@ int moveForward(int number) {
       logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the ultrasonic ends up ULTRASONIC_FRONT (60mm) away from the wall in front of us
       goalDistance += ultrasonic - ULTRASONIC_FRONT;
+      redLights();
     }
 
     // check if currentDistance and currentAngle are within tolerance
@@ -453,6 +457,10 @@ int moveForward(int number) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
       logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
+      if(digitalRead(RED_LED) == HIGH)
+        digitalWrite(RED_LED, LOW);
+      greenLights();
+      greenLights();
       break;
     }
  
@@ -504,7 +512,7 @@ int moveForward(int number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance * 10, goalDistance * 10, -32, 32);
+    velocity = p_controller(12.25, currentDistance, goalDistance, -speed, speed);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
@@ -611,12 +619,14 @@ void setup(void) {
     /* spin, waiting for button release */
     endPressTime = millis();
     if (endPressTime - pressTime > 1000) {
+      speed = 25;
       digitalWrite(LED2, LOW);
     }
     if (endPressTime - pressTime > 3000) {
+      speed = 40;
       digitalWrite(LED1, LOW);
     }
-  }
+  } 
   if (endPressTime - pressTime < 1000) {
   }else if (endPressTime - pressTime < 3000) {
   }else {
@@ -637,11 +647,11 @@ void coolLights(){
 }
 
 void redLights(){
-  if(digitalRead(LED3) == LOW)
-    digitalWrite(LED3, HIGH);
+  if(digitalRead(RED_LED) == LOW)
+    digitalWrite(RED_LED, HIGH);
   else
-    digitalWrite(LED3, LOW);
-    delay(500);
+    digitalWrite(RED_LED, LOW);
+    delay(10);
 }
 
 void greenLights(){
@@ -649,10 +659,10 @@ void greenLights(){
     digitalWrite(GREEN_LED, HIGH);
   else
     digitalWrite(GREEN_LED, LOW);
-    delay(500);
+    delay(50);
 }
 /* ---- MAIN ---- */
 void loop() {
-  updateSensors();
-  doRun();
+// updateSensors();
+doRun();
 }
