@@ -1052,7 +1052,7 @@ void setup(void) {
   addNodeIfNotExists(0, 0);
   current = nodes[0];
 
-  pinMode(START_BUTTON, INPUT);
+  pinMode(START_BUTTON, INPUT_PULLUP);
   int t = 0;
   // Spin until start button is pressed
   // t is ms

@@ -578,7 +578,7 @@ void setup(void) {
   setMotor(LEFT_MOTOR, 0);
   logln("Motors ready!");
 
-  pinMode(START_BUTTON, INPUT);
+  pinMode(START_BUTTON, INPUT_PULLUP);
   int t = 0;
   // Spin until start button is pressed
   // t is ms
