@@ -41,15 +41,16 @@ typedef enum motor_t {
 #define LIDAR_ADDR_BASE 0x50
 
 // The physical distance between the sensors
-// TODO
-#define LIDAR_SEPERATION 123 // 123 mm between sensors
+// TODO: Chech that values are consistent with new robot
+#define LIDAR_SEPARATION_FB 74.5 // 74.5 mm between sensors front to back
+#define LIDAR_SEPARATION_LR 70 // 70 mm between sensors across robot
 
 #define ANGLE_TOLERANCE 5
 
 const double encoderTicks = 12;
 const double gearRatio = 75;
-const double wheelSeparation = 8.5; // 8.5 cm between wheels
-const double wheelRadius = 1.727; // Ari measured 1.727 cm, listed as 1.74625 cm
+const double wheelSeparation = 7.5; // 7.5 cm between wheels
+const double wheelRadius = 1.72; // 3.44 cm diameter
 const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
@@ -57,12 +58,10 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 // (After a certain amount of time, the running average overflows the maximum and only then does the LiDAR throw a read error)
 // If the LiDAR is greater than this value, we assume that it's not sensing the wall.
 #define SENSOR_RANGE_MAX 110
-#define LONG_RANGE_SENSOR_RANGE_MAX 110 // TODO: Fill in value
+#define LONG_RANGE_SENSOR_RANGE_MAX 110 // TODO: Check whether this is accurate
 
-// TODO: Check
-// When centered, there should be 60mm in front of the ultrasonic
-//#define ULTRASONIC_FRONT 60
-#define LIDAR_front_offset 4.057 // TODO: Change if this is the distance before the sensor reads
+// When centered, there should be ~60mm in front of the front sensor
+#define LIDAR_FRONT_TARGET 60
 
 // Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
 #define SQUARE_SIZE 25.4
@@ -207,8 +206,8 @@ double getAngle()
 {
   // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
   // Average left and right sensors
-  double leftAngle = -atan2(front_left - back_left, LIDAR_SEPERATION);
-  double rightAngle = atan2(front_right - back_right, LIDAR_SEPERATION);
+  double leftAngle = -atan2(front_left - back_left, LIDAR_SEPARATION_FB);
+  double rightAngle = atan2(front_right - back_right, LIDAR_SEPARATION_FB);
   // logf("left angle: %f\tright angle: %f; ", leftAngle * 180.0 / PI, rightAngle * 180.0 / PI);
 
   if ((back_left_errored || front_left_errored) && (back_right_errored || front_right_errored)) {
@@ -441,16 +440,16 @@ int moveForward(double number) {
     if (currentDistance >= goalDistance && long_range < 150 && long_range > 95) {
       logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the long_range ends up (60mm) away from the wall in front of us
-      goalDistance += long_range - LIDAR_front_offset;
+      goalDistance += long_range - LIDAR_FRONT_TARGET;
     }
 
     // check if currentDistance and currentAngle are within tolerance
     // For the lidar, 60 is 60 mm from the wall. This is about
     // the distance when the robot is centered in the tile
-    if (currentDistance >= goalDistance || (!long_range_errored && long_range < LIDAR_front_offset)) {
+    if (currentDistance >= goalDistance || (!long_range_errored && long_range < LIDAR_FRONT_TARGET)) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
-      logf("Stopped. Long Range Lidar: %d, %d, %lf\n", !long_range_errored, long_range < LIDAR_front_offset, long_range);
+      logf("Stopped. Long Range Lidar: %d, %d, %lf\n", !long_range_errored, long_range < LIDAR_FRONT_TARGET, long_range);
       break;
     }
  
@@ -488,9 +487,9 @@ int moveForward(double number) {
         // If we don't have a left value
         // (We're targeting to an offset of 0)
         // sensors are 84 mm apart, maze is 240mm wide
-        centerOffset = (double)front_right - (240 - 84) / 2.0;
+        centerOffset = (double)front_right - (240 - LIDAR_SEPARATION_LR) / 2.0;
     }else if (front_right_errored) {
-        centerOffset = (240 - 84) / 2.0 - (double)front_left;
+        centerOffset = (240 - LIDAR_SEPARATION_LR) / 2.0 - (double)front_left;
     }
 
     // logf("left %d; right %d: center offset: %f\n", front_left, front_right, centerOffset);
