@@ -17,7 +17,7 @@ typedef enum motor_t {
     RIGHT_MOTOR = 1
 } motor_t;
 
-#define TEST
+// #define TEST
 #undef log
 #undef logf
 #undef logln
@@ -34,7 +34,7 @@ typedef enum motor_t {
   #define LOGGING 0
 #endif
 
-#define POWER_DEADBAND 6
+#define POWER_DEADBAND 12
 
 #define LIDAR_COUNT 5
 #define LONG_RANGE_LIDAR_COUNT 1
@@ -45,7 +45,8 @@ typedef enum motor_t {
 #define LIDAR_SEPARATION_FB 74.5 // 74.5 mm between sensors front to back
 #define LIDAR_SEPARATION_LR 70 // 70 mm between sensors across robot
 
-#define ANGLE_TOLERANCE 5
+int ANGLE_TOLERANCE = 0;
+int speed = 32;
 
 const double encoderTicks = 12;
 const double gearRatio = 75;
@@ -63,8 +64,8 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 // When centered, there should be ~60mm in front of the front sensor
 #define LIDAR_FRONT_TARGET 60
 
-// Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
-#define SQUARE_SIZE 25.4
+// Squares are 10in by 10in, but we work in mm. 10in = 254 mm
+#define SQUARE_SIZE 254
 
 /* ---- User Variables ---- */
 
@@ -143,11 +144,13 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft() {
+  front_left = lidar_sensors[3].readRange();
   logf("Left: %d\n", !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX));
   return !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
 }
 
 int wallRight() {
+  front_right = lidar_sensors[2].readRange();
   logf("Right: %d\n", !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
   return !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
 }
@@ -200,8 +203,10 @@ double p_controller(double p, double current, double goal, double min, double ma
 }
 
 /**
+ * Counter-clockwise is a positive angle
  * @return angle given by lidar sensors
  */
+
 double getAngle()
 {
   // arctan((lidarDistanceBL - lidarDistanceFL) / lidarSeparation);
@@ -249,7 +254,7 @@ void turn(double angle, turning_direction_t direction) {
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
   } else {
-    // Turn right
+    // Turn righ
     turnEncoder = &leftEncoder;
     otherTurnEncoder = &rightEncoder;
     dir = -1;
@@ -269,7 +274,7 @@ void turn(double angle, turning_direction_t direction) {
   int encoderAverage;
   do {
     encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
-  } while (encoderAverage < target - ANGLE_TOLERANCE);
+  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
 
   // Stop both motors
   setMotor(RIGHT_MOTOR, 0);
@@ -366,7 +371,7 @@ void turnRight(){
 // Rotate 90 degrees left
 void turnLeft(){
   logln("Turning Left");
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 90 degrees right while moving forward
@@ -378,7 +383,7 @@ void movingTurnRight(){
 // Rotate 90 degrees left while moving forward
 void movingTurnLeft(){
   logln("Moving Turn Left");
-  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -388,16 +393,15 @@ void turnRight45(){
 
 // Rotate 45 degrees left
 void turnLeft45(){
-  turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(45.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 void turn180(){
-  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(180.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-int moveForward(double number) {
-  logln("Moving Forward");
+int moveForward(int number) {
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -425,15 +429,15 @@ int moveForward(double number) {
 
       // Update current distance
       // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
-      // num revolutions * pi * diameter (Zach says 6 cm)
+      // num revolutions * pi * diameter
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
       // ((Num ticks of both wheels / 2) / num ticks per revolution) * PI * diameter 
-      // Becomes revolutions * cm per revolution
-      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 6.0;
+      // Becomes revolutions * mm per revolution
+      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 2 * wheelRadius;
     }
-    logf("Current: %lf\n", currentDistance);
-    logf("Goal: %lf\n", goalDistance);
+
+    // logf("Moving forward. current: %d, ultra: %d, goal: %d, cond: %d, %d\n", currentDistance, ultrasonic, goalDistance, ultrasonic < 150, ultrasonic > 95);
 
     // We're also not allowed to break out of the loop (stop going forward), if we're farther than 95 mm from a wall
     // If we think we're there, but we're not, go farther
@@ -441,6 +445,7 @@ int moveForward(double number) {
       logf("Moving goalDistance forward.\n");
       // Increase goal distance such that the long_range ends up (60mm) away from the wall in front of us
       goalDistance += long_range - LIDAR_FRONT_TARGET;
+      redLights();
     }
 
     // check if currentDistance and currentAngle are within tolerance
@@ -450,6 +455,10 @@ int moveForward(double number) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
       logf("Stopped. Long Range Lidar: %d, %d, %lf\n", !long_range_errored, long_range < LIDAR_FRONT_TARGET, long_range);
+      if(digitalRead(RED_LED) == HIGH)
+        digitalWrite(RED_LED, LOW);
+      greenLights();
+      greenLights();
       break;
     }
  
@@ -501,7 +510,7 @@ int moveForward(double number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance, goalDistance, -64, 64);
+    velocity = p_controller(12.25, currentDistance, goalDistance, -speed, speed);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
@@ -605,12 +614,14 @@ void setup(void) {
     /* spin, waiting for button release */
     endPressTime = millis();
     if (endPressTime - pressTime > 1000) {
+      speed = 25;
       digitalWrite(LED2, LOW);
     }
     if (endPressTime - pressTime > 3000) {
+      speed = 40;
       digitalWrite(LED1, LOW);
     }
-  }
+  } 
   if (endPressTime - pressTime < 1000) {
   }else if (endPressTime - pressTime < 3000) {
   }else {
@@ -619,9 +630,7 @@ void setup(void) {
   digitalWrite(LED0, LOW);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
-
   initialize();
-  
 }
 
 void coolLights(){
@@ -633,16 +642,22 @@ void coolLights(){
 }
 
 void redLights(){
-  if(digitalRead(LED3) == LOW)
-    digitalWrite(LED3, HIGH);
+  if(digitalRead(RED_LED) == LOW)
+    digitalWrite(RED_LED, HIGH);
   else
-    digitalWrite(LED3, LOW);
-    delay(500);
+    digitalWrite(RED_LED, LOW);
+    delay(10);
+}
+
+void greenLights(){
+  if(digitalRead(GREEN_LED) == LOW)
+    digitalWrite(GREEN_LED, HIGH);
+  else
+    digitalWrite(GREEN_LED, LOW);
+    delay(50);
 }
 /* ---- MAIN ---- */
 void loop() {
-    movingTurnRight();
-    coolLights();
-    coolLights();
-    while(!digitalRead(START_BUTTON));
+// updateSensors();
+doRun();
 }
