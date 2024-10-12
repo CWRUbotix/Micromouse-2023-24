@@ -94,13 +94,9 @@ Encoder leftEncoder (ENCODER_LEFT_1, ENCODER_LEFT_2);
  * @return Output power [0..255]
  */
 uint8_t convertPower(int8_t p) {
-  if (p == 0) {
-    return 255;
-  }
-  if (p < 0) {
-    p = -p;
-  }
-  return 255 - (((uint8_t) p) * 2);
+  if (p == 0) return 255;
+  
+  return 255 - (2 * ((uint8_t) abs(p)));
 }
 
 /**
@@ -113,23 +109,21 @@ uint8_t convertPower(int8_t p) {
  *              Negative is "backward"
  */
 void setMotor (motor_t m, int power) {
-  if (power < -127) {
-    power = -127;
-  }else if (power > 127) {
-    power = 127;
-  }
-  int m1, m2;
+  // Set the power somewhere between -127 to 127
+  power = max(-127, power);
+  power = min(127, power);  
 
   // Determine motor
+  int m1, m2;
+
   if (m == LEFT_MOTOR) {
     m1 = MOTORLEFT_1;
     m2 = MOTORLEFT_2;
-  }else if (m == RIGHT_MOTOR) {
+  } else {
     m1 = MOTORRIGHT_1;
     m2 = MOTORRIGHT_2;
-  }else {
-    return;
   }
+
   // Set power
   if (power < POWER_DEADBAND && power > -POWER_DEADBAND) {
       analogWrite(m1, 255);
@@ -143,49 +137,61 @@ void setMotor (motor_t m, int power) {
   }
 }
 
+int checkWall(int wall, char wall_name[]) {
+  uint8_t result = lidar_sensors[wall].readRange();
+  bool status = lidar_sensors[wall].readRangeStatus() == VL6180X_ERROR_NONE || result <= SENSOR_RANGE_MAX;
+  logf("%s: %d\n", wall_name, status);
+  return status;
+}
+
 int wallLeft() {
-  front_left = lidar_sensors[3].readRange();
-  logf("Left: %d\n", !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX));
-  return !(lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX);
+  return checkWall(3, "Left");
 }
 
 int wallRight() {
-  front_right = lidar_sensors[2].readRange();
-  logf("Right: %d\n", !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
-  return !(lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
+  return checkWall(2, "Right");
 }
 
 int wallFront() {
-  logf("Front: %d\n", !(lidar_sensors[5].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX));
-  return !(lidar_sensors[5].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX);
+  return checkWall(5, "Front");
 }
 
 // TODO: Update to check number of squares using SQUARE_SIZE
 // TODO: Update for specific lidar technology
 int numSquares() {
   long_range = lidar_sensors[6].readRange();
-  if(!(lidar_sensors[6].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX));
+  if (lidar_sensors[6].readRangeStatus() == VL53L0X_ERROR_NONE || long_range <= LONG_RANGE_SENSOR_RANGE_MAX);
     return long_range / SQUARE_SIZE;
   return 0;
 }
 
+uint8_t lidar_output(int lidar) {
+  return lidar_sensors[lidar].readRange();
+}
+
+bool lidar_errored(int lidar) {
+  return lidar_sensors[lidar].readRangeStatus() != VL6180X_ERROR_NONE || lidar_output(lidar) > SENSOR_RANGE_MAX;
+}
+
 void updateSensors () {
   // Read the right LIDAR sensors and update their values
-  back_right = lidar_sensors[1].readRange();
-  back_right_errored = lidar_sensors[1].readRangeStatus() != VL6180X_ERROR_NONE || back_right > SENSOR_RANGE_MAX;
-  front_right = lidar_sensors[2].readRange();
-  front_right_errored = lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
+  back_right = lidar_ouput(1);
+  back_right_errored = lidar_errored(1);
 
+  front_right = lidar_ouput(2);
+  front_right_errored = lidar_errored(2);
+  
   // Read the left LIDAR sensors and update their values
-  back_left = lidar_sensors[0].readRange();
-  back_left_errored = lidar_sensors[0].readRangeStatus() != VL6180X_ERROR_NONE || back_left > SENSOR_RANGE_MAX;
-  front_left = lidar_sensors[3].readRange();
-  front_left_errored = lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
+  back_right = lidar_ouput(0);
+  back_right_errored = lidar_errored(0);
+
+  front_right = lidar_ouput(3);
+  front_right_errored = lidar_errored(3);
 
   // Read the front short LIDAR sensor and update their value
-  forward = lidar_sensors[4].readRange();
-  forward_errored = lidar_sensors[4].readRangeStatus() != VL6180X_ERROR_NONE || forward > SENSOR_RANGE_MAX;
-
+  forward = lidar_ouput(4);
+  forward_errored = lidar_errored(4);
+  
   // Read the long range LIDAR sensor and update their value
   long_range = lidar_sensors[5].readRange();
   long_range_errored = long_range_lidar_sensors[0].readRangeStatus() != VL53L0X_ERROR_NONE || long_range > LONG_RANGE_SENSOR_RANGE_MAX;
